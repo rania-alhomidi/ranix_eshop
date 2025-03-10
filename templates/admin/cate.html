@@ -1,0 +1,29 @@
+{%include 'admin/header.html'%} 
+
+  <main id="main" class="main">
+    <div class="container mt-5">
+        <h1 class="text-center">إضافة فئة جديدة</h1>
+        <form action="/cate" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="name" class="form-label">اسم الفئة</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="parent" class="form-label">الفئة الرئيسية</label>
+                <select name="parent" class="form-control">
+                    <option value="">لا شيء</option>
+                    {% for category in categories %}
+                        <option value="{{ category['id'] }}">{{ category['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="images" class="form-label">الصورة</label>
+                <input type="file" name="images" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">إضافة الفئة</button>
+        </form>
+    </div>
+    </main>
+</body>
+</html>

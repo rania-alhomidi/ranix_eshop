@@ -1,0 +1,108 @@
+
+{% include 'admin/header.html' %}
+<main id="main" class="main">
+<section class="section dashboard">
+    <!-- Left side columns -->
+    <div class="col-lg-8">
+      <div class="row">
+
+             <!-- Customers Card -->
+  <div class="col-md-6">
+    <div class="card info-card customers-card">
+     <h5 class="card-title ms-2">Customers</h5>
+        <div class="d-flex home-stat">
+          <div class="card-icon  d-flex align-items-center justify-content-center">
+            <a href="customer.html">  <i class="bi bi-people"></i>
+              <div class=" card-iconnum   d-flex align-items-center justify-content-center">
+ 
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+    <div class="card info-card members-card">
+     <h5 class="card-title ms-2">Members</h5>
+        <div class="d-flex home-stat">
+          <div class="card-icon  d-flex align-items-center justify-content-center">
+            <a href="members.html">  <i class="fa fa-user-tie"></i>
+              <div class=" card-iconnum   d-flex align-items-center justify-content-center">
+
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card info-card cate-card">
+        <h5 class="card-title ms-2">Category</h5>
+        <div class="d-flex home-stat">
+          <a href="categories.html">
+          <div class="card-icon  d-flex align-items-center justify-content-center">
+              <i class="bi bi-cart"></i>
+              <div class=" card-iconnum   d-flex align-items-center justify-content-center">
+
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card info-card pro-card">
+        <h5 class="card-title ms-2">Products</h5>
+        <div class="d-flex home-stat">
+          <a href="{{ url_for('add_product')}}">
+          <div class="card-icon  d-flex align-items-center justify-content-center">
+              <i class="bi bi-cart"></i>
+              <div class=" card-iconnum   d-flex align-items-center justify-content-center">
+
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+    <div class="card info-card order-card">
+     <h5 class="card-title ms-2">Orders</h5>
+        <div class="d-flex home-stat">
+          <div class="card-icon  d-flex align-items-center justify-content-center">
+            <a href="cus_manag.html">  <i class="bi bi-cart"></i>
+              <div class=" card-iconnum   d-flex align-items-center justify-content-center">
+
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+             <!-- Customers Card -->
+  <div class="col-md-6">
+    <div class="card info-card sales-card">
+      <h5 class="card-title ms-2">Totle Sales</h5>
+        <div class="d-flex home-stat">
+            <div class="card-icon  d-flex align-items-center justify-content-center">
+              <a href="cus_manag.html">  <i class="fa fa-money-bill-wave"></i>
+                <div class=" card-iconnum   d-flex align-items-center justify-content-center">
+
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- End Customers Card -->
+
+</section>
+</main>
+
+  <!-- footer -->
+  {%include 'admin/footer.html'%}

@@ -1,0 +1,54 @@
+{% include 'admin/header.html' %}
+
+
+<h1>تعديل بيانات البائع</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="name">الاسم</label>
+        <input type="text" id="name" name="name" class="form-control" value="{{ seller[1] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="store_name">اسم المتجر</label>
+        <input type="text" id="store_name" name="store_name" class="form-control" value="{{ seller[2] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="address">العنوان</label>
+        <input type="text" id="address" name="address" class="form-control" value="{{ seller[4] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="phone_number">رقم الهاتف</label>
+        <input type="text" id="phone_number" name="phone_number" class="form-control" value="{{ seller[5] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="password">كلمة المرور</label>
+        <input type="password" id="password" name="password" class="form-control" value="{{ seller[6] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="email">البريد الإلكتروني</label>
+        <input type="email" id="email" name="email" class="form-control" value="{{ seller[7] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="commercial_record">السجل التجاري</label>
+        <input type="text" id="commercial_record" name="commercial_record" class="form-control" value="{{ seller[8] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="product_type">نوع المنتج</label>
+        <input type="text" id="product_type" name="product_type" class="form-control" value="{{ seller[11] }}" required>
+    </div>
+    <div class="form-group">
+        <label for="store_image">صورة المتجر</label>
+        <input type="file" id="store_image" name="store_image" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="id_image">صورة الهوية</label>
+        <input type="file" id="id_image" name="id_image" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="documents">المستندات</label>
+        <input type="file" id="documents" name="documents" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">تعديل</button>
+</form>
+
+

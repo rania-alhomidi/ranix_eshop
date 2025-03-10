@@ -1,0 +1,56 @@
+{%include 'admin/header.html'%} 
+
+<main id="main" class="main">
+    <div class="container mt-5">
+        <h2 class="text-center">إضافة بائع جديد</h2>
+        <form method="POST" class="m-3 p-3 border rounded bg-light" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">الاسم</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">اسم المتجر</label>
+                <input type="text" name="store_name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">صورة المتجر</label>
+                <input type="file" name="store_image" class="form-control" accept="image/*">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">العنوان</label>
+                <input type="text" name="address" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">رقم الهاتف</label>
+                <input type="text" name="phone_number" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">كلمة المرور</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">البريد الإلكتروني</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">السجل التجاري</label>
+                <input type="text" name="commercial_record" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">صورة الهوية</label>
+                <input type="file" name="id_image" class="form-control" accept="image/*">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">الوثائق</label>
+                <input type="file" name="documents" class="form-control" accept="application/pdf,image/*">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">نوع المنتج</label>
+                <input type="text" name="product_type" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">إضافة</button>
+        </form>
+    </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض الأسعار</title>
+</head>
+<body>
+    <h1>قائمة الأسعار</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>رقم المنتج</th>
+                <th>السعر الأصلي</th>
+                <th>السعر بعد الربح</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for price in prices %}
+            <tr>
+                <td>{{ price.product_id }}</td>
+                <td>{{ price.original_price }}</td>
+                <td>{{ price.profit_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="/add_price">إضافة سعر جديد</a>
+</body>
+</html>

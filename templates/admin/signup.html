@@ -1,0 +1,40 @@
+<main id="main" class="main">
+<form class="form row g-1s mt-5" action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST" enctype="multipart/form-data">
+    <h2 class="sing">signup</h2>
+    <center>
+    <div class="row ms-5">
+        <div class="col-md-8">
+            <label for="inputname" class="form-label">Name</label>
+            <input type="text" class="form-control" id="inputname" name="username" required>
+        </div>
+
+        <div class="col-md-8">
+            <label for="inputEmail4" class="form-label">Email</label>
+            <input type="email" class="form-control" id="inputEmail4" name="Email" required>
+        </div>
+
+        <div class="col-md-8">
+            <label for="" class="form-label">Password</label>
+            <input type="password" class="form-control" id="inputEmail4" name="password" required>
+        </div>
+
+        <div class="col-md-8">
+            <label for="inputAddress" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="inputAddress" name="Full" placeholder="" required>
+        </div>
+
+        <div class="col-md-8">
+            <label for="inputAddress" class="form-label">Profile Image</label>
+            <input type="file" class="form-control" id="inputAddress" name="avatar">
+        </div>
+
+        <div class="">
+            <button type="submit" class="btn1 btn-primary mt-3" name="submit">Register</button><br><br>
+            Already have an account? <a href="signin.php" class="ms-4" style="color:blue">signin</a>
+        </div>
+    </center>
+    </div>
+</form>
+</main>
+</body>
+</html>

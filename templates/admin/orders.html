@@ -1,0 +1,77 @@
+<?php
+session_start();
+if (!isset($_SESSION['Username'])) {
+    echo"<script>
+    window.alert('Please Log in');
+   </script>";
+  echo " <script> window.location ='signin.php';</script> ";
+}
+include "init.php";
+?>
+
+<?php
+// $sql = "SELECT * from orders";
+//   $result = mysqli_query($con, $sql);
+//   if (mysqli_num_rows($result) > 0) {
+
+  ?>
+<main id="main" class="main">
+<table class="ms-3 me-3 table table-bordered border-primary">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col"> Name</th>
+      <th scope="col">Number</th>
+      <th scope="col">email</th>
+      <th scope="col">country</th>
+      <th scope="col">city</th>
+      <th scope="col">address</th>
+      <th scope="col">quantity</th>
+      <th scope="col">pay</th>
+      <th scope="col">total</th>
+
+    </tr>
+  </thead>
+  <?php
+  //  while($row = mysqli_fetch_assoc($result)) {
+ ?>
+  <tbody>
+    <tr>
+    
+      <td><?php echo $row["id_or"];   ?></td>
+      <td><?php echo $row["name"];   ?></td>
+      <td><?php echo $row["number"];   ?></td>
+      <td><?php echo $row["email"];   ?></td>
+      <td><?php echo $row["country"];   ?></td>
+      <td><?php echo $row["city"];   ?></td>
+      <td><?php echo $row["address"];   ?></td>
+      <td><?php echo $row["quantity"];   ?></td>
+      <td><?php echo $row["pay"];   ?></td>
+      <!-- <td><?php echo $row["total"];   ?></td> -->
+
+    </tr>
+ <?php 
+  // }
+ ?>
+
+</tbody>
+</table>
+  </main >
+ <?php  
+//  }
+ ?>
+  
+	<?php
+    include "footer.php";
+    ?>
+
+
+
+
+
+
+
+
+
+
+

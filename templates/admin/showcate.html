@@ -1,0 +1,46 @@
+{%include 'admin/header.html'%} 
+
+  <main id="main" class="main">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">عرض الأقسام</h1>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>الصورة</th>
+                    <th>اسم القسم</th>
+                    <th>التصنيف</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>
+                        {% if category['image'] %}
+                            <img src="{{ category['image'] }}" alt="صورة {{ category['name'] }}" width="80" height="80">
+                        {% else %}
+                            <span class="text-muted">لا توجد صورة</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ category['name'] }}</td>
+                    <td>
+                        {% if category['parent_id'] %}
+                            <span class="badge bg-secondary">فرعي</span>
+                        {% else %}
+                            <span class="badge bg-primary">رئيسي</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('edit_category', category_id=category['id']) }}" class="btn btn-warning btn-sm">تعديل</a>
+                        <a href="{{ url_for('delete_category', category_id=category['id']) }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من الحذف؟');">حذف</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('add_category') }}" class="btn btn-warning ps-5 pe-5">اضافة قسم</a>
+
+    </div>
+    </main>
+</body>
+</html>
