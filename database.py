@@ -15,32 +15,42 @@ cursor = conn.cursor()
 
 
 # # إنشاء جدول المنتجات
-cursor.execute('''CREATE TABLE IF NOT EXISTS product (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(255) NULL,
-    image VARCHAR(500),
-    description TEXT,
-    quantity INT NULL,
-    category_id INTEGER NOT NULL,  -- القسم الفرعي
-    seller_id INTEGER NOT NULL,  -- صاحب المنتج
-    address_id INTEGER NOT NULL,  -- عنوان صاحب المنتج
-    price_id INTEGER,
-    FOREIGN KEY (category_id) REFERENCES category(id),
-    FOREIGN KEY (seller_id) REFERENCES sellers(id),
-    FOREIGN KEY (address_id) REFERENCES user_addresses(id),
-    FOREIGN KEY (price_id) REFERENCES prices(id)
-)''')
+# cursor.execute('''CREATE TABLE IF NOT EXISTS product (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name VARCHAR(255) NULL,
+#     image VARCHAR(500),
+#     description TEXT,
+#     quantity INT NULL,
+#     category_id INTEGER NOT NULL,  -- القسم الفرعي
+#     seller_id INTEGER NOT NULL,  -- صاحب المنتج
+#     address_id INTEGER NOT NULL,  -- عنوان صاحب المنتج
+#     price_id INTEGER,
+#     stock_id INTEGER,
+#     FOREIGN KEY (category_id) REFERENCES category(id),
+#     FOREIGN KEY (seller_id) REFERENCES sellers(id),
+#     FOREIGN KEY (address_id) REFERENCES user_addresses(id),
+#     FOREIGN KEY (price_id) REFERENCES prices(id)
+#     FOREIGN KEY (stock_id) REFERENCES stock(id)
+# )''')
+# cursor.execute('''
+# CREATE TABLE IF NOT EXISTS stock (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     product_id INTEGER NOT NULL,
+#     quantity INT NOT NULL DEFAULT 0,
+#     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+# );''')
 
 # # إنشاء جدول أسعار المنتجات
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS prices (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product_id INTEGER,
-    original_price REAL,
-    profit_price REAL,
-    FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
-);
-''')
+# cursor.execute('''
+# CREATE TABLE IF NOT EXISTS prices (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     product_id INTEGER,
+#     original_price REAL,
+#     profit_price REAL,
+#     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+# );
+# ''')
 # # إنشاء جدول المستخدمين
 # cursor.execute('''
 # CREATE TABLE IF NOT EXISTS users (
@@ -200,20 +210,21 @@ conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
-# cursor.execute("SELECT * FROM prices ")  # استعلام عن كل البيانات
-# rows = cursor.fetchall()  # جلب جميع الصفوف
-# print("الجداول الموجودة في قاعدة البيانات:", rows)
+cursor.execute("SELECT * FROM stock ")  # استعلام عن كل البيانات
+rows = cursor.fetchall()  # جلب جميع الصفوف
+print("الجداول الموجودة في قاعدة البيانات:", rows)
 
-# for row in rows:
-#     print(row)
-# cursor.execute('DROP TABLE IF EXISTS prices')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+for row in rows:
+    print(row)
+
+# cursor.execute('DROP TABLE IF EXISTS product')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-tables = cursor.fetchall()  # جلب النتائج
-print("الجداول الموجودة في قاعدة البيانات:", tables)
+# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+# tables = cursor.fetchall()  # جلب النتائج
+# print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-# cursor.execute("PRAGMA table_info(sellers);")
+# cursor.execute("PRAGMA table_info(product);")
 # columns = cursor.fetchall()
 
 # for col in columns:
