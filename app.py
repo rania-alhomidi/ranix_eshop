@@ -12,6 +12,7 @@ UPLOAD_FOLDER = 'static/uploads'
 app = Flask(__name__)
 app.secret_key = 'f2d9e8a0b7c6d1e6f3a8c4b8d9e2f6a4'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}  # يمكن إضافة المزيد من الامتدادات إذا لزم الأمر
 
 # التأكد من أن المجلد موجود
 if not os.path.exists(UPLOAD_FOLDER):
@@ -153,7 +154,7 @@ def delete_category(category_id):
 def add_product():
     conn = get_db_connection()
     categories = conn.execute('SELECT id, name FROM category').fetchall()
-    sellers = conn.execute('SELECT seller_id, name FROM sellers').fetchall()
+    sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
     addresses = conn.execute('SELECT address_id, street FROM addresses').fetchall()
     conn.close()
     
@@ -224,13 +225,13 @@ def show_product():
     products = conn.execute('''
         SELECT p.id, p.name, p.description, pr.original_price, pr.profit_price, 
                COALESCE(s.quantity, 0) AS quantity,  -- التأكد من عدم إرجاع None
-               c.name AS category, sllr.name AS seller, a.address AS address
+               c.name AS category, sllr.name AS sellers, a.address AS seller_address
         FROM product p
         JOIN prices pr ON p.id = pr.product_id
         LEFT JOIN stock s ON p.id = s.product_id  -- الانضمام إلى جدول المخزون
         JOIN category c ON p.category_id = c.id
-        JOIN sellers sllr ON p.seller_id = sllr.seller_id
-        JOIN user_addresses a ON p.address_id = a.id
+        JOIN sellers sllr ON p.seller_id = sllr.id
+        JOIN seller_address a ON p.address_id = a.id
     ''').fetchall()
     
     conn.close()  # إغلاق الاتصال بعد الحصول على البيانات
@@ -294,11 +295,28 @@ def add_address():
     
     return render_template('admin/add_address.html')
 # اضافة بايع في الادمن
+# دالة للتحقق من نوع الملف المسموح به
+def allowed_file(filename):
+    # تحقق من وجود النقطة في الاسم لتحديد الامتداد
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/seller', methods=['GET', 'POST'])
 def add_seller():
+    conn = sqlite3.connect("database/Eshop.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM seller_address")
+    addresses = cursor.fetchall()
+    conn.close()
+
+    # إذا كان الطلب من نوع GET (عند فتح الصفحة لأول مرة)
+    if request.method == 'GET':
+        return render_template('admin/seller.html', addresses=addresses)
+
+    # إذا كان الطلب من نوع POST (عند تقديم النموذج)
     if request.method == 'POST':
         try:
-            # استقبال البيانات النصية
+            # جلب بيانات النموذج
             name = request.form['name']
             store_name = request.form['store_name']
             address = request.form['address']
@@ -307,62 +325,75 @@ def add_seller():
             email = request.form['email']
             commercial_record = request.form['commercial_record']
             product_type = request.form['product_type']
+            latitude = request.form['latitude']
+            longitude = request.form['longitude']
+            street_address = request.form['street_address']
 
-            # استقبال الملفات
-            store_image = request.files.get('store_image')
-            id_image = request.files.get('id_image')
-            documents = request.files.get('documents')
+            # رفع الصور والوثائق
+            store_image = request.files['store_image']
+            id_image = request.files['id_image']
+            documents = request.files['documents']
 
-            # دالة لحفظ الملفات وإرجاع المسار
-            def save_file(file):
-                if file and file.filename:
-                    filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-                    file.save(filepath)
-                    return filepath  # إرجاع المسار
-                return ""  # إرجاع قيمة فارغة في حال لم يتم تحميل ملف
+            store_image_path = ""
+            id_image_path = ""
+            documents_path = ""
 
-            store_image_path = save_file(store_image)
-            id_image_path = save_file(id_image)
-            documents_path = save_file(documents)
+            if store_image and allowed_file(store_image.filename):
+                store_image_path = os.path.join(UPLOAD_FOLDER, secure_filename(store_image.filename))
+                store_image.save(store_image_path)
 
-            # الاتصال بقاعدة البيانات
+            if id_image and allowed_file(id_image.filename):
+                id_image_path = os.path.join(UPLOAD_FOLDER, secure_filename(id_image.filename))
+                id_image.save(id_image_path)
+
+            if documents and allowed_file(documents.filename):
+                documents_path = os.path.join(UPLOAD_FOLDER, secure_filename(documents.filename))
+                documents.save(documents_path)
+
+            # إدخال البيانات في قاعدة البيانات
             conn = sqlite3.connect("database/Eshop.db")
             cursor = conn.cursor()
 
-            # إدخال البيانات في الجدول
-            cursor.execute("""
+            cursor.execute("INSERT INTO seller_address (latitude, longitude, address) VALUES (?, ?, ?)", 
+                        (latitude, longitude, street_address))
+            address_id = cursor.lastrowid
+
+            cursor.execute(""" 
                 INSERT INTO sellers 
-                (name, store_name, store_image, address, phone_number, password, email, commercial_record, id_image, documents, product_type)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (name, store_name, store_image_path, address, phone_number, password, email, commercial_record, id_image_path, documents_path, product_type))
+                (name, store_name, store_image, address, phone_number, password, email, commercial_record, id_image, documents, product_type, SAddress_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (name, store_name, store_image_path, address, phone_number, password, email, commercial_record, id_image_path, documents_path, product_type, address_id))
 
             conn.commit()
             conn.close()
 
-            flash("تمت إضافة البائع بنجاح!", "success")
+            flash("تمت إضافة البائع وعنوانه بنجاح!", "success")
             return redirect('/seller')
 
         except Exception as e:
             flash(f"حدث خطأ: {str(e)}", "danger")
-
-    return render_template('admin/seller.html')
-
-# عرض البائع في الادمن
-@app.route('/show_seller')
+            return redirect('/seller')
+        
+@app.route('/show_seller', methods=['POST', 'GET'])
 def show_seller():
+    # الاتصال بقاعدة البيانات
     conn = sqlite3.connect("database/Eshop.db")
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT seller_id, name, store_name, store_image, address, phone_number, password, email, 
-               commercial_record, id_image, documents, product_type, created_at 
-        FROM sellers
-    """)
-    sellers = cursor.fetchall()
-    conn.close()
-    
-    return render_template("admin/show_seller.html", sellers=sellers)
 
-# تعديل البائع
+    # استرجاع جميع بيانات البائعين
+    sellers = cursor.execute("""
+        SELECT sellers.id, sellers.name, sellers.store_name, sellers.store_image, sellers.address, sellers.phone_number, 
+               sellers.email, sellers.commercial_record, sellers.product_type, seller_address.latitude, seller_address.longitude, 
+               seller_address.address AS street_address
+        FROM sellers
+        JOIN seller_address ON sellers.SAddress_id = seller_address.id
+    """).fetchall()
+
+    conn.close()
+
+    # تمرير البيانات إلى الصفحة
+    return render_template('admin/show_seller.html', sellers=sellers)
+
 @app.route('/edit_seller/<int:seller_id>', methods=['GET', 'POST'])
 def edit_seller(seller_id):
     conn = sqlite3.connect("database/Eshop.db")

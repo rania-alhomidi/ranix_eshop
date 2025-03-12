@@ -1,4 +1,4 @@
-{%include 'admin/header.html'%} 
+{% include 'admin/header.html' %}
 
 <main id="main" class="main">
     <div class="container mt-5">
@@ -20,6 +20,17 @@
                 <label class="form-label">العنوان</label>
                 <input type="text" name="address" class="form-control" required>
             </div>
+            
+            <!-- إضافة الخريطة -->
+            <div class="mb-3">
+                <label class="form-label">حدد موقعك</label>
+                <div id="map" style="height: 400px; width: 100%;"></div>
+                <button type="button" class="btn btn-info mt-2" onclick="getLocation()">استخدام الموقع الحالي</button>
+            </div>
+
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
+
             <div class="mb-3">
                 <label class="form-label">رقم الهاتف</label>
                 <input type="text" name="phone_number" class="form-control" required>
@@ -51,6 +62,58 @@
             <button type="submit" class="btn btn-primary w-100">إضافة</button>
         </form>
     </div>
-    </main>
+</main>
+
+<script>
+    function initMap() {
+        // إعداد الخريطة المركزية
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 21.4225, lng: 39.8262 }, // جدة كمثال
+            zoom: 12
+        });
+
+        // تحديد مكان باستخدام علامة
+        var marker = new google.maps.Marker({
+            map: map,
+            draggable: true,
+            position: { lat: 21.4225, lng: 39.8262 }
+        });
+
+        google.maps.event.addListener(marker, 'position_changed', function() {
+            var position = marker.getPosition();
+            document.getElementById('latitude').value = position.lat();
+            document.getElementById('longitude').value = position.lng();
+        });
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+
+                // نقل الموقع إلى الخريطة
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: latitude, lng: longitude },
+                    zoom: 12
+                });
+
+                var marker = new google.maps.Marker({
+                    map: map,
+                    draggable: true,
+                    position: { lat: latitude, lng: longitude }
+                });
+
+                // تعيين القيم للحقول المخفية
+                document.getElementById('latitude').value = latitude;
+                document.getElementById('longitude').value = longitude;
+            });
+        } else {
+            alert("الجهاز لا يدعم خاصية تحديد الموقع.");
+        }
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEDl43Oylmn4drWKGqRVu5wLiqadaQMBs&callback=initMap" async defer></script>
+
 </body>
 </html>

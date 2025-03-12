@@ -1,6 +1,6 @@
-{%include 'admin/header.html'%} 
+{% include 'admin/header.html' %}
 
-  <main id="main" class="main">
+<main id="main" class="main">
     <div class="container mt-5">
         <h2 class="text-center">قائمة البائعين</h2>
         <table class="table table-bordered mt-4">
@@ -24,18 +24,18 @@
             <tbody>
                 {% for seller in sellers %}
                 <tr>
-                    <td>{{ seller[0] }}</td>
-                    <td>{{ seller[1] }}</td>
-                    <td>{{ seller[2] }}</td>
-                    <td><img src="{{ seller[3] }}" alt="store_image" width="50"></td>
-                    <td>{{ seller[4] }}</td>
-                    <td>{{ seller[5] }}</td>
-                    <td>{{ seller[7] }}</td>
-                    <td>{{ seller[8] }}</td>
-                    <td><img src="{{ seller[9] }}" alt="id_image" width="50"></td>
-                    <td>{{ seller[10] }}</td>
-                    <td>{{ seller[11] }}</td>
-                    <td>{{ seller[12] }}</td>
+                    <td>{{ seller[0] }}</td> <!-- معرّف البائع -->
+                    <td>{{ seller[1] }}</td> <!-- الاسم -->
+                    <td>{{ seller[2] }}</td> <!-- اسم المتجر -->
+                    <td><img src="{{ seller[3] }}" alt="store_image" width="50"></td> <!-- صورة المتجر -->
+                    <td>{{ seller[4] }}</td> <!-- العنوان -->
+                    <td>{{ seller[5] }}</td> <!-- رقم الهاتف -->
+                    <td>{{ seller[6] }}</td> <!-- البريد الإلكتروني -->
+                    <td>{{ seller[7] }}</td> <!-- السجل التجاري -->
+                    <td><img src="{{ seller[8] }}" alt="id_image" width="50"></td> <!-- صورة الهوية -->
+                    <td>{{ seller[9] }}</td> <!-- المستندات -->
+                    <td>{{ seller[10] }}</td> <!-- نوع المنتج -->
+                    <td>{{ seller[11] }}</td> <!-- تاريخ الإنشاء (إن تم إضافته) -->
                     <td>
                         <a href="/edit_seller/{{ seller[0] }}" class="btn btn-warning btn-sm">تعديل</a>
                         <a href="/delete_seller/{{ seller[0] }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من الحذف؟')">حذف</a>
@@ -46,6 +46,6 @@
         </table>
         <a href="/seller" class="btn btn-success">إضافة بائع جديد</a>
     </div>
-    </main>
+</main>
 </body>
 </html>
