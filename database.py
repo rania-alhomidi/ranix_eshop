@@ -99,8 +99,7 @@ cursor = conn.cursor()
 # );
 # ''')
 
-# إنشاء جدول البائعين
-# cursor.execute('''
+# cursor.execute(''' 
 # CREATE TABLE IF NOT EXISTS sellers (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
 #     name TEXT,
@@ -115,7 +114,7 @@ cursor = conn.cursor()
 #     documents TEXT,
 #     product_type TEXT,
 #     SAddress_id INTEGER,
-#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     created_at TIMESTAMP,
 #     FOREIGN KEY (SAddress_id) REFERENCES seller_address(id) ON DELETE CASCADE
 # );
 # ''')
@@ -218,19 +217,19 @@ conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
-cursor.execute("SELECT * FROM sellers ")  # استعلام عن كل البيانات
-rows = cursor.fetchall()  # جلب جميع الصفوف
-print("الجداول الموجودة في قاعدة البيانات:", rows)
+# cursor.execute("SELECT * FROM sellers ")  # استعلام عن كل البيانات
+# rows = cursor.fetchall()  # جلب جميع الصفوف
+# print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-for row in rows:
-    print(row)
+# for row in rows:
+#     print(row)
 
-# cursor.execute('DROP TABLE IF EXISTS seller_address')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS sellers')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-tables = cursor.fetchall()  # جلب النتائج
-print("الجداول الموجودة في قاعدة البيانات:", tables)
+# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+# tables = cursor.fetchall()  # جلب النتائج
+# print("الجداول الموجودة في قاعدة البيانات:", tables)
 
 # cursor.execute("PRAGMA table_info(product);")
 # columns = cursor.fetchall()
