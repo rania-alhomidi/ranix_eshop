@@ -71,5 +71,92 @@ def show_prices():
     
     return render_template('admin/show_price.html', prices=prices)
 
+
+
+
+
+
+
+
+
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    conn = get_db_connection()
+    categories = conn.execute('SELECT id, name FROM category').fetchall()
+    sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
+    addresses = conn.execute('SELECT address_id, street FROM addresses').fetchall()
+    conn.close()
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        original_price = request.form['original_price']
+        profit_price = request.form['profit_price']
+        quantity = request.form['quantity']
+        category_id = request.form['category']
+        seller_id = request.form['seller']
+        address = request.form['address']
+        image = request.files.get('image')
+
+        # حفظ الصورة
+        image_path = 'static/uploads/default_product.jpg'
+        if image and image.filename:
+            filename = secure_filename(image.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(filepath)
+            image_path = f'static/uploads/{filename}'
+
+        # فتح الاتصال بقاعدة البيانات
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # التحقق مما إذا كان المنتج موجودًا بالفعل باستخدام name
+        cursor.execute('SELECT id FROM product WHERE name = ?', (name,))
+        existing_product = cursor.fetchone()
+
+        if existing_product:
+            flash("المنتج موجود بالفعل!", "danger")
+            conn.close()  # إغلاق الاتصال إذا كان المنتج موجودًا
+            return redirect('/add_product')
+
+        # إدخال المنتج في جدول product
+        cursor.execute('''INSERT INTO product (name, description, category_id, seller_id, address, image) 
+                          VALUES (?, ?, ?, ?, ?, ?)''',
+                       (name, description, category_id, seller_id, address, image_path))
+        conn.commit()
+
+        # الحصول على الـ product_id
+        product_id = cursor.lastrowid
+
+        # إدخال الأسعار في جدول prices
+        cursor.execute('''INSERT INTO prices (product_id, original_price, profit_price) 
+                          VALUES (?, ?, ?)''', 
+                       (product_id, original_price, profit_price))
+        conn.commit()
+        
+        # إدخال الكمية في جدول stock
+        cursor.execute('''INSERT INTO stock (product_id, quantity) 
+                          VALUES (?, ?)''',
+                       (product_id, quantity))
+        conn.commit()
+        
+        conn.close()  # إغلاق الاتصال بعد إتمام العملية
+        
+        flash("تمت إضافة المنتج بنجاح!", "success")
+        return redirect('/add_product')
+    
+    return render_template('admin/add_product.html', categories=categories, sellers=sellers)
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

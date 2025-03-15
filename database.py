@@ -28,7 +28,7 @@ cursor = conn.cursor()
 #     stock_id INTEGER,
 #     FOREIGN KEY (category_id) REFERENCES category(id),
 #     FOREIGN KEY (seller_id) REFERENCES sellers(id),
-#     FOREIGN KEY (address_id) REFERENCES user_addresses(id),
+#     FOREIGN KEY (address_id) REFERENCES seller_address(id),
 #     FOREIGN KEY (price_id) REFERENCES prices(id)
 #     FOREIGN KEY (stock_id) REFERENCES stock(id)
 # )''')
@@ -224,18 +224,18 @@ conn.commit()
 # for row in rows:
 #     print(row)
 
-# cursor.execute('DROP TABLE IF EXISTS sellers')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS product')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
 # cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
 # tables = cursor.fetchall()  # جلب النتائج
 # print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-# cursor.execute("PRAGMA table_info(product);")
-# columns = cursor.fetchall()
+cursor.execute("PRAGMA table_info(product);")
+columns = cursor.fetchall()
 
-# for col in columns:
-#     print(col[1])  # col[1] يحتوي على اسم العمود
+for col in columns:
+    print(col[1])  # col[1] يحتوي على اسم العمود
 
 
 # إغلاق الاتصال
