@@ -18,7 +18,7 @@
             <label class="form-label">السعر الأصلي:</label>
             <input type="number" name="original_price" step="0.01" class="form-control" value="{{ product.original_price }}" required>
         </div>
-
+        
         <div class="mb-3">
             <label class="form-label">السعر بعد الربح:</label>
             <input type="number" name="profit_price" step="0.01" class="form-control" value="{{ product.profit_price }}" required>
@@ -31,7 +31,7 @@
         
         <div class="mb-3">
             <label for="image" class="form-label">الصورة الحالية:</label>
-            <img src="{{ product.image_url }}" alt="صورة المنتج" class="img-fluid mb-2" width="150">
+            <img src="{{ url_for('static', filename=product.image) }}" alt="صورة المنتج" class="img-fluid mb-2" width="150">
             <input type="file" name="image" class="form-control">
         </div>
         
@@ -53,7 +53,7 @@
                 {% endfor %}
             </select>
         </div>
-
+    
         <div class="mb-3">
             <label class="form-label">العنوان:</label>
             <input type="text" id="address" name="address" class="form-control" value="{{ product.address }}" readonly>

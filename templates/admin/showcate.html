@@ -6,6 +6,7 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
+                    <th>#</th>
                     <th>الصورة</th>
                     <th>اسم القسم</th>
                     <th>التصنيف</th>
@@ -15,6 +16,7 @@
             <tbody>
                 {% for category in categories %}
                 <tr>
+                    <td>{{ category['id'] }}</td>
                     <td>
                         {% if category['image'] %}
                             <img src="{{ category['image'] }}" alt="صورة {{ category['name'] }}" width="80" height="80">

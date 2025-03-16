@@ -1,9 +1,10 @@
 {% include 'admin/header.html' %}
 
-
+<main id="main" class="main">
+    <div class="container mt-5">
 <h1>تعديل بيانات البائع</h1>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" class="mt-4 p-4 border rounded bg-light">
     <div class="form-group">
         <label for="name">الاسم</label>
         <input type="text" id="name" name="name" class="form-control" value="{{ seller[1] }}" required>
@@ -50,5 +51,8 @@
     </div>
     <button type="submit" class="btn btn-primary">تعديل</button>
 </form>
+</div>
+</main>
 
+{% include 'admin/footer.html' %}
 

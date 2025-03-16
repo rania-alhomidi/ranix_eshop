@@ -225,7 +225,6 @@ def delete_category(category_id):
     
 #     return render_template('admin/add_product.html', categories=categories, sellers=sellers, addresses=addresses)
 
-
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
     conn = get_db_connection()
@@ -253,48 +252,87 @@ def add_product():
             image.save(filepath)
             image_path = f'static/uploads/{filename}'
 
-        # فتح الاتصال بقاعدة البيانات
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # التحقق مما إذا كان المنتج موجودًا بالفعل باستخدام name
-        cursor.execute('SELECT id FROM product WHERE name = ?', (name,))
-        existing_product = cursor.fetchone()
+        try:
+            # التحقق من وجود المنتج مسبقًا
+            cursor.execute('SELECT id FROM product WHERE name = ?', (name,))
+            existing_product = cursor.fetchone()
 
-        if existing_product:
-            flash("المنتج موجود بالفعل!", "danger")
-            conn.close()  # إغلاق الاتصال إذا كان المنتج موجودًا
-            return redirect('/add_product')
+            if existing_product:
+                flash("المنتج موجود بالفعل!", "danger")
+                return redirect('/add_product')
 
-        # إدخال المنتج في جدول product
-        cursor.execute('''INSERT INTO product (name, description, category_id, seller_id, address_id, image) 
-                          VALUES (?, ?, ?, ?, ?, ?)''',
-                       (name, description, category_id, seller_id, address_id, image_path))
-        conn.commit()
+            # إدخال المنتج الأساسي
+            cursor.execute('''INSERT INTO product (
+                name, 
+                description, 
+                category_id, 
+                seller_id, 
+                address_id, 
+                image
+            ) VALUES (?, ?, ?, ?, ?, ?)''', (
+                name, 
+                description, 
+                category_id, 
+                seller_id, 
+                address_id, 
+                image_path
+            ))
+            product_id = cursor.lastrowid
+            conn.commit()
 
-        # الحصول على الـ product_id
-        product_id = cursor.lastrowid
+            # إدخال الأسعار والحصول على الـ ID
+            cursor.execute('''INSERT INTO prices (
+                product_id, 
+                original_price, 
+                profit_price
+            ) VALUES (?, ?, ?)''', (
+                product_id, 
+                original_price, 
+                profit_price
+            ))
+            price_id = cursor.lastrowid
+            conn.commit()
 
-        # إدخال الأسعار في جدول prices
-        cursor.execute('''INSERT INTO prices (product_id, original_price, profit_price) 
-                          VALUES (?, ?, ?)''', 
-                       (product_id, original_price, profit_price))
-        conn.commit()
-        
-        # إدخال الكمية في جدول stock
-        cursor.execute('''INSERT INTO stock (product_id, quantity) 
-                          VALUES (?, ?)''',
-                       (product_id, quantity))
-        conn.commit()
-        
-        conn.close()  # إغلاق الاتصال بعد إتمام العملية
-        
-        flash("تمت إضافة المنتج بنجاح!", "success")
+            # إدخال المخزون والحصول على الـ ID
+            cursor.execute('''INSERT INTO stock (
+                product_id, 
+                quantity
+            ) VALUES (?, ?)''', (
+                product_id, 
+                quantity
+            ))
+            stock_id = cursor.lastrowid
+            conn.commit()
+
+            # تحديث المنتج بربطه بالسعر والمخزون
+            cursor.execute('''UPDATE product SET 
+                price_id = ?, 
+                stock_id = ? 
+                WHERE id = ?''', (
+                price_id, 
+                stock_id, 
+                product_id
+            ))
+            conn.commit()
+
+            flash("تمت إضافة المنتج بنجاح!", "success")
+
+        except Exception as e:
+            conn.rollback()
+            flash(f"حدث خطأ: {str(e)}", "danger")
+
+        finally:
+            conn.close()
+
         return redirect('/add_product')
     
-    return render_template('admin/add_product.html', categories=categories, sellers=sellers, addresses=addresses)
-
-
+    return render_template('admin/add_product.html', 
+                         categories=categories, 
+                         sellers=sellers, 
+                         addresses=addresses)
 @app.route('/get_address/<int:seller_id>', methods=['GET'])
 def get_address(seller_id):
     conn = get_db_connection()
@@ -314,20 +352,29 @@ def get_address(seller_id):
         return jsonify({'address_id': address[0], 'address': address[1]})
     else:
         return jsonify({'address_id': None, 'address': ''})
+    
 @app.route('/show_product', methods=['GET'])
 def show_product():
     conn = get_db_connection()
     # الاستعلام للحصول على المنتجات مع البيانات المرتبطة مثل السعر والفئة والبائع والعنوان والكمية
     products = conn.execute('''
-        SELECT p.id, p.name, p.description, pr.original_price, pr.profit_price, 
-               COALESCE(s.quantity, 0) AS quantity,  -- التأكد من عدم إرجاع None
-               c.name AS category, sllr.name AS sellers, a.address AS seller_address
-        FROM product p
-        JOIN prices pr ON p.id = pr.product_id
-        LEFT JOIN stock s ON p.id = s.product_id  -- الانضمام إلى جدول المخزون
-        JOIN category c ON p.category_id = c.id
-        JOIN sellers sllr ON p.seller_id = sllr.id
-        JOIN seller_address a ON p.address_id = a.id
+       SELECT 
+    p.id, 
+    p.name, 
+    p.image,
+    p.description, 
+    pr.original_price, 
+    pr.profit_price, 
+    s.quantity,
+    c.name AS category,
+    sllr.name AS seller,
+    sa.address AS address  -- العنوان من جدول seller_address عبر sellers
+FROM product p
+LEFT JOIN prices pr ON p.price_id = pr.id
+LEFT JOIN stock s ON p.stock_id = s.id
+LEFT JOIN category c ON p.category_id = c.id
+LEFT JOIN sellers sllr ON p.seller_id = sllr.id
+LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id  -- الربط مع seller_address عبر sellers
     ''').fetchall()
     
     conn.close()  # إغلاق الاتصال بعد الحصول على البيانات
@@ -335,17 +382,36 @@ def show_product():
     # إرسال البيانات إلى القالب
     return render_template('admin/show_product.html', products=products)
 
-
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(product_id):
     conn = get_db_connection()
     
-    # جلب البيانات الحالية للمنتج
-    product = conn.execute('SELECT * FROM product WHERE id = ?', (product_id,)).fetchone()
+    # جلب بيانات المنتج
+    product = conn.execute('''
+        SELECT 
+            p.id, 
+            p.name, 
+            p.description, 
+            p.image, 
+            p.category_id, 
+            p.seller_id, 
+            p.address_id, 
+            pr.original_price, 
+            pr.profit_price, 
+            s.quantity, 
+            sa.address
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        LEFT JOIN stock s ON p.stock_id = s.id
+        LEFT JOIN sellers sllr ON p.seller_id = sllr.id
+        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id  -- الربط مع seller_address عبر sellers
+    WHERE p.id = ?
+    ''', (product_id,)).fetchone()
+    
     categories = conn.execute('SELECT id, name FROM category').fetchall()
     sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
-    prices = conn.execute('SELECT id, profit_price,original_price FROM prices').fetchall()
-
+    conn.close()
+    
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
@@ -355,36 +421,48 @@ def edit_product(product_id):
         category_id = request.form['category']
         seller_id = request.form['seller']
         address = request.form['address']
-        featured = 1 if 'featured' in request.form else 0
+        image = request.files.get('image')
 
-        # التحقق مما إذا تم رفع صورة جديدة
-        image_url = product['image_url']  # احتفاظ بالصورة القديمة إذا لم يتم تغييرها
-        if 'image' in request.files:
-            image = request.files['image']
-            if image.filename:
-                filename = secure_filename(image.filename)
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                image.save(image_path)
-                image_url = f"/{image_path}"  # تحديث الصورة الجديدة
-        
-        # تحديث بيانات المنتج في قاعدة البيانات
-        conn.execute('''
+        # تحديث الصورة إذا تم تحميل صورة جديدة
+        image_path = product['image']  # الصورة الحالية
+        if image and image.filename:
+            filename = secure_filename(image.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(filepath)
+            image_path = f'static/uploads/{filename}'
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # تحديث جدول المنتجات
+        cursor.execute('''
             UPDATE product 
-            SET name = ?, description = ?, original_price = ?, profit_price = ?, 
-                quantity = ?, category_id = ?, seller_id = ?, address = ?, 
-                image_url = ?, featured = ?
+            SET name = ?, description = ?, category_id = ?, 
+                seller_id = ?, address_id = ?, image = ?
             WHERE id = ?
-        ''', (name, description, original_price, profit_price, quantity, 
-              category_id, seller_id, address, image_url, featured, product_id))
+        ''', (name, description, category_id, seller_id, address, image_path, product_id))
+        
+        # تحديث جدول الأسعار
+        cursor.execute('''
+            UPDATE prices 
+            SET original_price = ?, profit_price = ? 
+            WHERE product_id = ?
+        ''', (original_price, profit_price, product_id))
+        
+        # تحديث جدول المخزون
+        cursor.execute('''
+            UPDATE stock 
+            SET quantity = ? 
+            WHERE product_id = ?
+        ''', (quantity, product_id))
         
         conn.commit()
         conn.close()
         
-        return redirect(url_for('show_products'))
-
-    conn.close()
-    return render_template('admin/edit_product.html', product=product, categories=categories, sellers=sellers,prices=prices)
-# اضافة عنوان
+        flash("تم تحديث المنتج بنجاح!", "success")
+        return redirect('/show_product')
+    
+    return render_template('admin/edit_product.html', product=product, categories=categories, sellers=sellers)
 @app.route('/add_address', methods=['GET', 'POST'])
 def add_address():
     if request.method == 'POST':

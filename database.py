@@ -18,8 +18,7 @@ cursor = conn.cursor()
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
 #     product_id INTEGER NOT NULL,
 #     quantity INT NOT NULL DEFAULT 0,
-#     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+#     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 # );''')
 
 # # إنشاء جدول أسعار المنتجات
@@ -28,8 +27,7 @@ cursor = conn.cursor()
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
 #     product_id INTEGER,
 #     original_price REAL,
-#     profit_price REAL,
-#     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+#     profit_price REAL
 # );
 # ''')
 # # إنشاء جدول المستخدمين
@@ -203,7 +201,6 @@ cursor = conn.cursor()
 #     name VARCHAR(255) NULL,
 #     image VARCHAR(500),
 #     description TEXT,
-#     quantity INT NULL,
 #     category_id INTEGER NOT NULL,  -- القسم الفرعي
 #     seller_id INTEGER NOT NULL,  -- صاحب المنتج
 #     address_id INTEGER NOT NULL,  -- عنوان صاحب المنتج
