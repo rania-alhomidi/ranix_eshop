@@ -231,7 +231,7 @@ def add_product():
     conn = get_db_connection()
     categories = conn.execute('SELECT id, name FROM category').fetchall()
     sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
-    addresses = conn.execute('SELECT address_id, street FROM addresses').fetchall()
+    addresses = conn.execute('SELECT id, address FROM seller_address').fetchall()
     conn.close()
     
     if request.method == 'POST':
@@ -336,46 +336,54 @@ def show_product():
     return render_template('admin/show_product.html', products=products)
 
 
-# تعديل منتج في الادمن 
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(product_id):
     conn = get_db_connection()
-    categories = conn.execute('SELECT id, name FROM category').fetchall()
-    sellers = conn.execute('SELECT seller_id, name FROM sellers').fetchall()
-    addresses = conn.execute('SELECT address_id, street FROM addresses').fetchall()
     
+    # جلب البيانات الحالية للمنتج
+    product = conn.execute('SELECT * FROM product WHERE id = ?', (product_id,)).fetchone()
+    categories = conn.execute('SELECT id, name FROM category').fetchall()
+    sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
+    prices = conn.execute('SELECT id, profit_price,original_price FROM prices').fetchall()
+
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
-        price = request.form['price']
+        original_price = request.form['original_price']
+        profit_price = request.form['profit_price']
         quantity = request.form['quantity']
         category_id = request.form['category']
         seller_id = request.form['seller']
-        address_id = request.form['address']
+        address = request.form['address']
+        featured = 1 if 'featured' in request.form else 0
+
+        # التحقق مما إذا تم رفع صورة جديدة
+        image_url = product['image_url']  # احتفاظ بالصورة القديمة إذا لم يتم تغييرها
+        if 'image' in request.files:
+            image = request.files['image']
+            if image.filename:
+                filename = secure_filename(image.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+                image_url = f"/{image_path}"  # تحديث الصورة الجديدة
         
-        conn.execute('''UPDATE product 
-                        SET name = ?, description = ?, price = ?, quantity = ?, category_id = ?, seller_id = ?, address_id = ? 
-                        WHERE id = ?''', 
-                     (name, description, price, quantity, category_id, seller_id, address_id, product_id))
+        # تحديث بيانات المنتج في قاعدة البيانات
+        conn.execute('''
+            UPDATE product 
+            SET name = ?, description = ?, original_price = ?, profit_price = ?, 
+                quantity = ?, category_id = ?, seller_id = ?, address = ?, 
+                image_url = ?, featured = ?
+            WHERE id = ?
+        ''', (name, description, original_price, profit_price, quantity, 
+              category_id, seller_id, address, image_url, featured, product_id))
+        
         conn.commit()
         conn.close()
         
-        return redirect('/show_product')
-    
-    product = conn.execute('SELECT * FROM product WHERE id = ?', (product_id,)).fetchone()
-    conn.close()
-    
-    return render_template('admin/edit_product.html', product=product, categories=categories, sellers=sellers, addresses=addresses)
+        return redirect(url_for('show_products'))
 
-@app.route('/toggle_featured/<int:product_id>/<int:featured>', methods=['GET'])
-def toggle_featured(product_id, featured):
-    conn = get_db_connection()
-    conn.execute('UPDATE product SET featured = ? WHERE id = ?', (featured, product_id))
-    conn.commit()
     conn.close()
-    
-    return redirect('/show_product')
-
+    return render_template('admin/edit_product.html', product=product, categories=categories, sellers=sellers,prices=prices)
 # اضافة عنوان
 @app.route('/add_address', methods=['GET', 'POST'])
 def add_address():
