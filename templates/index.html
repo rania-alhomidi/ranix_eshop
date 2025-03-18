@@ -55,18 +55,22 @@
             <div class="row">
                 <div class="col-lg-4 col-md-6">
                     <div class="latest-product__text">
-                        <h4>الاقسام</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="shop-grid.html" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="static/style/img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
+                        
+                            <h4>الاقسام</h4>
+                            <div class="latest-product__slider owl-carousel">
+                                <div class="latest-prdouct__slider__item">
+                                    {% for category in categories %}
+                                    <a href="shop-grid.html" class="latest-product__item">
+                                        <div class="latest-product__item__pic">
+                                            <img src="{{ category['image'] }}" alt="{{ category['name'] }}">
+                                        </div>
+                                        <div class="latest-product__item__text">
+                                            <h6>{{ category['name'] }}</h6>
+                                            <span>$30.00</span>  <!-- يمكنك تغيير هذا ليعرض السعر الفعلي من قاعدة البيانات -->
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                  
                                 <a href="#" class="latest-product__item">
                                     <div class="latest-product__item__pic">
                                         <img src="static/style/img/latest-product/lp-2.jpg" alt="">

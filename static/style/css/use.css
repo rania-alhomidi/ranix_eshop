@@ -991,17 +991,20 @@ ol {
 
 .latest-product__slider.owl-carousel .owl-nav button:last-child {
 	margin-right: 0;
+	
 }
 
 .latest-product__item {
 	margin-bottom: 20px;
 	overflow: hidden;
 	display: block;
+	
 }
 
 .latest-product__item__pic {
 	float: left;
 	margin-right: 26px;
+	
 }
 
 .latest-product__item__pic img {
@@ -1051,6 +1054,7 @@ ol {
 	display: flex;
 	align-items: center;
 	padding: 45px 0 40px;
+	
 }
 
 .breadcrumb__text h2 {
@@ -1269,6 +1273,7 @@ ol {
 
 .product__discount {
 	padding-bottom: 50px;
+	/* margin-left: 200px; */
 }
 
 .product__discount__title {
@@ -1287,12 +1292,14 @@ ol {
 
 .product__discount__item:hover .product__discount__item__pic .product__item__pic__hover {
 	bottom: 20px;
+	
 }
 
 .product__discount__item__pic {
 	height: 270px;
 	position: relative;
 	overflow: hidden;
+
 }
 
 .product__discount__item__pic .product__discount__percent {
@@ -1326,10 +1333,12 @@ ol {
 	list-style: none;
 	display: inline-block;
 	margin-right: 6px;
+	
 }
 
 .product__item__pic__hover li:last-child {
 	margin-right: 0;
+	
 }
 
 .product__item__pic__hover li:hover a {
@@ -1433,6 +1442,7 @@ ol {
 	padding-top: 45px;
 	border-top: 1px solid #ebebeb;
 	padding-bottom: 20px;
+	/* margin-left: 200px; */
 }
 
 .filter__sort {
@@ -1537,6 +1547,8 @@ ol {
 
 .product__item {
 	margin-bottom: 50px;
+	
+	
 }
 
 .product__item:hover .product__item__pic .product__item__pic__hover {
@@ -1547,6 +1559,7 @@ ol {
 	height: 270px;
 	position: relative;
 	overflow: hidden;
+	
 }
 
 .product__item__pic__hover {
@@ -1631,6 +1644,7 @@ ol {
 .product__pagination,
 .blog__pagination {
 	padding-top: 10px;
+	margin-left: 400px;
 }
 
 .product__pagination a,
@@ -3475,3 +3489,43 @@ ol {
 		font-size: 24px;
 	}
 }
+
+/* .latest-product__item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%; */
+    /* min-height: 250px; ضبط ارتفاع موحد */
+    /* text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+} */
+
+/* .latest-product__item__pic img {
+    width: 100%;
+    height: 100%;
+    max-height: 150px; ضبط حجم الصورة
+    max-width: 150px; ضبط حجم الصورة
+    object-fit: cover;
+} */
+
+/* @media (max-width: 768px) {
+    .latest-product__item {
+        width: 100%; جعل العناصر متساوية في الشاشة الصغيرة
+    }
+}
+.latest-product__item__icons {
+    margin-top: 10px;
+} */
+
+/* .latest-product__item__icons .btn {
+    border: none;
+    font-size: 20px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.latest-product__item__icons .btn:hover {
+    color: #007bff; تغيير اللون عند التحويم
+} */

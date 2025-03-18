@@ -7,7 +7,7 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ogani | Template</title>
+    <title>Rezza Shop</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="static/style/css/jquery-ui.min.css" type="text/css">
     <link rel="stylesheet" href="static/style/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="static/style/css/slicknav.min.css" type="text/css">
-    <link rel="stylesheet" href="static/style/css/rania.css">
+    <link rel="stylesheet" href="static/style/css/use.css">
 </head>
 
 <body>
@@ -57,8 +57,10 @@
         </div>
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
-                <li class="active"><a href="{{ url_for('index') }}">Home</a></li>
-                <li><a href="{{ url_for('grid') }}">Shop</a></li>
+                <li><a href="{{ url_for('user_categories')}}">home </a></li>
+                <li class="active"><a href="{{ url_for('show_product1')}}">المنتجات</a></li>
+
+
                 <li><a href="#">Pages</a>
                     <ul class="header__menu__dropdown">
                         <li><a href="{{ url_for('product_details', product_id=1) }}">Shop Details</a></li>
@@ -119,14 +121,13 @@
             <div class="row">
                 <div class="col-lg-3">
                     <div class="header__logo">
-                        <a href="{{ url_for('index') }}"><img src="static/style/img/logo.png" alt=""></a>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li><a href="{{ url_for('index') }}">Home</a></li>
-                            <li class="active"><a href="{{ url_for('grid') }}">Shop</a></li>
+                            <li><a href="{{ url_for('user_categories')}}">home </a></li>
+                            <li class="active"><a href="{{ url_for('show_product1')}}">المنتجات</a></li>
                             <li><a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
                                     <li><a href="{{ url_for('product_details', product_id=1) }}">Shop Details</a></li>
@@ -155,39 +156,24 @@
         </div>
     </header>
     <!-- Header Section End -->
-
-    <!-- Hero Section Begin -->
     <section class="hero">
         <div class="container">
             <div class="row">
-
-                <div class="col-lg-9">
-                    <div class="hero__search">
-                        <div class="hero__search__form">
-                            <form action="#">
-                                <input type="text" placeholder="What do yo u need?">
-                                <button type="submit" class="site-btn"><i class="fa fa-search"></i></button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="hero__categories">
-                        <div class="hero__categories__all">
-                            <i class="fa fa-bars"></i>
-                            <span>الاقسام</span>
-                        </div>
-                        <ul>
-                            <li><a href="#">Fresh Meat</a></li>
-                            <li><a href="#">Vegetables</a></li>
-                            <li><a href="#">Fruit & Nut Gifts</a></li>
-                            <li><a href="#">Fresh Berries</a></li>
-                            <li><a href="#">Ocean Foods</a></li>
-                            <li><a href="#">Butter & Eggs</a></li>
-                        </ul>
-                    </div>
-                </div>
+    <div class="col-lg-9">
+        <div class="hero__search">
+            <div class="hero__search__form">
+                <form action="#">
+                    <input type="text" placeholder="What do you need?">
+                    <button type="submit" class="site-btn"><i class="fa fa-search"></i></button>
+                </form>
             </div>
         </div>
+    </div>
+    </div>
+    </div>
     </section>
+    <!-- Hero Section Begin -->
+   
+
+ 
     <!-- Hero Section End -->

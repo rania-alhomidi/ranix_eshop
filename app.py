@@ -89,6 +89,24 @@ def categories():
     conn.close()
     return render_template('admin/showcate.html', categories=categories)
 
+@app.route('/')
+def user_categories():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM category")
+    categories = cursor.fetchall()
+    conn.close()
+    return render_template('show_cate.html', categories=categories)
+
+@app.route('/categoriess')
+def user_categories1():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM category")
+    categories = cursor.fetchall()
+    conn.close()
+    return render_template('header.html', categories=categories)
+
 @app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
 def edit_category(category_id):
     conn = get_db_connection()
@@ -318,6 +336,34 @@ def show_product():
     
     conn.close()
     return render_template('admin/show_product.html', products=products)
+
+    
+@app.route('/show_product1',methods=['GET'])
+def show_product1():
+    conn = get_db_connection()
+    products = conn.execute('''
+        SELECT 
+            p.id, 
+            p.name, 
+            p.image,
+            p.description, 
+            pr.original_price, 
+            pr.profit_price, 
+            s.quantity,
+            c.name AS category,
+            sllr.name AS seller,
+            sa.address AS address,
+            p.featured  -- إضافة هذا العمود
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        LEFT JOIN stock s ON p.stock_id = s.id
+        LEFT JOIN category c ON p.category_id = c.id
+        LEFT JOIN sellers sllr ON p.seller_id = sllr.id
+        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
+    ''').fetchall()
+    
+    conn.close()
+    return render_template('shop-grid.html',products=products)
 
 @app.route('/toggle_featured/<int:product_id>/<int:featured>', methods=['GET'])
 def toggle_featured(product_id, featured):
@@ -651,9 +697,9 @@ def delete_seller(seller_id):
     return redirect(url_for('sellers'))
 
 # الصفحه الرئسية لواجهه المستخدم
-@app.route('/')
-def index():
-    return render_template('index.html')
+# @app.route('/')
+# def index():
+#     return render_template('index.html')
 
 # عرض تفاصيل المنتجات في واجهه المستخدم
 @app.route('/shop-details/<int:product_id>')
