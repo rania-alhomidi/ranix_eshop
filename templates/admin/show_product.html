@@ -44,21 +44,21 @@
             <td>{{ product.category }}</td>
             <td>{{ product.seller }}</td>
             <td>{{ product.address }}</td>
-            <td>
-              {% if product.featured %}
+           
+              <td>
+                {% if product.featured %}
                 <span class="badge bg-success">مُعرض</span>
-              {% else %}
+                <a href="/toggle_featured/{{ product.id }}/0" class="btn btn-info btn-sm">إخفاء</a>
+                {% else %}
                 <span class="badge bg-secondary">غير مُعرض</span>
-              {% endif %}
+                <a href="/toggle_featured/{{ product.id }}/1" class="btn btn-info btn-sm">إظهار</a>
+                {% endif %}
+                
             </td>
-            <td>
+              <td>
               <a href="/edit_product/{{ product.id }}" class="btn btn-warning btn-sm">تعديل</a>
               <a href="/delete_product/{{ product.id }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من الحذف؟');">حذف</a>
-              {% if product.featured %}
-                <a href="/toggle_featured/{{ product.id }}/0" class="btn btn-info btn-sm">إخفاء</a>
-              {% else %}
-                <a href="/toggle_featured/{{ product.id }}/1" class="btn btn-info btn-sm">إظهار</a>
-              {% endif %}
+              
             </td>
           </tr>
         {% endfor %}
@@ -70,6 +70,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </main>
-
+ 
 </body>
 </html>

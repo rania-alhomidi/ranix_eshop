@@ -157,78 +157,11 @@ def delete_category(category_id):
     flash("تم حذف القسم بنجاح!", "danger")
     return redirect(url_for('categories'))
 
-# @app.route('/add_product', methods=['GET', 'POST'])
-# def add_product():
-#     conn = get_db_connection()
-#     categories = conn.execute('SELECT id, name FROM category').fetchall()
-#     sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
-#     addresses = conn.execute('SELECT address_id, street FROM addresses').fetchall()
-#     conn.close()
-    
-#     if request.method == 'POST':
-#         name = request.form['name']
-#         description = request.form['description']
-#         original_price = request.form['original_price']
-#         profit_price = request.form['profit_price']
-#         quantity = request.form['quantity']
-#         category_id = request.form['category']
-#         seller_id = request.form['seller']
-#         address_id = request.form['address']
-#         image = request.files.get('image')
-
-#         # حفظ الصورة
-#         image_path = 'static/uploads/default_seller.jpg'
-#         if image and image.filename:
-#             filename = secure_filename(image.filename)
-#             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#             image.save(filepath)
-#             image_path = f'static/uploads/{filename}'
-
-#         # فتح الاتصال بقاعدة البيانات
-#         conn = get_db_connection()
-#         cursor = conn.cursor()
-
-#         # التحقق مما إذا كان المنتج موجودًا بالفعل باستخدام name
-#         cursor.execute('SELECT id FROM product WHERE name = ?', (name,))
-#         existing_product = cursor.fetchone()
-
-#         if existing_product:
-#             flash("المنتج موجود بالفعل!", "danger")
-#             conn.close()  # إغلاق الاتصال إذا كان المنتج موجودًا
-#             return redirect('/add_product')
-
-#         # إدخال المنتج في جدول product
-#         cursor.execute('''INSERT INTO product (name, description, category_id, seller_id, address_id, image) 
-#                           VALUES (?, ?, ?, ?, ?, ?)''',
-#                        (name, description, category_id, seller_id, address_id, image_path))
-#         conn.commit()
-
-#         # الحصول على الـ product_id
-#         product_id = cursor.lastrowid
-
-#         # إدخال الأسعار في جدول prices
-#         cursor.execute('''INSERT INTO prices (product_id, original_price, profit_price) 
-#                           VALUES (?, ?, ?)''', 
-#                        (product_id, original_price, profit_price))
-#         conn.commit()
-        
-#         # إدخال الكمية في جدول stock
-#         cursor.execute('''INSERT INTO stock (product_id, quantity) 
-#                           VALUES (?, ?)''',
-#                        (product_id, quantity))
-#         conn.commit()
-        
-#         conn.close()  # إغلاق الاتصال بعد إتمام العملية
-        
-#         flash("تمت إضافة المنتج بنجاح!", "success")
-#         return redirect('/add_product')
-    
-#     return render_template('admin/add_product.html', categories=categories, sellers=sellers, addresses=addresses)
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
     conn = get_db_connection()
-    categories = conn.execute('SELECT id, name FROM category').fetchall()
+    categories = conn.execute('SELECT id, name, parent_id FROM category').fetchall()
     sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
     addresses = conn.execute('SELECT id, address FROM seller_address').fetchall()
     conn.close()
@@ -244,13 +177,18 @@ def add_product():
         address_id = request.form['address']
         image = request.files.get('image')
 
+        # تأكد من وجود مجلد "uploads/products"
+        UPLOAD_FOLDER = os.path.join(app.config['UPLOAD_FOLDER'], 'products')
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
         # حفظ الصورة
-        image_path = 'static/uploads/default_seller.jpg'
+        image_path = 'static/uploads/products/default_seller.jpg'
         if image and image.filename:
             filename = secure_filename(image.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
             image.save(filepath)
-            image_path = f'static/uploads/{filename}'
+            image_path = f'static/uploads/products/{filename}'
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -333,6 +271,7 @@ def add_product():
                          categories=categories, 
                          sellers=sellers, 
                          addresses=addresses)
+
 @app.route('/get_address/<int:seller_id>', methods=['GET'])
 def get_address(seller_id):
     conn = get_db_connection()
@@ -356,31 +295,47 @@ def get_address(seller_id):
 @app.route('/show_product', methods=['GET'])
 def show_product():
     conn = get_db_connection()
-    # الاستعلام للحصول على المنتجات مع البيانات المرتبطة مثل السعر والفئة والبائع والعنوان والكمية
     products = conn.execute('''
-       SELECT 
-    p.id, 
-    p.name, 
-    p.image,
-    p.description, 
-    pr.original_price, 
-    pr.profit_price, 
-    s.quantity,
-    c.name AS category,
-    sllr.name AS seller,
-    sa.address AS address  -- العنوان من جدول seller_address عبر sellers
-FROM product p
-LEFT JOIN prices pr ON p.price_id = pr.id
-LEFT JOIN stock s ON p.stock_id = s.id
-LEFT JOIN category c ON p.category_id = c.id
-LEFT JOIN sellers sllr ON p.seller_id = sllr.id
-LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id  -- الربط مع seller_address عبر sellers
+        SELECT 
+            p.id, 
+            p.name, 
+            p.image,
+            p.description, 
+            pr.original_price, 
+            pr.profit_price, 
+            s.quantity,
+            c.name AS category,
+            sllr.name AS seller,
+            sa.address AS address,
+            p.featured  -- إضافة هذا العمود
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        LEFT JOIN stock s ON p.stock_id = s.id
+        LEFT JOIN category c ON p.category_id = c.id
+        LEFT JOIN sellers sllr ON p.seller_id = sllr.id
+        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
     ''').fetchall()
     
-    conn.close()  # إغلاق الاتصال بعد الحصول على البيانات
-    
-    # إرسال البيانات إلى القالب
+    conn.close()
     return render_template('admin/show_product.html', products=products)
+
+@app.route('/toggle_featured/<int:product_id>/<int:featured>', methods=['GET'])
+def toggle_featured(product_id, featured):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # تحديث حالة المنتج (معروض أو غير معروض)
+        cursor.execute('UPDATE product SET featured = ? WHERE id = ?', (featured, product_id))
+        conn.commit()
+        flash("تم تحديث حالة المنتج بنجاح!", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"حدث خطأ: {str(e)}", "danger")
+    finally:
+        conn.close()
+
+    return redirect('/show_product')
 
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(product_id):
@@ -482,66 +437,98 @@ def allowed_file(filename):
     # تحقق من وجود النقطة في الاسم لتحديد الامتداد
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+from datetime import datetime
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format='%d %B %Y - %H:%M'):
+    return datetime.strptime(value, '%Y-%m-%d %H:%M:%S').strftime(format)
+
+
 
 @app.route('/seller', methods=['GET', 'POST'])
 def add_seller():
     if request.method == 'GET':
-        return render_template('admin/seller.html') 
+        return render_template('admin/seller.html')
 
     if request.method == 'POST':
         try:
-            # --- Get form data ---
+            # --- الحصول على البيانات من النموذج ---
             name = request.form['name']
             store_name = request.form['store_name']
-            #address = request.form['address']  
-            phone_number = request.form['phone_number']
-            password = generate_password_hash(request.form['password'])
-            email = request.form['email']
             commercial_record = request.form['commercial_record']
-            product_type = request.form['product_type']
-            latitude = request.form['latitude']      
-            longitude = request.form['longitude']   
+            latitude = request.form['latitude']
+            longitude = request.form['longitude']
             street_address = request.form['addressDisplay']
+            number1 = request.form['number1']
+            number2 = request.form['number2']
 
-            # --- File handling ---
+            # --- معالجة الملفات ---
             store_image = request.files['store_image']
             id_image = request.files['id_image']
             documents = request.files['documents']
 
+            # تحديد المسار الأساسي لحفظ الملفات
+            upload_base_folder = app.config['UPLOAD_FOLDER']
+            
+            # تحديد مجلدات الحفظ
+            store_image_folder = os.path.join(upload_base_folder, "store_images")
+            id_image_folder = os.path.join(upload_base_folder, "id_images")
+            documents_folder = os.path.join(upload_base_folder, "documents")
+
+            # ✅ إنشاء المجلدات إذا لم تكن موجودة
+            os.makedirs(store_image_folder, exist_ok=True)
+            os.makedirs(id_image_folder, exist_ok=True)
+            os.makedirs(documents_folder, exist_ok=True)
+
+            # مسارات حفظ الملفات الافتراضية
             store_image_path = ""
             id_image_path = ""
             documents_path = ""
 
+            # حفظ صور المتجر
             if store_image and allowed_file(store_image.filename):
                 store_image_filename = secure_filename(store_image.filename)
-                store_image_path = os.path.join(app.config['UPLOAD_FOLDER'], store_image_filename)
+                store_image_path = os.path.join(store_image_folder, store_image_filename)
                 store_image.save(store_image_path)
-               
-               
+
+            # حفظ صور الهوية
             if id_image and allowed_file(id_image.filename):
                 id_image_filename = secure_filename(id_image.filename)
-                id_image_path = os.path.join(app.config['UPLOAD_FOLDER'], id_image_filename)
+                id_image_path = os.path.join(id_image_folder, id_image_filename)
                 id_image.save(id_image_path)
-                
-                
+
+            # حفظ المستندات والوثائق
             if documents and allowed_file(documents.filename):
                 documents_filename = secure_filename(documents.filename)
-                documents_path = os.path.join(app.config['UPLOAD_FOLDER'], documents_filename)
+                documents_path = os.path.join(documents_folder, documents_filename)
                 documents.save(documents_path)
 
-            # --- Database interaction ---
+            # --- الاتصال بقاعدة البيانات ---
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            cursor.execute("INSERT INTO seller_address (latitude, longitude, address) VALUES (?, ?, ?)",
-                           (latitude, longitude, street_address))  # Use street_address
+            # إدخال العنوان الجديد
+            cursor.execute(
+                "INSERT INTO seller_address (latitude, longitude, address) VALUES (?, ?, ?)",
+                (latitude, longitude, street_address)
+            )
             address_id = cursor.lastrowid
 
+            # إدخال الأرقام في جدول numbers
+            cursor.execute(
+                "INSERT INTO numbers (number1, number2) VALUES (?, ?)",
+                (number1, number2)
+            )
+            num_id = cursor.lastrowid
+
+            # إدخال البائع الجديد
             cursor.execute('''
                 INSERT INTO sellers
-                (name, store_name, store_image, address, phone_number, password, email, commercial_record, id_image, documents, product_type, SAddress_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (name, store_name, store_image_path, street_address, phone_number, password, email, commercial_record, id_image_path, documents_path, product_type, address_id))
+                (name, store_name, store_image, address, commercial_record, id_image, documents, SAddress_id, num_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                name, store_name, store_image_path, street_address, commercial_record, id_image_path, documents_path, address_id, num_id
+            ))
 
             conn.commit()
             conn.close()
@@ -553,13 +540,6 @@ def add_seller():
             flash(f"حدث خطأ: {str(e)}", "danger")
             return redirect(url_for('add_seller'))
 
-
-from datetime import datetime
-
-@app.template_filter('datetimeformat')
-def datetimeformat(value, format='%d %B %Y - %H:%M'):
-    return datetime.strptime(value, '%Y-%m-%d %H:%M:%S').strftime(format)
-
         
 @app.route('/show_seller', methods=['POST', 'GET'])
 def show_seller():
@@ -569,11 +549,13 @@ def show_seller():
 
     # استرجاع جميع بيانات البائعين
     sellers = cursor.execute("""
-        SELECT sellers.id, sellers.name, sellers.store_name, sellers.store_image, sellers.address, sellers.phone_number, 
-               sellers.email, sellers.commercial_record, sellers.product_type,sellers.created_at, seller_address.latitude, seller_address.longitude, 
-               seller_address.address AS street_address
+        SELECT sellers.id, sellers.name, sellers.store_name, sellers.store_image, 
+               sellers.commercial_record,sellers.created_at, seller_address.latitude, seller_address.longitude, 
+               seller_address.address AS street_address,
+               numbers.number1, numbers.number2
         FROM sellers
         JOIN seller_address ON sellers.SAddress_id = seller_address.id
+        JOIN numbers ON sellers.num_id = numbers.id
     """).fetchall()
 
     conn.close()

@@ -3,6 +3,8 @@
 <main id="main" class="main">
     <div class="container mt-5">
         <h2 class="text-center">قائمة البائعين</h2>
+       
+           
         <table class="table table-bordered mt-4">
             <thead class="table-dark">
                 <tr>
@@ -11,12 +13,11 @@
                     <th>اسم المتجر</th>
                     <th>صورة المتجر</th>
                     <th>العنوان</th>
-                    <th>رقم الهاتف</th>
-                    <th>البريد الإلكتروني</th>
+                    <th>الرقم الأول</th>
+                    <th>الرقم الثاني</th>
                     <th>السجل التجاري</th>
                     <th>صورة الهوية</th>
                     <th>المستندات</th>
-                    <!-- <th>نوع المنتج</th> -->
                     <th>تاريخ الإنشاء</th>
                     <th>إجراءات</th>
                 </tr>
@@ -28,13 +29,12 @@
                     <td>{{ seller[1] }}</td> <!-- الاسم -->
                     <td>{{ seller[2] }}</td> <!-- اسم المتجر -->
                     <td><img src="{{ seller[3] }}" alt="store_image" width="50"></td> <!-- صورة المتجر -->
-                    <td>{{ seller[4] }}</td> <!-- العنوان -->
-                    <td>{{ seller[5] }}</td> <!-- رقم الهاتف -->
-                    <td>{{ seller[6] }}</td> <!-- البريد الإلكتروني -->
-                    <td>{{ seller[7] }}</td> <!-- السجل التجاري -->
-                    <td><img src="{{ seller[8] }}" alt="id_image" width="50"></td> <!-- صورة الهوية -->
-                    <td>{{ seller[] }}</td> <!-- المستندات -->
-                    <!-- <td>{{ seller[] }}</td> نوع المنتج -->
+                    <td>{{ seller[7] }}</td> العنوان
+                    <td>{{ seller[8] }}</td> الرقم الاول 
+                    <td>{{ seller[9] }}</td> الرقم الثاني
+                    <td>{{ seller[4] }}</td> <!-- السجل التجاري -->
+                    <td><img src="{{ seller[5] }}" alt="id_image" width="50"></td> <!-- صورة الهوية -->
+                    <td>{{ seller[6] }}</td> <!-- المستندات -->
                     <td>{{ seller[11] }}</td> <!-- تاريخ الإنشاء (إن تم إضافته) -->
                     <td>
                         <a href="/edit_seller/{{ seller[0] }}" class="btn btn-warning btn-sm">تعديل</a>
