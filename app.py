@@ -98,6 +98,8 @@ def user_categories():
     conn.close()
     return render_template('show_cate.html', categories=categories)
 
+
+
 @app.route('/categoriess')
 def user_categories1():
     conn = get_db_connection()
@@ -737,9 +739,9 @@ def contact():
     return render_template('contact.html')
 
 
-@app.route('/shop-grid')
-def grid():
-    return render_template('shop-grid.html')
+# @app.route('/shop-grid')
+# def grid():
+#     return render_template('shop-grid.html')
 
 @app.route('/shoping-cart')
 def cart():

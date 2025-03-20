@@ -18,204 +18,41 @@
     <link rel="stylesheet" href="static/style/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="static/style/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="static/style/css/use.css">
+    <link rel="stylesheet" href="static/style/css/raniaa.css">
+
 
     <style>
-        /* تنسيق الشريط */
-        .navbar {
-            background-color: #c557e6; /* بنفسجي فاتح */
-            padding: 12px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* ظل خفيف */
-            transition: background-color 0.3s ease;
-        }
-
-        .navbar-nav {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            width: 100%;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .nav-item {
-            flex-grow: 1;
-            text-align: center;
-            position: relative;
-        }
-
-        .nav-link {
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: none;
-            padding: 12px;
-            display: block;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px); /* تأثير تحريك خفيف */
-            border-radius: 40px;
-        }
-
-        /* قائمة الأقسام الفرعية */
-        .nav-item:hover .dropdown-menu {
-            display: block;
-            animation: slideIn 0.3s ease-out; /* حركة تظهر القوائم */
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: #ecbbff; /* بنفسجي فاتح */
-            padding: 10px 0;
-            border-radius: 5px;
-            width: 200px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        .dropdown-item {
-            color: white;
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        .dropdown-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            /* border-radius: 30px; */
-        }
-
-        /* حركة للظهور */
-        .nav-item:hover .dropdown-menu {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* تحسين البحث */
-        .search-container {
-            background-color: white;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 10px;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            border: 2px solid #d5aad0;
-            border-radius: 30px;
-            padding: 5px;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .search-box input {
-            border: none;
-            outline: none;
-            padding: 8px;
-            flex-grow: 1;
-            border-radius: 30px;
-        }
-
-        .search-box button {
-            background-color: #d5aad0;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .search-box button:hover {
-            background-color: #b88cb1;
-
-        }
-
-        /* إضافة التنسيق لأيقونة المستخدم */
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu .user-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: #d5aad0; /* بنفسجي فاتح */
-            padding: 10px;
-            border-radius: 5px;
-            width: 200px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        .user-menu:hover .user-dropdown {
-            display: block;
-            opacity: 1;
-            pointer-events: auto;
-            border-radius: 30px;
-        }
-
-        .user-dropdown a {
-            color: white;
-            padding: 10px;
-            font-size: 14px;
-            display: block;
-        }
-
-        .user-dropdown a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-        }
-
-        /* تأثير عند مرور الماوس على العنصر */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+    
     </style>
 </head>
 
 <body>
 
     <!-- شريط التنقل -->
-    <nav class="navbar">
+    <nav class="navbar fixed-top">
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('user_categories') }}">
-                    <i class="fa fa-home"></i> <!-- أيقونة بيت -->
+                    Rezza<!-- أيقونة بيت -->
                 </a>
             </li>
-            <li class="nav-item user-menu ">
-                <a class="nav-link" href="">
-                    الأقسام الفرعية
+            <li class="nav-item user-menu">
+                <a class="nav-link" href="#">
+                    الأقسام
                 </a>
                 <div class="user-dropdown">
-                    <a href="#">قسم فرعي 1</a>
-                    <a href="#">قسم فرعي 2</a>
-                    <a href="#">قسم فرعي 3</a>
+                    <ul>
+                        {% if categories %}
+                        {% for category in categories %}
+                        <li><a href="#">{{ category[1] }}</a></li>
+                        {% endfor %}
+                        {% else %}
+                        <li>لا توجد أقسام متاحة</li>
+                        {% endif %}
+                    </ul>
                 </div>
             </li>
+
 
             <li class="nav-item user-menu">
                 <a class="nav-link" href="#">
@@ -229,11 +66,11 @@
                 </div>
             </li>
 
-        
 
-            <li class="nav-item user-menu">
+
+            <!-- <li class="nav-item user-menu">
                 <a class="nav-link" href="#">
-                    <i class="fa fa-user"></i> <!-- أيقونة المستخدم -->
+                    <i class="fa fa-user"></i> أيقونة المستخدم
                 </a>
                 <div class="user-dropdown">
                     <a href="#">تسجيل</a>
@@ -241,28 +78,20 @@
                     <a href="#">تسجيل الخروج</a>
                     <a href="#">خدمة العملاء</a>
                 </div>
-            </li>
+            </li> -->
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('cart') }}">
-                    <i class="fa fa-shopping-cart"></i> <!-- أيقونة السلة -->
+                    <i class="fa fa-shopping-cart"></i> أيقونة السلة
                 </a>
-            </li>
+            </li> -->
         </ul>
     </nav>
 
     <!-- البحث أسفل شريط التنقل -->
-    <div class="search-container">
+    <div class="search-container ">
         <div class="search-box">
             <input type="text" placeholder="ابحث عن منتج...">
             <button type="submit"><i class="fa fa-search"></i></button>
         </div>
     </div>
-
-    <!-- مكتبات الجافاسكريبت -->
-    <script src="static/style/js/jquery-3.6.0.min.js"></script>
-    <script src="static/style/js/bootstrap.bundle.min.js"></script>
-
-</body>
-
-</html>
