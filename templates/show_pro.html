@@ -9,22 +9,18 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
 
-   <!-- CSS Styles -->
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/bootstrap.min.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/font-awesome.min.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/elegant-icons.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/nice-select.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/jquery-ui.min.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/owl.carousel.min.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/slicknav.min.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/use.css') }}">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/index.css') }}">
-   
-   <!-- JavaScript Files -->
-   <script src="{{ url_for('static', filename='style/js/jquery-3.6.0.min.js') }}"></script>
-   <script src="{{ url_for('static', filename='style/js/bootstrap.bundle.min.js') }}"></script>
-   <script src="{{ url_for('static', filename='style/js/owl.carousel.min.js') }}"></script>
-   
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="static/style/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="static/style/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="static/style/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="static/style/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="static/style/css/jquery-ui.min.css" type="text/css">
+    <link rel="stylesheet" href="static/style/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="static/style/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="static/style/css/use.css">
+    <link rel="stylesheet" href="static/style/css/index.css">
+
+
     <style>
     
     </style>
@@ -46,13 +42,11 @@
                     <ul>
                         {% if categories %}
                             {% for category in categories %}
-                                {% if category[2] is none %}  {# التأكد أن هذا قسم رئيسي #}
-                                    <li>
-                                        <a href="{{ url_for('show_subcategories', category_id=category[0]) }}">
-                                            {{ category[1] }}
-                                        </a>
-                                    </li>
-                                {% endif %}
+                                <li>
+                                    <a href="{{ url_for('show_products_by_category', category_id=category[0]) }}">
+                                        {{ category[1] }}
+                                    </a>
+                                </li>
                             {% endfor %}
                         {% else %}
                             <li>لا توجد أقسام متاحة</li>
@@ -60,7 +54,7 @@
                     </ul>
                 </div>
             </li>
-            
+
 
             <li class="nav-item user-menu">
                 <a class="nav-link" href="#">
@@ -108,4 +102,39 @@
             <input type="text" placeholder="ابحث عن منتج...">
             <button type="submit"><i class="fa fa-search"></i></button>
         </div>
+    </div>   
+
+
+
+    <div class="container">
+        <h1 class="text-center my-5">منتجاتنا</h1>
+        <div class="row">
+            {% for product in products %}
+            <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4">
+                <div class="product-card card shadow-sm border-0 rounded">
+                    <div class="product-card__image">
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="card-img-top rounded-top">
+                    </div>
+                    <div class="product-card__details card-body text-center">
+                        <h5 class="product-card__title fw-bold text-truncate" style="max-width: 100%;">{{ product.name }}</h5>
+                        <p class="product-card__description text-muted small">{{ product.description }}</p>
+                        <p class="product-card__price mt-2"><strong>السعر:</strong> ر.س {{ product.profit_price }}</p>
+                        <div class="product-card__icons d-flex justify-content-center gap-3 mt-3">
+                            <button class="btn btn-primary add-to-cart" data-product-id="{{ product.id }}">
+                                <i class="fa fa-shopping-cart"></i> إضافة للسلة
+                            </button>
+                            <a href="{{ url_for('product_details', product_id=product.id) }}" class="btn btn-outline-secondary">
+                                <i class="fa fa-info-circle"></i> تفاصيل
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
+    
+    
+    </div></div></div></section>
+
+{% include 'f.html' %}

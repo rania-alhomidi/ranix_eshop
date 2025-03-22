@@ -219,7 +219,7 @@ conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
-cursor.execute("SELECT * FROM sellers ")  # استعلام عن كل البيانات
+cursor.execute("SELECT * FROM category ")  # استعلام عن كل البيانات
 rows = cursor.fetchall()  # جلب جميع الصفوف
 print("البيانات الموجودة في قاعدة البيانات:", rows)
 

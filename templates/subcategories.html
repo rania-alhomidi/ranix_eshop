@@ -1,0 +1,131 @@
+{% include 'header.html' %}
+
+<style>
+    /* تنسيق المظهر العام للصفحة */
+    .ca {
+        padding: 20px;
+        max-width: 1200px;
+        font-family: Arial, sans-serif;
+        margin: auto; /* ضمان التوسّط */
+
+    }
+
+    /* تنسيق العنوان */
+    .ca h2 {
+        font-size: 2em;
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    /* تنسيق قائمة الأقسام الفرعية */
+    .ca ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+    }
+
+    /* تنسيق كل عنصر في القائمة */
+    .ca ul li {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 180px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .ca ul li:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* تنسيق الروابط */
+    .ca ul li a {
+        display: block;
+        padding: 10px;
+        color: #333;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    /* تنسيق الصورة */
+    .ca ul li a img {
+        width: 100%;
+        height: 120px; /* ضبط ارتفاع الصورة */
+        object-fit: cover; /* تجنب التشويه */
+        border-bottom: 2px solid #ddd;
+    }
+
+    /* عند تمرير المؤشر */
+    .ca ul li a:hover {
+        background-color: #ebbee8;
+        color: #fff;
+    }
+
+    /* تنسيق الرسالة عند عدم وجود أقسام */
+    .ca p {
+        color: #ff4d4d;
+        text-align: center;
+        font-size: 1.2em;
+    }
+
+    /* تنسيق الرابط للعودة إلى الصفحة الرئيسية */
+    .ca a {
+        display: block;
+        text-align: center;
+        font-size: 1.2em;
+        margin-top: 30px;
+        text-decoration: none;
+        color: #007bff;
+        transition: color 0.3s ease;
+    }
+
+    .ca a:hover {
+        color: #0056b3;
+    }
+
+    /* ✅ تحسينات لعرض الجوال */
+    @media (max-width: 768px) {
+        .ca {
+            margin: 0; /* إزالة الهامش */
+            padding: 10px;
+        }
+        .ca ul li {
+            width: 140px; /* تصغير العرض للهواتف */
+        }
+        .ca ul {
+            gap: 10px; /* تقليل التباعد */
+        }
+        .ca ul li a img {
+            height: 100px; /* تقليل حجم الصورة */
+        }
+    }
+
+</style>
+
+<div class="ca">
+    <h2>الأقسام الفرعية لـ {{ main_category[1] }}</h2>
+
+    {% if subcategories %}
+        <ul>
+            {% for subcategory in subcategories %}
+                <li>
+                    <a href="{{ url_for('show_products_by_category', category_id=subcategory[0]) }}">
+                        <img src="{{ subcategory[2] }}" alt="" />
+                        {{ subcategory[1] }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>🚫 لا توجد أقسام فرعية لهذا القسم.</p>
+    {% endif %}
+</div>
+
+{% include 'f.html' %}

@@ -1,11 +1,16 @@
 {% include 'header.html' %}
-<section class="product-details spad">
+<style>
+
+    .product__details__pic__item{
+        margin-top: 200px;
+    }
+</style>
+<section class="product-details spad mt-5">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 col-md-6">
                 <div class="product__details__pic">
                     <div class="product__details__pic__item">
-                        <!-- عرض الصورة -->
                         <img class="product__details__pic__item--large"
                             src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
                     </div>
@@ -14,73 +19,113 @@
             <div class="col-lg-6 col-md-6">
                 <div class="product__details__text">
                     <h3>{{ product.name }}</h3>
-                    <div class="product__details__rating">
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star-half-o"></i>
-                        <span>(18 reviews)</span>
-                    </div>
-                    <div class="product__details__price">${{ product.price }}</div>
+                    <div class="product__details__price">السعر: {{ product.profit_price }} ر.ي</div>
                     <p>{{ product.description }}</p>
-                    <div class="product__details__quantity">
-                        <div class="quantity">
-                            <div class="pro-qty">
-                                <input type="text" value="1">
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" class="primary-btn">ADD TO CART</a>
+
                     <ul>
-                        <li><b>التوفر:</b> <span>{{ "متوفر" if product.quantity > 0 else "غير متوفر" }}</span></li>
+                        <li><b>التوفر:</b> <span>{{ product.quantity }}</span></li>
                         <li><b>التصنيف:</b> <span>{{ product.category }}</span></li>
                         <li><b>البائع:</b> <span>{{ product.seller }}</span></li>
                         <li><b>الموقع:</b> <span>{{ product.address }}</span></li>
-                        <li><b>شارك عبر:</b>
-                            <div class="share">
-                                <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-instagram"></i></a>
-                                <a href="#"><i class="fa fa-pinterest"></i></a>
-                            </div>
-                        </li>
                     </ul>
+
+                    <style>
+                        .product__details__quantity {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            max-width: 200px;
+                            /* margin: 10px 0; */
+                        }
+                        
+                        .product__details__quantity button {
+                            background-color: #ff6f61;
+                            color: #fff;
+                            border: none;
+                            padding: 10px;
+                            font-size: 16px;
+                            cursor: pointer;
+                            transition: background-color 0.3s ease;
+                            border-radius: 5px;
+                            width: 40px;
+                            height: 40px;
+                        }
+                    
+                        .product__details__quantity button:disabled {
+                            background-color: #ddd;
+                            cursor: not-allowed;
+                        }
+                    
+                        .product__details__quantity button:hover {
+                            background-color: #e04e43;
+                        }
+                    
+                        .product__details__quantity input {
+                            text-align: center;
+                            font-size: 16px;
+                            width: 50px;
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            border-radius: 5px;
+                            margin: 0 10px;
+                        }
+                    
+                        .primary-btn {
+                            background-color: #ffa4d6;
+                            color: white;
+                            padding: 12px 25px;
+                            font-size: 18px;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            transition: background-color 0.3s ease;
+                            width: 100%;
+                            margin-top: 20px;
+                        }
+                    
+                        .primary-btn:hover {
+                            background-color: #f5c3fd;
+                        }
+                    </style>
+                    
+                    <form method="POST" action="{{ url_for('add_to_cart', product_id=product['id']) }}">
+                        <div class="product__details__quantity">
+                            <button type="submit" name="quantity" value="{{ quantity-1 }}" {% if quantity <= 1 %}disabled{% endif %}>-</button>
+                            <input type="text" name="quantity" value="1" readonly>
+                            <button type="submit" name="quantity" value="{{ quantity+1 }}" {% if quantity >= product.quantity %}disabled{% endif %}>+</button>
+                        </div>
+                        <button type="submit" class="primary-btn">
+                            <i class="fa fa-shopping-cart"></i> إضافة لسلة
+                        </button>
+                    </form>
+                    
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="related-product">
+<!-- <section class="related-product">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title related__product__title">
-                    <h2>منتجات ذات صلة</h2>
-                </div>
-            </div>
+        <div class="section-title related__product__title">
+            <h2>منتجات ذات صلة</h2>
         </div>
         <div class="row">
             {% for related_product in related_products %}
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="product__item">
                     <div class="product__item__pic set-bg" data-setbg="{{ url_for('static', filename='uploads/' + related_product.image) }}">
-                        <ul class="product__item__pic__hover">
-                            <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                        </ul>
                     </div>
                     <div class="product__item__text">
-                        <h6><a href="{{ url_for('product_details', product_id=related_product.id) }}">{{ related_product.name }}</a></h6>
-                        <h5>${{ related_product.price }}</h5>
+                        <h6>{{ related_product.name }}</h6>
+                        <h5>السعر: {{ related_product.profit_price }} ر.س</h5>
+                        <a href="{{ url_for('product_details', product_id=related_product.id) }}" class="btn btn-outline-secondary">تفاصيل</a>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
-</section>
+</section> -->
 
-{% include 'footer.html' %}
+{% include 'f.html' %}

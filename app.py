@@ -38,7 +38,6 @@ def home():
     #return render_template('/storage/emulated/0/Documents/Pydroid3/git_eshop-main/templates/admin/index.html')
 
 
-# إضافة قسم جديد
 @app.route('/cate', methods=['GET', 'POST'])
 def add_category():
     conn = get_db_connection()
@@ -46,13 +45,20 @@ def add_category():
 
     if request.method == 'POST':
         name = request.form['name']
-        parent_id = request.form.get('parent', None)
+        parent_id = request.form.get('parent', None)  # الحصول على parent_id من النموذج
         image = request.files.get('image')
 
+        # ضمان عدم وجود اسم مكرر
         cursor.execute('SELECT * FROM category WHERE name = ?', (name,))
         if cursor.fetchone():
             flash('عذرًا، هذه الفئة موجودة بالفعل.', 'danger')
             return redirect(url_for('add_category'))
+
+        # معالجة parent_id: تحويله إلى None إذا كان فارغًا
+        if not parent_id or parent_id.strip() == '':
+            parent_id = None
+        else:
+            parent_id = int(parent_id)  # تحويله إلى رقم صحيح
 
         # حفظ الصورة إذا تم تحميلها
         image_path = None
@@ -65,7 +71,7 @@ def add_category():
         # إدراج الفئة في قاعدة البيانات
         cursor.execute(
             'INSERT INTO category (name, parent_id, image) VALUES (?, ?, ?)',
-            (name, parent_id if parent_id else None, image_path)
+            (name, parent_id, image_path)
         )
         conn.commit()
         conn.close()
@@ -73,6 +79,7 @@ def add_category():
         flash('تمت إضافة الفئة بنجاح!', 'success')
         return redirect(url_for('categories'))
 
+    # جلب كل الفئات لاستخدامها في الاختيار
     cursor.execute('SELECT * FROM category')
     categories = cursor.fetchall()
     conn.close()
@@ -90,13 +97,13 @@ def categories():
     return render_template('admin/showcate.html', categories=categories)
 
 @app.route('/')
-def user_categories():
+def index():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM category")
     categories = cursor.fetchall()
     conn.close()
-    return render_template('show_cate.html', categories=categories)
+    return render_template('index.html', categories=categories)
 
 
 
@@ -108,6 +115,34 @@ def user_categories1():
     categories = cursor.fetchall()
     conn.close()
     return render_template('header.html', categories=categories)
+
+@app.context_processor
+def inject_categories():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM category WHERE parent_id IS NULL")  # جلب الأقسام الرئيسية فقط
+    categories = cursor.fetchall()
+    conn.close()
+    return {'categories': categories}  # تمريرها لكل القوالب تلقائيًا
+@app.route('/subcategories/<int:category_id>')
+def show_subcategories(category_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # جلب القسم الرئيسي
+    main_category = cursor.execute("SELECT id, name FROM category WHERE id = ?", (category_id,)).fetchone()
+
+    # جلب الأقسام الفرعية
+    subcategories = cursor.execute("SELECT id, name, image FROM category WHERE parent_id = ?", (category_id,)).fetchall()
+
+    # جلب الأقسام الرئيسية لإظهارها في `header`
+    categories = cursor.execute("SELECT * FROM category WHERE parent_id IS NULL").fetchall()
+    
+    conn.close()
+
+    return render_template('subcategories.html', main_category=main_category, subcategories=subcategories, categories=categories)
+
+
 
 @app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
 def edit_category(category_id):
@@ -365,7 +400,84 @@ def show_product1():
     ''').fetchall()
     
     conn.close()
-    return render_template('shop-grid.html',products=products)
+    return render_template('shop_users.html',products=products)
+
+
+
+@app.route('/product/<int:product_id>', methods=['GET'])
+def product_details(product_id):
+    conn = get_db_connection()
+    product = conn.execute('''
+        SELECT 
+            p.id, 
+            p.name, 
+            p.image, 
+            p.description, 
+            pr.original_price, 
+            pr.profit_price, 
+            COALESCE(s.quantity, 0) AS quantity, 
+            c.name AS category, 
+            sllr.name AS seller, 
+            sa.address AS address
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        LEFT JOIN stock s ON p.stock_id = s.id
+        LEFT JOIN category c ON p.category_id = c.id
+        LEFT JOIN sellers sllr ON p.seller_id = sllr.id
+        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
+        WHERE p.id = ?
+    ''', (product_id,)).fetchone()
+
+    if product is None:
+        return "المنتج غير موجود", 404
+
+    related_products = conn.execute('''
+        SELECT p.id, p.name, p.image, pr.profit_price
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        WHERE p.category_id = (SELECT category_id FROM product WHERE id = ?) AND p.id != ?
+        LIMIT 4
+    ''', (product_id, product_id)).fetchall()
+
+    conn.close()
+
+    return render_template(
+        'shop-details.html',
+        product=product,
+        related_products=list(related_products),
+        quantity=product['quantity']  # تمرير الكمية إلى القالب
+    )
+
+# ربط منتج ب قسم 
+
+@app.route('/category/<int:category_id>')
+def show_products_by_category(category_id):
+    conn = get_db_connection()
+    # استعلام لجلب المنتجات التابعة للقسم المحدد
+    products = conn.execute('''
+        SELECT 
+            p.id, 
+            p.name, 
+            p.image,
+            p.description, 
+            pr.original_price, 
+            pr.profit_price, 
+            s.quantity,
+            c.name AS category,
+            sllr.name AS seller,
+            sa.address AS address,
+            p.featured
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        LEFT JOIN stock s ON p.stock_id = s.id
+        LEFT JOIN category c ON p.category_id = c.id
+        LEFT JOIN sellers sllr ON p.seller_id = sllr.id
+        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
+        WHERE p.category_id = ?
+    ''', (category_id,)).fetchall()
+    
+    conn.close()
+    return render_template('shop_users.html', products=products)
 
 @app.route('/toggle_featured/<int:product_id>/<int:featured>', methods=['GET'])
 def toggle_featured(product_id, featured):
@@ -704,23 +816,30 @@ def delete_seller(seller_id):
 #     return render_template('index.html')
 
 # عرض تفاصيل المنتجات في واجهه المستخدم
-@app.route('/shop-details/<int:product_id>')
-def product_details(product_id):
-    conn = get_db_connection()
-    product = conn.execute('''SELECT p.name, p.description, p.price, p.quantity, p.image, 
-                                     c.name as category, s.name as seller, a.street as address 
-                              FROM product p
-                              JOIN category c ON p.category_id = c.id
-                              JOIN sellers s ON p.seller_id = s.seller_id
-                              JOIN addresses a ON p.address_id = a.address_id
-                              WHERE p.id = ?''', (product_id,)).fetchone()
-    conn.close()
 
-    if not product:
-        flash("هذا المنتج غير موجود!", "danger")
-        return redirect('/')
+# @app.route('/shop-details/<int:product_id>')
+# def product_details(product_id):
+#     conn = get_db_connection()
+#     product = conn.execute('''SELECT p.name, p.description, p.price, p.quantity, p.image, 
+#                                      c.name as category, s.name as seller, a.street as address 
+#                               FROM product p
+#                               JOIN category c ON p.category_id = c.id
+#                               JOIN sellers s ON p.seller_id = s.seller_id
+#                               JOIN addresses a ON p.address_id = a.address_id
+#                               WHERE p.id = ?''', (product_id,)).fetchone()
+#     conn.close()
 
-    return render_template('shop-details.html', product=product)
+#     if not product:
+#         flash("هذا المنتج غير موجود!", "danger")
+#         return redirect('/')
+
+#     return render_template('shop-details.html', product=product)
+
+
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+    # منطق إضافة المنتج إلى السلة
+    return redirect(url_for('cart'))
 
 @app.route('/blog-details')
 def blogdetails():
@@ -739,9 +858,6 @@ def contact():
     return render_template('contact.html')
 
 
-# @app.route('/shop-grid')
-# def grid():
-#     return render_template('shop-grid.html')
 
 @app.route('/shoping-cart')
 def cart():

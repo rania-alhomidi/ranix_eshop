@@ -1,8 +1,6 @@
-{% include 'header.html' %}
-   
-  
+{%include 'header.html'%}
     <!-- Product Section Begin -->
-    <section class="product spad">
+    <!-- <section class="product spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-5">
@@ -131,70 +129,116 @@
                             </div>
                         </div>
                     </div>
-                   
+                -->
                     
-                    <div class="container">
-                        <h1 class="text-center my-5">منتجاتنا</h1>
-                        <div class="row">
-                            {% for product in products %}
-                            <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4">
-                                <div class="product-card card shadow-sm border-0 rounded">
-                                    <!-- صورة المنتج -->
-                                    <div class="product-card__image">
-                                        <img src="{{ product.image }}" alt="{{ product.name }}" class="card-img-top rounded-top">
-                                    </div>
-                                    
-                                    <!-- تفاصيل المنتج -->
-                                    <div class="product-card__details card-body text-center">
-                                        <h5 class="product-card__title fw-bold text-truncate" style="max-width: 100%;">{{ product.name }}</h5>
-                                        <p class="product-card__description text-muted small">{{ product.description }}</p>
-                                        <p class="product-card__price mt-2"><strong>السعر:</strong> ر.س {{ product.profit_price }}</p>
-                                        
-                                        <!-- الأيقونات -->
-                                        <div class="product-card__icons d-flex justify-content-center gap-3 mt-3">
-                                            <!-- أيقونة السلة -->
-                                            <button class="btn btn-primary add-to-cart" data-product-id="{{ product.id }}">
-                                                <i class="fa fa-shopping-cart"></i> إضافة للسلة
-                                            </button>
-                                            
-                                            <!-- أيقونة التفاصيل -->
-                                            <a href="{{ url_for('product_details', product_id=product.id) }}" class="btn btn-outline-secondary">
-                                                <i class="fa fa-info-circle"></i> تفاصيل
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
+
+                <style>
+                    /* تحسينات عامة على صفحة المنتجات */
+.product-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    /* margin-top: 50px; */
+}
+
+/* تأثير التكبير عند التمرير */
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* تخصيص الأزرار */
+.product-card__icons .btn {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.product-card__icons .btn:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+/* تخصيص صورة المنتج */
+.product-card__image img {
+    object-fit: cover;
+    height: 200px; /* تحديد ارتفاع ثابت للصورة */
+}
+
+/* تخصيص العنوان */
+.product-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+}
+
+/* تخصيص الوصف */
+.product-card__description {
+    font-size: 0.9rem;
+    color: #777;
+    height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* تخصيص السعر */
+.product-card__price {
+    font-size: 1.1rem;
+    color: #e74c3c;
+}
+
+/* تخصيص الأيقونات */
+.product-card__icons .btn i {
+    margin-right: 5px;
+}
+.cart1 {
+    background: none; /* إزالة الخلفية */
+    border: none; /* إزالة الحدود */
+    cursor: pointer;
+    font-size: 1.5rem; /* تكبير الأيقونة */
+    color: #000000; /* لون أيقونة أزرق */
+    transition: color 0.3s ease-in-out;
+    margin-right: 10px;
+}
+
+.cart1:hover {
+    /* color: #0056b3; تغيير لون الأيقونة عند التمرير */
+}
+
+                </style>
+
+           <div class="container my-5">
+    <h1 class="text-center mb-4">منتجاتنا</h1>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-6 col-md-6 col-lg-4 col-xl-3 d-flex justify-content-center mb-4">
+            <div class="product-card card shadow-lg border-0 rounded overflow-hidden">
+                <!-- صورة المنتج -->
+                <div class="product-card__image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" class="card-img-top">
+                </div>
+                
+                <!-- تفاصيل المنتج -->
+                <div class="product-card__details card-body text-center">
+                    <h5 class="product-card__title fw-bold text-truncate" style="max-width: 100%;">{{ product.name }}</h5>
+                    <p class="product-card__description text-muted small">{{ product.description }}</p>
+                    <p class="product-card__price mt-2"><strong>السعر:</strong> ر.س {{ product.profit_price }}</p>
+                    
+                    <!-- الأيقونات -->
+                    <div class="product-card__icons d-flex justify-content-center gap-3 mt-3">
+                        <!-- أيقونة السلة -->
+                        <button class="cart1 add-to-cart" data-product-id="{{ product.id }}">
+                            <i class="fa fa-shopping-cart"></i>  
+                        </button>
+                        
+                        <!-- أيقونة التفاصيل -->
+                        <a href="{{ url_for('product_details', product_id=product.id) }}" class="cart1">
+                            <!-- <i class="fa fa-info-circle"></i>  -->
+                            تفاصيل
+                        </a>
                     </div>
-                    
-                    
-                    </div></div></div></section>
-        <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".add-to-cart").forEach(button => {
-                button.addEventListener("click", function () {
-                    let productId = this.getAttribute("data-product-id");
-        
-                    fetch("/add_to_cart", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ product_id: productId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert("تمت إضافة المنتج إلى السلة! 🛒");
-                        } else {
-                            alert("حدث خطأ، يرجى المحاولة مرة أخرى.");
-                        }
-                    });
-                });
-            });
-        });
-</script>   
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 <!-- Product Section End -->
-    {% include 'footer.html' %}
+    {% include 'f.html' %}
