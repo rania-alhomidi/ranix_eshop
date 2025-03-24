@@ -38,9 +38,11 @@ cursor = conn.cursor()
 #     num TEXT UNIQUE,
 #     pass TEXT,
 #     email TEXT UNIQUE,
+#     ud_ia INTEGER,
 #     activation_code TEXT,
 #     account_status INTEGER DEFAULT 1,
 #     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#     FOREIGN KEY (ud_ia) REFERENCES user_addresses(id) ON DELETE CASCADE
 # );
 # ''')
 
@@ -52,7 +54,6 @@ cursor = conn.cursor()
 #     latitude REAL,
 #     longitude REAL,
 #     address TEXT,
-#     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 # );
 # ''')
 
@@ -108,11 +109,14 @@ cursor = conn.cursor()
 # CREATE TABLE IF NOT EXISTS orders (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
 #     user_id INTEGER,
+#     pro_id INTEGER,
 #     status TEXT DEFAULT 'قيد التنفيذ',
 #     total_amount REAL,
+#     quantity INTEGER,
 #     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 #     expected_delivery TIMESTAMP,
-#     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+#     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+#     FOREIGN KEY (pro_id) REFERENCES product(id) ON DELETE SET NULL
 # );
 # ''')
 
@@ -206,7 +210,7 @@ cursor = conn.cursor()
 #     FOREIGN KEY (category_id) REFERENCES category(id),
 #     FOREIGN KEY (seller_id) REFERENCES sellers(id),
 #     FOREIGN KEY (address_id) REFERENCES seller_address(id),
-#     FOREIGN KEY (price_id) REFERENCES prices(id)
+#     FOREIGN KEY (price_id) REFERENCES prices(id),
 #     FOREIGN KEY (stock_id) REFERENCES stock(id)
 # )''')
 # ارقام البيائعين
@@ -215,11 +219,12 @@ cursor = conn.cursor()
 #     number1 INTEGER NOT NULL,
 #     number2 INTEGER NOT NULL
 # );''')
+
 conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
-cursor.execute("SELECT * FROM category ")  # استعلام عن كل البيانات
+cursor.execute("SELECT * FROM orders ")  # استعلام عن كل البيانات
 rows = cursor.fetchall()  # جلب جميع الصفوف
 print("البيانات الموجودة في قاعدة البيانات:", rows)
 
@@ -230,7 +235,7 @@ for row in rows:
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS sellers')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS orders')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
 # cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
@@ -242,7 +247,6 @@ for row in rows:
 
 # for col in columns:
 #     print(col[1])  # col[1] يحتوي على اسم العمود
-
 
 # إغلاق الاتصال
 conn.commit()

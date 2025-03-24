@@ -88,16 +88,38 @@
                         }
                     </style>
                     
-                    <form method="POST" action="{{ url_for('add_to_cart', product_id=product['id']) }}">
+                    <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+                        <input type="hidden" name="name" value="{{ product.name }}">
+                        <input type="hidden" name="price" value="{{ product.profit_price }}">
+                        <input type="hidden" name="image" value="{{ product.image }}"> <!-- إضافة رابط الصورة -->
+                        <input type="hidden" name="description" value="{{ product.description }}"> <!-- إضافة الوصف -->
+                        <input type="hidden" name="seller" value="{{ product.seller }}"> <!-- إضافة البائع -->
+                        
                         <div class="product__details__quantity">
-                            <button type="submit" name="quantity" value="{{ quantity-1 }}" {% if quantity <= 1 %}disabled{% endif %}>-</button>
-                            <input type="text" name="quantity" value="1" readonly>
-                            <button type="submit" name="quantity" value="{{ quantity+1 }}" {% if quantity >= product.quantity %}disabled{% endif %}>+</button>
+                            <button type="button" onclick="decreaseQuantity()">-</button>
+                            <input type="text" id="quantity" name="quantity" value="1" readonly>
+                            <button type="button" onclick="increaseQuantity()">+</button>
                         </div>
+                        
                         <button type="submit" class="primary-btn">
                             <i class="fa fa-shopping-cart"></i> إضافة لسلة
                         </button>
                     </form>
+                    
+                    <script>
+                    function increaseQuantity() {
+                        let qty = document.getElementById('quantity');
+                        qty.value = parseInt(qty.value) + 1;
+                    }
+                    
+                    function decreaseQuantity() {
+                        let qty = document.getElementById('quantity');
+                        if (parseInt(qty.value) > 1) {
+                            qty.value = parseInt(qty.value) - 1;
+                        }
+                    }
+                    </script>
+                    
                     
                 </div>
             </div>

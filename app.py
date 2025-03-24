@@ -1,10 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify,session,make_response
 import sqlite3
 import os
+import json
+from datetime import datetime, timedelta
+import random
+import redis
+
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 
 # إعداد مسار رفع الصور
 UPLOAD_FOLDER = 'static/uploads'
@@ -810,36 +816,7 @@ def delete_seller(seller_id):
     flash("تم حذف صاحب المتجر بنجاح!", "danger")
     return redirect(url_for('sellers'))
 
-# الصفحه الرئسية لواجهه المستخدم
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
 
-# عرض تفاصيل المنتجات في واجهه المستخدم
-
-# @app.route('/shop-details/<int:product_id>')
-# def product_details(product_id):
-#     conn = get_db_connection()
-#     product = conn.execute('''SELECT p.name, p.description, p.price, p.quantity, p.image, 
-#                                      c.name as category, s.name as seller, a.street as address 
-#                               FROM product p
-#                               JOIN category c ON p.category_id = c.id
-#                               JOIN sellers s ON p.seller_id = s.seller_id
-#                               JOIN addresses a ON p.address_id = a.address_id
-#                               WHERE p.id = ?''', (product_id,)).fetchone()
-#     conn.close()
-
-#     if not product:
-#         flash("هذا المنتج غير موجود!", "danger")
-#         return redirect('/')
-
-#     return render_template('shop-details.html', product=product)
-
-
-@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
-def add_to_cart(product_id):
-    # منطق إضافة المنتج إلى السلة
-    return redirect(url_for('cart'))
 
 @app.route('/blog-details')
 def blogdetails():
@@ -849,9 +826,196 @@ def blogdetails():
 def blog():
     return render_template('blog.html')
 
-@app.route('/checkout')
+
+
+
+
+
+
+
+
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+    # استخراج البيانات من النموذج
+    name = request.form.get('name')
+    price = float(request.form.get('price'))
+    quantity = int(request.form.get('quantity', 1))
+    image = request.form.get('image')  # رابط الصورة
+    description = request.form.get('description')  # الوصف
+    seller = request.form.get('seller')  # البائع
+
+    # إنشاء عنصر المنتج
+    product_item = {
+        'product_id': product_id,
+        'name': name,
+        'price': price,
+        'quantity': quantity,
+        'image': image,  # رابط الصورة
+        'description': description,  # الوصف
+        'seller': seller  # البائع
+    }
+
+    # استرجاع العربة الحالية من الكوكيز
+    cart = request.cookies.get('cart')
+    if cart:
+        cart = json.loads(cart)
+    else:
+        cart = []
+
+    # التحقق مما إذا كان المنتج موجودًا بالفعل في العربة
+    product_exists = False
+    for item in cart:
+        if item.get('product_id') == product_id:
+            item['quantity'] += quantity
+            product_exists = True
+            break
+
+    # إذا لم يكن المنتج موجودًا، يتم إضافته
+    if not product_exists:
+        cart.append(product_item)
+
+    # حفظ العربة المحدثة في الكوكيز
+    response = make_response(redirect(url_for('view_cart')))
+    expires = datetime.now() + timedelta(days=7)  # الكوكيز صالحة لمدة 7 أيام
+    response.set_cookie('cart', json.dumps(cart), expires=expires)
+    return response
+
+@app.route('/view_cart')
+def view_cart():
+    cart = request.cookies.get('cart')
+    if cart:
+        cart = json.loads(cart)
+    else:
+        cart = []
+    return render_template('cart.html', cart=cart)
+
+
+
+
+
+
+
+
+
+@app.route('/checkout', methods=['POST'])
 def checkout():
-    return render_template('checkout.html')
+    # استرجاع العربة من الكوكيز
+    cart = request.cookies.get('cart')
+    if cart:
+        cart = json.loads(cart)
+    else:
+        return "عربة التسوق فارغة", 400
+
+    # حساب المبلغ الإجمالي
+    total_amount = sum(item['price'] * item['quantity'] for item in cart)
+
+    # إدخال الطلب في جدول الطلبات
+    user_id = 1  # يجب استبدال هذا بمعرف المستخدم الفعلي (مثلاً من الجلسة)
+    expected_delivery = datetime.now() + timedelta(days=3)  # مثال: التوصيل خلال 3 أيام
+
+    db = get_db_connection()
+    cursor = db.cursor()
+
+    try:
+        for item in cart:
+            cursor.execute('''
+                INSERT INTO orders (user_id, pro_id, status, total_amount, expected_delivery, quantity)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (user_id, item.get('product_id'), 'قيد التنفيذ', total_amount, expected_delivery, item.get('quantity')))  # إضافة الكمية هنا
+        db.commit()
+    except sqlite3.IntegrityError as e:
+        db.close()
+        return f"خطأ في إدخال البيانات: {e}", 400
+    except Exception as e:
+        db.close()
+        return f"حدث خطأ غير متوقع: {e}", 500
+    finally:
+        db.close()
+
+    # مسح الكوكيز بعد إتمام الشراء
+    response = make_response(redirect(url_for('cart')))  # استخدم 'cart' هنا
+    response.set_cookie('cart', '', expires=0)
+    return response
+
+
+
+
+
+# تعريف Route جديد باسم 'cart'
+@app.route('/cart')
+def cart():
+    return "هذه صفحة العربة"
+
+
+
+@app.route('/update_cart/<int:product_id>', methods=['POST'])
+def update_cart(product_id):
+    # استرجاع العربة من الكوكيز
+    cart = request.cookies.get('cart')
+    if cart:
+        cart = json.loads(cart)
+    else:
+        return "عربة التسوق فارغة", 400
+
+    # البحث عن المنتج في العربة
+    action = request.form.get('action')
+    if action == 'remove':
+        # حذف المنتج من العربة
+        cart = [item for item in cart if item.get('product_id') != product_id]
+    else:
+        for item in cart:
+            if item.get('product_id') == product_id:
+                if action == 'increase':
+                    item['quantity'] += 1
+                elif action == 'decrease':
+                    if item['quantity'] > 1:  # لا تقل الكمية عن 1
+                        item['quantity'] -= 1
+                break
+
+    # حفظ العربة المحدثة في الكوكيز
+    response = make_response(redirect(url_for('view_cart')))
+    expires = datetime.now() + timedelta(days=7)  # الكوكيز صالحة لمدة 7 أيام
+    response.set_cookie('cart', json.dumps(cart), expires=expires)
+    return response
+
+
+
+
+
+
+# افراغ السلة
+@app.route('/clear_cart', methods=['POST'])
+def clear_cart():
+    # إنشاء رد وتوجيه المستخدم إلى صفحة العربة
+    response = make_response(redirect(url_for('view_cart')))
+    # مسح الكوكيز الخاصة بالسلة
+    response.set_cookie('cart', '', expires=0)
+    return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/contact')
 def contact():
@@ -859,11 +1023,54 @@ def contact():
 
 
 
-@app.route('/shoping-cart')
-def cart():
-    return render_template('shoping-cart.html')
+# @app.route('/shoping-cart')
+# def cart():
+#     return render_template('shoping-cart.html')
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return render_template('register.html')  # عرض صفحة التسجيل عند الدخول لأول مرة
+    
+    # إذا كانت POST، تابع عملية التسجيل
+    name = request.form['name']
+    num = request.form['num']
+    email = request.form['email']
+    password = request.form['pass']
+    latitude = request.form['latitude']
+    longitude = request.form['longitude']
+    address = request.form['addressDisplay']
+    
+    verification_code = str(random.randint(100000, 999999))
+    session['verification_code'] = verification_code
+    session['user_data'] = {
+        'name': name,
+        'num': num,
+        'email': email,
+        'password': password,
+        'latitude': latitude,
+        'longitude': longitude,
+        'address': address
+    }
+    
+    redis_client.setex(f'verification:{num}', 600, verification_code)
+    
+    return redirect(url_for('verify'))
+
+
+@app.route('/verify', methods=['GET', 'POST'])
+def verify():
+    if request.method == 'POST':
+        entered_code = request.form['code']
+        stored_code = redis_client.get(f'verification:{session["user_data"]["num"]}')
+        
+        if stored_code and entered_code == stored_code:
+            return "تم التحقق بنجاح! يمكنك الآن تسجيل الدخول."
+        else:
+            return "رمز التحقق غير صحيح. حاول مرة أخرى."
+    
+    return render_template('verify.html')
 
 # تشغيل التطبيق
 if __name__ == '__main__':
