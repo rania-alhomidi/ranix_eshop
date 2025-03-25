@@ -220,11 +220,40 @@ cursor = conn.cursor()
 #     number2 INTEGER NOT NULL
 # );''')
 
+
+# cursor.execute('''CREATE TABLE orders1 (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     user_id INTEGER NOT NULL,
+#     total_price REAL NOT NULL,
+#     status TEXT CHECK(status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled')) DEFAULT 'pending',
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+# );''')
+
+# cursor.execute('''
+#     CREATE TABLE Order_Items (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     order_id INTEGER NOT NULL,
+#     product_id INTEGER NOT NULL,
+#     quantity INTEGER NOT NULL CHECK(quantity > 0),
+#     price REAL NOT NULL,
+#     FOREIGN KEY (order_id) REFERENCES orders1(id) ON DELETE CASCADE,
+#     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+# );''')
+
+
 conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
-cursor.execute("SELECT * FROM orders ")  # استعلام عن كل البيانات
+cursor.execute("SELECT * FROM orders1 ")  # استعلام عن كل البيانات
+rows = cursor.fetchall()  # جلب جميع الصفوف
+print("البيانات الموجودة في قاعدة البيانات:", rows)
+
+for row in rows:
+    print(row)
+
+cursor.execute("SELECT * FROM Order_Items ")  # استعلام عن كل البيانات
 rows = cursor.fetchall()  # جلب جميع الصفوف
 print("البيانات الموجودة في قاعدة البيانات:", rows)
 
@@ -235,7 +264,7 @@ for row in rows:
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS orders')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS Order_Items')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
 # cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
