@@ -46,7 +46,7 @@
         
         <div class="mb-3">
             <label class="form-label">البائع:</label>
-            <select name="seller" class="form-select" id="seller" onchange="fetchAddress()" required>
+            <select name="seller" class="form-select" id="seller" onchange="fetchAddress()" >
                 <option value="">اختر البائع</option>
                 {% for seller in sellers %}
                     <option value="{{ seller.id }}" {% if seller.id == product.seller_id %} selected {% endif %}>{{ seller.name }}</option>

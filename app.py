@@ -44,6 +44,7 @@ def home():
     #return render_template('/storage/emulated/0/Documents/Pydroid3/git_eshop-main/templates/admin/index.html')
 
 
+
 @app.route('/cate', methods=['GET', 'POST'])
 def add_category():
     conn = get_db_connection()
@@ -51,30 +52,36 @@ def add_category():
 
     if request.method == 'POST':
         name = request.form['name']
-        parent_id = request.form.get('parent', None)  # الحصول على parent_id من النموذج
+        parent_id = request.form.get('parent', None)  # Get parent_id from the form
         image = request.files.get('image')
 
-        # ضمان عدم وجود اسم مكرر
+        # Ensure the category name is unique
         cursor.execute('SELECT * FROM category WHERE name = ?', (name,))
         if cursor.fetchone():
             flash('عذرًا، هذه الفئة موجودة بالفعل.', 'danger')
             return redirect(url_for('add_category'))
 
-        # معالجة parent_id: تحويله إلى None إذا كان فارغًا
+        # Handle parent_id: Convert to None if empty
         if not parent_id or parent_id.strip() == '':
             parent_id = None
         else:
-            parent_id = int(parent_id)  # تحويله إلى رقم صحيح
+            parent_id = int(parent_id)  # Convert to integer
 
-        # حفظ الصورة إذا تم تحميلها
+        # Save the image if uploaded
         image_path = None
         if image and image.filename:
-            filename = secure_filename(image.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            image.save(filepath)  # حفظ الصورة على السيرفر
-            image_path = f'static/uploads/{filename}'  # حفظ المسار النسبي في قاعدة البيانات
+            # Ensure the upload folder exists
+            upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'category_img')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
 
-        # إدراج الفئة في قاعدة البيانات
+            # Save the image
+            filename = secure_filename(image.filename)
+            filepath = os.path.join(upload_folder, filename)
+            image.save(filepath)  # Save the image to the server
+            image_path = f'static/uploads/category_img/{filename}'  # Save the relative path in the database
+
+        # Insert the category into the database
         cursor.execute(
             'INSERT INTO category (name, parent_id, image) VALUES (?, ?, ?)',
             (name, parent_id, image_path)
@@ -85,7 +92,7 @@ def add_category():
         flash('تمت إضافة الفئة بنجاح!', 'success')
         return redirect(url_for('categories'))
 
-    # جلب كل الفئات لاستخدامها في الاختيار
+    # Fetch all categories for selection
     cursor.execute('SELECT * FROM category')
     categories = cursor.fetchall()
     conn.close()
@@ -121,41 +128,37 @@ def user_categories1():
     categories = cursor.fetchall()
     conn.close()
     return render_template('header.html', categories=categories)
-
-@app.context_processor
-def inject_categories():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM category WHERE parent_id IS NULL")  # جلب الأقسام الرئيسية فقط
-    categories = cursor.fetchall()
-    conn.close()
-    return {'categories': categories}  # تمريرها لكل القوالب تلقائيًا
 @app.route('/subcategories/<int:category_id>')
 def show_subcategories(category_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # جلب القسم الرئيسي
     main_category = cursor.execute("SELECT id, name FROM category WHERE id = ?", (category_id,)).fetchone()
-
-    # جلب الأقسام الفرعية
     subcategories = cursor.execute("SELECT id, name, image FROM category WHERE parent_id = ?", (category_id,)).fetchall()
-
-    # جلب الأقسام الرئيسية لإظهارها في `header`
     categories = cursor.execute("SELECT * FROM category WHERE parent_id IS NULL").fetchall()
     
+    # معالجة الصور مع التحقق من وجودها
+    processed_subcategories = []
+    for id, name, image in subcategories:
+        if image:  # إذا كانت الصورة موجودة
+            image_path = url_for('static', filename=f"uploads/category_img/{image.split('/')[-1]}")
+        else:  # إذا كانت الصورة غير موجودة (NULL)
+            image_path = url_for('static', filename='images/default_category.png')  # صورة افتراضية
+        
+        processed_subcategories.append((id, name, image_path))
+    
     conn.close()
-
-    return render_template('subcategories.html', main_category=main_category, subcategories=subcategories, categories=categories)
-
-
+    return render_template('subcategories.html', 
+                         main_category=main_category, 
+                         subcategories=processed_subcategories, 
+                         categories=categories)
 
 @app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
 def edit_category(category_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # جلب بيانات الفئة الحالية
+    # Fetch the current category data
     cursor.execute("SELECT * FROM category WHERE id = ?", (category_id,))
     category = cursor.fetchone()
 
@@ -168,15 +171,22 @@ def edit_category(category_id):
         parent_id = request.form.get('parent', None)
         image = request.files.get('image')
 
-        # تحديد مسار الصورة الجديد
-        image_path = category['image']  # الاحتفاظ بالصورة القديمة في حال لم يتم رفع صورة جديدة
+        # Determine the new image path
+        image_path = category['image']  # Keep the old image if no new image is uploaded
 
-        if image and image.filename:  # إذا تم رفع صورة جديدة
+        if image and image.filename:  # If a new image is uploaded
+            # Ensure the upload folder exists
+            upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'category_img')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+
+            # Save the new image
             filename = secure_filename(image.filename)
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            image.save(image_path)  # حفظ الصورة في المجلد
-        
-        # تحديث البيانات في قاعدة البيانات
+            filepath = os.path.join(upload_folder, filename)
+            image.save(filepath)  # Save the image to the server
+            image_path = f'static/uploads/category_img/{filename}'  # Save the relative path in the database
+
+        # Update the data in the database
         cursor.execute("""
             UPDATE category 
             SET name = ?, parent_id = ?, image = ? 
@@ -188,13 +198,13 @@ def edit_category(category_id):
         flash("تم تعديل القسم بنجاح!", "success")
         return redirect(url_for('categories'))
 
-    # جلب جميع الفئات الأخرى لاختيار الفئة الرئيسية
+    # Fetch all other categories for selecting the parent category
     cursor.execute("SELECT * FROM category WHERE id != ?", (category_id,))
     categories = cursor.fetchall()
 
     conn.close()
     return render_template('admin/edit_category.html', category=category, categories=categories)
-
+    
 
 # حذف قسم
 @app.route('/delete_category/<int:category_id>')
@@ -217,7 +227,6 @@ def delete_category(category_id):
 
     flash("تم حذف القسم بنجاح!", "danger")
     return redirect(url_for('categories'))
-
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():

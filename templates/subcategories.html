@@ -117,8 +117,8 @@
             {% for subcategory in subcategories %}
                 <li>
                     <a href="{{ url_for('show_products_by_category', category_id=subcategory[0]) }}">
-                        <img src="{{ subcategory[2] }}" alt="" />
-                        {{ subcategory[1] }}
+                        <img src="{{ url_for('static', filename='uploads/category_img/' + subcategory[2].split('/')[-1]) }}" 
+                        alt="{{ subcategory[1] }}" />                        {{ subcategory[1] }}
                     </a>
                 </li>
             {% endfor %}

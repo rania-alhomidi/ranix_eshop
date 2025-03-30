@@ -27,7 +27,7 @@
             </div>
             <div class="mb-3">
                 <label for="images" class="form-label">الصورة</label>
-                <input type="file" name="images" class="form-control">
+                <input type="file" name="image" class="form-control">
                 {% if category.image %}
                     <p>الصورة الحالية:</p>
                     <img src="{{ url_for('static', filename=category.image) }}" alt="صورة الفئة" width="100">
