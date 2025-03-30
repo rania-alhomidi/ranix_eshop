@@ -19,17 +19,18 @@
 
                     <!-- الأزرار -->
                     <div class="d-flex justify-content-center gap-2">
-                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}"
-                            class="d-inline">
+                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
                             <input type="hidden" name="name" value="{{ product.name }}">
                             <input type="hidden" name="price" value="{{ product.profit_price }}">
-                            <input type="hidden" name="image" value="{{ product.image }}">
+                            <input type="hidden" name="image_url" value="{{ product.image }}">
                             <input type="hidden" name="description" value="{{ product.description }}">
                             <input type="hidden" name="seller" value="{{ product.seller }}">
+                            <input type="hidden" name="quantity" value="1"> <!-- أضف هذا الحقل -->
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-shopping-cart"></i> إضافة للسلة
                             </button>
                         </form>
+                        
                         <a href="{{ url_for('product_details', product_id=product.id) }}"
                             class="btn btn-outline-secondary">
                             <i class="fa fa-info-circle"></i> تفاصيل

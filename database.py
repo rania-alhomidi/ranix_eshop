@@ -241,12 +241,58 @@ cursor = conn.cursor()
 #     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 # );''')
 
+# cursor.execute('''CREATE TABLE orderss (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     user_id INTEGER NOT NULL,
+#     total_price REAL NOT NULL,
+#     status TEXT CHECK(status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled')) DEFAULT 'pending',
+#     shipping_address TEXT NOT NULL,
+#     phone_number TEXT NOT NULL,
+#     payment_method TEXT NOT NULL,
+#     customer_notes TEXT,
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (user_id) REFERENCES users(id)
+# );''')
+# cursor.execute('''
+#     CREATE TABLE payment_methods (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name TEXT NOT NULL,
+#     description TEXT,
+#     is_active BOOLEAN DEFAULT 1
+# );''')
+
+# cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS user (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name TEXT,
+#     num TEXT UNIQUE,
+#     pass TEXT,
+#     email TEXT UNIQUE,
+#     ud_ia INTEGER,
+#     account_status INTEGER DEFAULT 1,
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (ud_ia) REFERENCES user_addresses(id) ON DELETE CASCADE
+# );
+# ''')
+
+# cursor.execute('''
+# CREATE TABLE IF NOT EXISTS payments (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     order_id INTEGER NOT NULL,
+#     payment_method TEXT CHECK(payment_method IN ('cash', 'online')) NOT NULL,
+#     amount REAL CHECK(amount >= 0) NOT NULL,
+#     payment_status TEXT DEFAULT 'معلق' CHECK(payment_status IN ('معلق', 'مدفوع', 'مرفوض')),
+#     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+# );
+# ''')
 
 conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
-cursor.execute("SELECT * FROM orders1 ")  # استعلام عن كل البيانات
+cursor.execute("SELECT * FROM orders ")  # استعلام عن كل البيانات
 rows = cursor.fetchall()  # جلب جميع الصفوف
 print("البيانات الموجودة في قاعدة البيانات:", rows)
 

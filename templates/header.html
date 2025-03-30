@@ -60,27 +60,39 @@
                     </ul>
                 </div>
             </li>
-            
-
-            <li class="nav-item user-menu">
-                <a class="nav-link" href="#">
-                    صاحب المتجر
-                </a>
-                <div class="user-dropdown">
-                    <a href="#">تسجيل</a>
-                    <a href="#">تسجيل الدخول</a>
-                    <a href="#">تسجيل الخروج</a>
-                    <a href="#">خدمة العملاء</a>
-                </div>
-            </li>
-
             <li class="nav-item user-menu">
                 <a class="nav-link" href="#">
                     تسجيل الدخول
                 </a>
-                
+                <div class="user-dropdown">
+                    
+                    <a href="{{url_for('signup')}}">تسجيل الدخول</a>
+                    <a href="#">تسجيل الدخول</a>
+                    <a href="#">تسجيل الدخول</a>
+
+                </div>
             </li>
 
+            <li class="nav-item user-menu">
+                {% if 'user_id' in session %}
+                    <!-- إذا كان المستخدم مسجلاً دخوله -->
+                    <a class="nav-link" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                        <!-- هنا أيقونة المستخدم (يمكنك استبدالها بأي صورة أو أيقونة أخرى) -->
+                        <i class="fa fa-user-circle"></i> {{ session['user_name'] }}
+                    </a>
+                    <div class="user-dropdown">
+                        <!-- رابط لصفحة البروفايل -->
+                        
+                        <a href="{{ url_for('logout') }}">تسجيل الخروج</a> <!-- رابط لتسجيل الخروج -->
+                    </div>
+                {% else %}
+                    <!-- إذا لم يكن المستخدم مسجلاً دخوله -->
+                    <a class="nav-link" href="{{ url_for('login') }}">تسجيل الدخول</a>
+                {% endif %}
+            </li>
+            
+
+          
 
             <!-- <li class="nav-item user-menu">
                 <a class="nav-link" href="#">

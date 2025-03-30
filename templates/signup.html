@@ -1,0 +1,145 @@
+{% include 'header.html' %}
+
+<main id="main" class="main">
+    <div class="container mt-5">
+        <h2 class="text-center">إنشاء حساب جديد</h2>
+        <form method="POST" action="{{ url_for('signup') }}" class="m-3 p-3 border rounded bg-light">
+            <div class="mb-3">
+                <label class="form-label">الاسم</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">رقم الهاتف</label>
+                <input type="text" name="phone_number" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">البريد الإلكتروني</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">كلمة المرور</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+             <!-- Map Integration -->
+             <div class="mb-3">
+                <label class="form-label">حدد موقعك</label>
+                <div id="map" style="height: 400px;"></div>
+                <button type="button" id="getLocationButton" class="btn btn-info mt-2">استخدام الموقع الحالي</button>
+                <p id="locationStatus" class="mb-0 mt-2 text-muted small"></p>  <!-- Smaller status text -->
+
+
+                <div class="form-group mt-3">
+                    <label for="addressDisplay">العنوان</label>
+                    <input type="text" class="form-control" id="addressDisplay" name="addressDisplay">
+                </div>
+
+                <!-- Hidden inputs for latitude and longitude -->
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
+
+
+            </div>
+            <button type="submit" class="btn btn-primary w-100">تسجيل</button>
+        </form>
+        <div class="mt-3 text-center">
+            <p>لديك حساب بالفعل؟ <a href="{{ url_for('login') }}">تسجيل الدخول</a></p>
+        </div>
+    </div>
+</main>
+
+<!-- Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('map').setView([21.4225, 39.8262], 12); // Default: Jeddah
+    let marker = null;
+    const getLocationButton = document.getElementById('getLocationButton');
+    const locationStatus = document.getElementById('locationStatus');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    const addressDisplay = document.getElementById('addressDisplay');
+
+    // --- Initialization ---
+    function initMap() {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        map.on('click', onMapClick);
+    }
+
+    // --- Event Handlers ---
+    function onMapClick(e) {
+        const { lat, lng } = e.latlng;
+        updateLocation(lat, lng);
+        reverseGeocode(lat, lng);
+    }
+
+    function onGetLocationClick() {
+        if (navigator.geolocation) {
+            locationStatus.textContent = '... جارِ الحصول على الموقع';
+            navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError);
+        } else {
+            locationStatus.textContent = 'تحديد الموقع الجغرافي غير مدعوم على هذا المتصفح.';
+        }
+    }
+
+    async function reverseGeocode(lat, lng) {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            let address = data.display_name;
+            addressDisplay.value = address || 'العنوان غير متوفر'; // Update the display field
+        } catch (error) {
+            console.error('Error during reverse geocoding:', error);
+            addressDisplay.value = 'لا يمكن استرجاع العنوان.';
+        }
+    }
+
+    function onGeolocationSuccess(position) {
+        const { latitude, longitude } = position.coords;
+        updateLocation(latitude, longitude);
+        reverseGeocode(latitude, longitude);
+        locationStatus.textContent = ''; // Clear status after success
+    }
+
+    function onGeolocationError(error) {
+        locationStatus.textContent = 'خطأ في الحصول على الموقع: ' + error.message;
+        // Consider a fallback:  Could use IP-based location as a last resort.
+    }
+
+    // --- Helper Functions ---
+    function updateLocation(latitude, longitude) {
+        latitudeInput.value = latitude;
+        longitudeInput.value = longitude;
+
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        marker = L.marker([latitude, longitude], {draggable: true}).addTo(map);  // Make marker draggable
+        marker.on('dragend', function(event) { // Update location on drag
+            const newLatLng = event.target.getLatLng();
+            updateLocation(newLatLng.lat, newLatLng.lng);
+            reverseGeocode(newLatLng.lat, newLatLng.lng);
+        });
+
+        map.setView([latitude, longitude], 15);
+    }
+
+
+
+    // --- Event Listeners ---
+    getLocationButton.addEventListener('click', onGetLocationClick);
+
+    // --- Initialization ---
+    initMap();
+});
+</script>
+

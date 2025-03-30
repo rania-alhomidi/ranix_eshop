@@ -1015,49 +1015,98 @@ def contact():
 #     return render_template('shoping-cart.html')
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+
+
+# 🟢 تسجيل مستخدم جديد
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
     if request.method == 'GET':
-        return render_template('register.html')  # عرض صفحة التسجيل عند الدخول لأول مرة
-    
-    # إذا كانت POST، تابع عملية التسجيل
-    name = request.form['name']
-    num = request.form['num']
-    email = request.form['email']
-    password = request.form['pass']
-    latitude = request.form['latitude']
-    longitude = request.form['longitude']
-    address = request.form['addressDisplay']
-    
-    verification_code = str(random.randint(100000, 999999))
-    session['verification_code'] = verification_code
-    session['user_data'] = {
-        'name': name,
-        'num': num,
-        'email': email,
-        'password': password,
-        'latitude': latitude,
-        'longitude': longitude,
-        'address': address
-    }
-    
-    redis_client.setex(f'verification:{num}', 600, verification_code)
-    
-    return redirect(url_for('verify'))
+        return render_template('signup.html')
 
-
-@app.route('/verify', methods=['GET', 'POST'])
-def verify():
     if request.method == 'POST':
-        entered_code = request.form['code']
-        stored_code = redis_client.get(f'verification:{session["user_data"]["num"]}')
+        name = request.form['name']
+        phone = request.form['phone_number']
+        password = generate_password_hash(request.form['password'])
+        email = request.form['email']
+        latitude = request.form['latitude']
+        longitude = request.form['longitude']
+        address = request.form['addressDisplay']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            # إضافة العنوان أولاً
+            cursor.execute("INSERT INTO user_addresses (latitude, longitude, address) VALUES (?, ?, ?)",
+                           (latitude, longitude, address))
+            address_id = cursor.lastrowid
+
+            # إضافة المستخدم
+            cursor.execute("INSERT INTO user (name, num, pass, email, ud_ia) VALUES (?, ?, ?, ?, ?)",
+                           (name, phone, password, email, address_id))
+            conn.commit()
+            flash('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.', 'success')
+            return redirect(url_for('login'))
+
+        except sqlite3.IntegrityError:
+            flash('البريد الإلكتروني أو رقم الهاتف مسجل مسبقًا.', 'danger')
+            return redirect(url_for('signup'))
+
+        finally:
+            conn.close()
+
+# 🟢 تسجيل الدخول
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('signin.html')  # عرض صفحة تسجيل الدخول
+
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = get_db_connection()
+        conn.row_factory = sqlite3.Row  # عرض النتائج كقاموس
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM user WHERE email = ?", (email,))
+        user = cursor.fetchone()  # جلب بيانات المستخدم
         
-        if stored_code and entered_code == stored_code:
-            return "تم التحقق بنجاح! يمكنك الآن تسجيل الدخول."
+        conn.close()
+
+        if user is None:
+            flash('البريد الإلكتروني غير مسجل.', 'danger')
+            return redirect(url_for('login'))
+
+        # طباعة بيانات المستخدم لمعرفة شكلها
+        print(dict(user))  
+
+        # استخراج كلمة المرور بأمان
+        stored_password = user['pass'] if 'pass' in user.keys() else None
+
+        if stored_password is None:
+            flash('حدث خطأ داخلي. الرجاء المحاولة مرة أخرى.', 'danger')
+            return redirect(url_for('login'))
+
+        # التحقق من صحة كلمة المرور
+        if check_password_hash(stored_password, password):
+            session['user_id'] = user['id']
+            session['user_name'] = user['name']
+            flash('تم تسجيل الدخول بنجاح.', 'success')
+            return redirect(url_for('index'))
         else:
-            return "رمز التحقق غير صحيح. حاول مرة أخرى."
-    
-    return render_template('verify.html')
+            flash('كلمة المرور غير صحيحة.', 'danger')
+            return redirect(url_for('login'))
+
+
+
+# 🟢 تسجيل الخروج
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('تم تسجيل الخروج بنجاح.', 'info')
+    return redirect(url_for('login'))
+
 
 # تشغيل التطبيق
 if __name__ == '__main__':
