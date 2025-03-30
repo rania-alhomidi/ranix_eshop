@@ -128,6 +128,7 @@ def user_categories1():
     categories = cursor.fetchall()
     conn.close()
     return render_template('header.html', categories=categories)
+
 @app.route('/subcategories/<int:category_id>')
 def show_subcategories(category_id):
     conn = get_db_connection()
@@ -152,6 +153,7 @@ def show_subcategories(category_id):
                          main_category=main_category, 
                          subcategories=processed_subcategories, 
                          categories=categories)
+
 
 @app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
 def edit_category(category_id):
@@ -874,14 +876,20 @@ def add_to_cart(product_id):
     expires = datetime.now() + timedelta(days=7)
     response.set_cookie('cart', json.dumps(cart), expires=expires)
     return response
-
+    
 @app.route('/view_cart')
 def view_cart():
     cart = request.cookies.get('cart')
     cart = json.loads(cart) if cart else []
+    
+    # تحقق من البيانات وتأكد من وجود image_url
+    for item in cart:
+        if 'image_url' not in item:
+            item['image_url'] = 'default_product.jpg'  # صورة افتراضية
+        # تأكد من أن المسار صحيح (إزالة أي مسارات مطلقة إذا كانت موجودة)
+        item['image_url'] = item['image_url'].split('/')[-1]  # يأخذ اسم الملف فقط
+    
     return render_template('cart.html', cart=cart)
-
-
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if request.method == 'POST':

@@ -8,9 +8,9 @@
         <div class="col-6 col-md-6 col-lg-4 col-xl-3 mb-3">
             <div class="product-card card h-100">
                 <!-- صورة المنتج -->
-<!-- تغيير سطر عرض الصورة في shop_users -->
-<img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}" 
-     alt="{{ product.name }}" class="card-img-top">
+                <!-- تغيير سطر عرض الصورة في shop_users -->
+                <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
+                    alt="{{ product.name }}" class="card-img-top">
                 <!-- تفاصيل المنتج -->
                 <div class="card-body text-center">
                     <h5 class="card-title">{{ product.name }}</h5>
@@ -19,7 +19,8 @@
 
                     <!-- الأزرار -->
                     <div class="d-flex justify-content-center gap-2">
-                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}"
+                            class="d-inline">
                             <input type="hidden" name="name" value="{{ product.name }}">
                             <input type="hidden" name="price" value="{{ product.profit_price }}">
                             <input type="hidden" name="image" value="{{ product.image }}">
@@ -29,7 +30,8 @@
                                 <i class="fa fa-shopping-cart"></i> إضافة للسلة
                             </button>
                         </form>
-                        <a href="{{ url_for('product_details', product_id=product.id) }}" class="btn btn-outline-secondary">
+                        <a href="{{ url_for('product_details', product_id=product.id) }}"
+                            class="btn btn-outline-secondary">
                             <i class="fa fa-info-circle"></i> تفاصيل
                         </a>
                     </div>

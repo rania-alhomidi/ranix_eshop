@@ -105,13 +105,15 @@
                 <img src="{{ category['image'] }}" alt="" class="card-img-top">
 
                 <!-- تفاصيل المنتج -->
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ category.name }}</h5>
-           
-                   
-                </div>
+                
             </div>
+            <h5 class="card-title ms-5">{{ category.name }}</h5>
+   
         </div>
+        <!-- <div class="card-body text-center">
+            <h5 class="card-title">{{ category.name }}</h5>
+   
+        </div> -->
         {% endfor %}
         {% endfor %}
     </div>

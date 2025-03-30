@@ -12,7 +12,7 @@
                 <div class="product__details__pic">
                     <div class="product__details__pic__item">
                         <img class="product__details__pic__item--large"
-                            src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                            src="{{ url_for('static', filename=product.image.replace('static/', '')) }}" alt="{{ product.name }}">
                     </div>
                 </div>
             </div>
