@@ -1,88 +1,358 @@
 {% include 'header.html' %}
 
-
-
-                    <!-- Categories Section End -->
-<!-- Hero Section Begin -->
-<!-- <section class="hero">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3">
-                <div class="hero__categories">
-                    <div class="hero__categories__all">
-                        <i class="fa fa-bars"></i>
-                        <span>الأقسام</span>
-                    </div>
-                    <ul>
-                        {% if categories %}
-                            {% for category in categories %}
-                                <li><a href="#">{{ category[1] }}</a></li>
-                            {% endfor %}
-                        {% else %}
-                            <li>لا توجد أقسام متاحة</li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-            
-           </div></div></section> -->
 <style>
-
-    .categories .container{
-        /* margin-top: 200px; */
-      
-
+    /* تحسينات عامة */
+    body {
+        font-family: 'Tajawal', sans-serif;
+        background-color: #f8f9fa;
     }
-.categories__item{
-    width: 100%;
-    /* padding: 0 50px 0 50px; */
-    margin-right: auto;
-
+    
+    .container {
+        max-width: 1200px;
+    }
+    
+    /* تحسينات قسم الإعلانات */
+    .categories__slider {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .categories__item {
+        height: 400px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .hero__text {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        padding: 30px;
+        color: white;
+    }
+    
+    .hero__text span {
+        font-size: 14px;
+        letter-spacing: 1px;
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .hero__text h2 {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .hero__text p {
+        margin-bottom: 20px;
+    }
+    
+    .primary-btn {
+        background: #ff6b6b;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 30px;
+        display: inline-block;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .primary-btn:hover {
+        background: #ff5252;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+    }
+    
+    /* تحسينات عرض الأقسام الرئيسية (7 أقسام في الصف) */
+    .main-categories {
+        padding: 30px 0;
+    }
+    
+    .category-circle {
+        text-align: center;
+        margin-bottom: 20px;
+        padding: 0 5px;
+    }
+    
+    .category-circle a {
+        text-decoration: none;
+        color: #333;
+        display: block;
+    }
+    
+    .category-img-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid #fff;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    
+    .category-img-container:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .category-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .category-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 5px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 36px;
+    }
+    
+    /* تحسينات عرض الأقسام في السلايدر */
+    .latest-product__text h4 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        position: relative;
+        padding-bottom: 15px;
+        text-align: center;
+    }
+    
+    .latest-product__text h4:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: #ff6b6b;
+    }
+    
+    .latest-product__item {
+        display: block;
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .latest-product__item__pic {
+        overflow: hidden;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .latest-product__item__pic img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: all 0.5s;
+    }
+    
+    .latest-product__item:hover img {
+        transform: scale(1.05);
+    }
+    
+    .latest-product__item__text h6 {
+        margin-top: 10px;
+        font-weight: 600;
+        color: #333;
+        text-align: center;
+    }
+    
+    /* تحسينات للهواتف */
+    @media (max-width: 1200px) {
+        .category-img-container {
+            width: 70px;
+            height: 70px;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .category-img-container {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .category-title {
+            font-size: 12px;
+            height: 32px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .categories__item {
+            height: 300px;
+        }
+        
+        .hero__text h2 {
+            font-size: 28px;
+        }
+        
+        .category-img-container {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .category-title {
+            font-size: 11px;
+            height: 28px;
+        }
+        
+        .latest-product__item__pic img {
+            height: 150px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .categories__item {
+            height: 250px;
+        }
+        
+        .hero__text {
+            padding: 20px;
+        }
+        
+        .hero__text h2 {
+            font-size: 22px;
+        }
+        
+        .category-img-container {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .category-title {
+            font-size: 10px;
+            height: 24px;
+        }
+    }
+    /* للأقسام على الهاتف (7 في الصف) */
+@media (max-width: 576px) {
+    .row.flex-nowrap {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+    }
+    .flex-shrink-0 {
+        flex-shrink: 0 !important;
+    }
+    /* إخفاء شريط التمرير */
+    .overflow-auto::-webkit-scrollbar {
+        display: none;
+    }
 }
-
+    /* تحسينات خاصة للسلايدر */
+    .owl-carousel .owl-nav {
+        position: absolute;
+        top: 50%;
+        width: 100%;
+    }
+    
+    .owl-carousel .owl-nav button.owl-prev,
+    .owl-carousel .owl-nav button.owl-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.7) !important;
+        border-radius: 50% !important;
+        color: #333 !important;
+        font-size: 20px !important;
+        transition: all 0.3s;
+    }
+    
+    .owl-carousel .owl-nav button.owl-prev {
+        left: 15px;
+    }
+    
+    .owl-carousel .owl-nav button.owl-next {
+        right: 15px;
+    }
+    
+    .owl-carousel .owl-nav button.owl-prev:hover,
+    .owl-carousel .owl-nav button.owl-next:hover {
+        background: white !important;
+    }
+    
+    .owl-carousel .owl-dots {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+    }
+    
+    .owl-carousel .owl-dots button.owl-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5) !important;
+        margin: 0 5px;
+        transition: all 0.3s;
+    }
+    
+    .owl-carousel .owl-dots button.owl-dot.active {
+        background: white !important;
+        width: 30px;
+        border-radius: 10px;
+    }
 </style>
-<!-- الاعلانااااات -->
-<section class="categories ">
+
+<!-- قسم الإعلانات -->
+<section class="categories">
     <div class="container">
         <div class="row">
             <div class="categories__slider owl-carousel">
                 <!-- الإعلان الأول -->
-                <div class="categories__item set-bg" data-setbg="static/style/img/categories/cat-1.jpg">
+                <div class="categories__item" style="background-image: url('static/style/img/categories/cat-1.jpg')">
                     <div class="hero__text">
-                        <span>FRUIT FRESH</span>
-                        <h2>Vegetable <br />100% Organic</h2>
-                        <p>Free Pickup and Delivery Available</p>
-                        <a href="#" class="primary-btn">SHOP NOW</a>
+                        <span>فواكه طازجة</span>
+                        <h2>خضروات <br />عضوية 100%</h2>
+                        <p>توصيل مجاني متاح</p>
+                        <a href="#" class="primary-btn">تسوق الآن</a>
                     </div>
                 </div>
 
                 <!-- الإعلان الثاني -->
-                <div class="categories__item set-bg" data-setbg="static/style/img/categories/cat-2.jpg">
+                <div class="categories__item" style="background-image: url('static/style/img/categories/cat-2.jpg')">
                     <div class="hero__text">
-                        <span>FRUIT FRESH</span>
-                        <h2>Vegetable <br />100% Organic</h2>
-                        <p>Free Pickup and Delivery Available</p>
-                        <a href="#" class="primary-btn">SHOP NOW</a>
+                        <span>فواكه طازجة</span>
+                        <h2>خضروات <br />عضوية 100%</h2>
+                        <p>توصيل مجاني متاح</p>
+                        <a href="#" class="primary-btn">تسوق الآن</a>
                     </div>
                 </div>
 
                 <!-- الإعلان الثالث -->
-                <div class="categories__item set-bg" data-setbg="static/style/img/categories/cat-3.jpg">
+                <div class="categories__item" style="background-image: url('static/style/img/categories/cat-3.jpg')">
                     <div class="hero__text">
-                        <span>FRUIT FRESH</span>
-                        <h2>Vegetable <br />100% Organic</h2>
-                        <p>Free Pickup and Delivery Available</p>
-                        <a href="#" class="primary-btn">SHOP NOW</a>
+                        <span>فواكه طازجة</span>
+                        <h2>خضروات <br />عضوية 100%</h2>
+                        <p>توصيل مجاني متاح</p>
+                        <a href="#" class="primary-btn">تسوق الآن</a>
                     </div>
                 </div>
 
                 <!-- الإعلان الرابع -->
-                <div class="categories__item set-bg" data-setbg="static/style/img/categories/cat-5.jpg">
+                <div class="categories__item" style="background-image: url('static/style/img/categories/cat-5.jpg')">
                     <div class="hero__text">
-                        <span>FRUIT FRESH</span>
-                        <h2>Vegetable <br />100% Organic</h2>
-                        <p>Free Pickup and Delivery Available</p>
-                        <a href="#" class="primary-btn">SHOP NOW</a>
+                        <span>فواكه طازجة</span>
+                        <h2>خضروات <br />عضوية 100%</h2>
+                        <p>توصيل مجاني متاح</p>
+                        <a href="#" class="primary-btn">تسوق الآن</a>
                     </div>
                 </div>
             </div>
@@ -91,44 +361,125 @@
 </section>
 
 
+<style>
+    /* تحسينات عامة */
+    body {
+        font-family: 'Tajawal', sans-serif;
+        background-color: #f8f9fa;
+    }
+    
+    .container {
+        max-width: 1200px;
+    }
+    
+    /* نظام الأقسام الرئيسية */
+    .categories-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -5px;
+    }
+    
+    .category-col {
+        padding: 0 5px;
+        margin-bottom: 15px;
+        width: 20%; /* 5 أقسام في الصف (100/5=20) */
+    }
+    
+    .category-item {
+        text-align: center;
+    }
+    
+    .category-img-container {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid #fff;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    
+    .category-img-container:hover {
+        transform: scale(1.1);
+    }
+    
+    .category-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .category-title {
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 36px;
+    }
+    
+    /* 7 أقسام في الصف على الشاشات الكبيرة */
+    @media (min-width: 992px) {
+        .category-col {
+            width: 14.2857%; /* 100/7 ≈ 14.2857 */
+        }
+    }
+    
+    /* 5 أقسام في الصف على الهواتف */
+    @media (max-width: 768px) {
+        .category-col {
+            width: 20%;
+        }
+        
+        .category-img-container {
+            width: 50px;
+            height: 50px;
+        }
+    }
+    
+    /* 3 أقسام في الصف على الشاشات الصغيرة جداً */
+    @media (max-width: 576px) {
+        .category-col {
+            width: 33.3333%;
+        }
+    }
+    
+    /* بقية الأنماط (الإعلانات، السلايدر) تبقى كما هي */
+    /* ... */
+</style>
 
+<!-- قسم الأقسام الرئيسية -->
 <div class="container my-4">
-    <div class="row">
+    <div class="categories-row">
         {% set main_categories = categories | selectattr("parent_id", "none") | list %}
-        {% for i in range(0, main_categories|length, 4) %}
-        {% for category in main_categories[i:i+4] %}
-        <div class="col-4 col-md-6 col-lg-4 col-xl-3 mb-3">
-            <a href="{{ url_for('show_subcategories', category_id=category['id']) }}" class="latest-product__item">
-
-            <div class="product-card1 card h-100">
-                <!-- صورة المنتج -->
-                <img src="{{ category['image'] }}" alt="" class="card-img-top">
-
-                <!-- تفاصيل المنتج -->
-                
+        {% for category in main_categories %}
+        <div class="category-col">
+            <div class="category-item">
+                <a href="{{ url_for('show_subcategories', category_id=category['id']) }}">
+                    <div class="category-img-container">
+                        <img src="{{ category['image'] }}" alt="{{ category.name }}">
+                    </div>
+                    <div class="category-title">{{ category.name }}</div>
+                </a>
             </div>
-            <h5 class="card-title ms-5">{{ category.name }}</h5>
-   
         </div>
-        <!-- <div class="card-body text-center">
-            <h5 class="card-title">{{ category.name }}</h5>
-   
-        </div> -->
-        {% endfor %}
         {% endfor %}
     </div>
-    
 </div>
 
+<!-- بقية الأقسام (الإعلانات، السلايدر) تبقى كما هي -->
+<!-- ... -->
 
-
-
+<!-- الأقسام في السلايدر -->
 <section class="latest-product spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="latest-product__text">
-                    <h4>الاقسام</h4>
+                    <h4>تصفح الأقسام</h4>
                     <div class="latest-product__slider owl-carousel">
                         {% set main_categories = categories | selectattr("parent_id", "none") | list %}
                         {% for i in range(0, main_categories|length, 4) %}
@@ -142,36 +493,52 @@
                                         <h6>{{ category['name'] }}</h6>
                                     </div>
                                 </a>
-                                
                                 {% endfor %}
                             </div>
                         {% endfor %}
                     </div>
-                    
+                </div>
             </div>
         </div>
     </div>
 </section>
 
+<script>
+    $(document).ready(function(){
+        // إعداد سلايدر الإعلانات
+        $('.categories__slider').owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: true,
+            dots: true,
+            items: 1,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            autoplayHoverPause: true,
+            animateOut: 'fadeOut',
+            responsive: {
+                0: { items: 1 },
+                768: { items: 1 },
+                992: { items: 1 }
+            }
+        });
+        
+        // إعداد سلايدر الأقسام
+        $('.latest-product__slider').owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            dots: false,
+            autoplay: true,
+            autoplayTimeout: 4000,
+            responsive: {
+                0: { items: 2 },
+                576: { items: 3 },
+                768: { items: 4 },
+                992: { items: 4 }
+            }
+        });
+    });
+</script>
 
-<script>$('.owl-carousel').owlCarousel({
-    loop: true, // يعيد التشغيل بعد الانتهاء
-    margin: 10, // المسافة بين العناصر
-    nav: true, // إظهار أزرار التنقل
-    dots: true, // إظهار النقاط
-    items: 1, // يعرض عنصر واحد فقط في كل مرة
-    autoplay: true, // تشغيل تلقائي
-    autoplayTimeout: 3000, // وقت الانتقال بين العناصر
-    responsive: {
-        0: {
-            items: 1 // يعرض عنصر واحد على الهاتف
-        },
-        768: {
-            items: 1 // يعرض عنصر واحد على الآيباد
-        },
-        992: {
-            items: 1 // يعرض عنصر واحد على اللابتوب
-        }
-    }
-});</script>
-{%include 'f.html'%}
+{% include 'f.html' %}

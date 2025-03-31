@@ -24,7 +24,14 @@
    <script src="{{ url_for('static', filename='style/js/jquery-3.6.0.min.js') }}"></script>
    <script src="{{ url_for('static', filename='style/js/bootstrap.bundle.min.js') }}"></script>
    <script src="{{ url_for('static', filename='style/js/owl.carousel.min.js') }}"></script>
-   
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap RTL -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css"> -->
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <style>
     
     </style>
@@ -62,37 +69,33 @@
             </li>
             <li class="nav-item user-menu">
                 <a class="nav-link" href="#">
-                    تسجيل الدخول
+                    صاحب المتجر
                 </a>
                 <div class="user-dropdown">
                     
-                    <a href="{{url_for('signup')}}">تسجيل الدخول</a>
+                    <a href="#">تسجيل الدخول</a>
                     <a href="#">تسجيل الدخول</a>
                     <a href="#">تسجيل الدخول</a>
 
                 </div>
             </li>
-
             <li class="nav-item user-menu">
-                {% if 'user_id' in session %}
-                    <!-- إذا كان المستخدم مسجلاً دخوله -->
+                {% if request.cookies.get('user_auth') %}
+                    <!-- إذا كان المستخدم مسجلاً دخوله (التحقق من وجود كوكي user_auth) -->
                     <a class="nav-link" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                        <!-- هنا أيقونة المستخدم (يمكنك استبدالها بأي صورة أو أيقونة أخرى) -->
-                        <i class="fa fa-user-circle"></i> {{ session['user_name'] }}
+                        <i class="fa fa-user-circle"></i> {{ request.cookies.get('user_name', 'مستخدم') }}
                     </a>
                     <div class="user-dropdown">
                         <!-- رابط لصفحة البروفايل -->
-                        
-                        <a href="{{ url_for('logout') }}">تسجيل الخروج</a> <!-- رابط لتسجيل الخروج -->
+                      
+                        <!-- رابط لتسجيل الخروج -->
+                        <a href="{{ url_for('logout') }}">تسجيل الخروج</a>
                     </div>
                 {% else %}
                     <!-- إذا لم يكن المستخدم مسجلاً دخوله -->
                     <a class="nav-link" href="{{ url_for('login') }}">تسجيل الدخول</a>
                 {% endif %}
             </li>
-            
-
-          
 
             <!-- <li class="nav-item user-menu">
                 <a class="nav-link" href="#">

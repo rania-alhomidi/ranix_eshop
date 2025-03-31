@@ -37,11 +37,21 @@
     </div>
 
 </form>
-<form method="POST" action="{{ url_for('checkout') }}" class="mt-4">
-    <button type="submit" class="btn btn-success btn-lg btn-block">
-        <i class="fa fa-shopping-cart"></i> إتمام الشراء
-    </button>
-</form>
+    {%if request.cookies.get('user_auth') %}
+        <form method="POST" action="{{ url_for('checkout') }}" class="mt-4">
+            <button type="submit" class="btn btn-success btn-lg btn-block">
+                <i class="fa fa-shopping-cart"></i> إتمام الشراء
+            </button>
+        </form>
+    {% else %}
+    <div class="alert alert-warning mt-4">
+        <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
+        <a href="{{ url_for('login') }}?next={{ url_for('checkout') }}" class="btn btn-primary">
+            <i class="fa fa-sign-in"></i> تسجيل الدخول
+        </a>
+    </div>
+{% endif %}
+
     <form method="POST" action="{{ url_for('clear_cart') }}" class="mt-4" onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
         <button type="submit" class="btn btn-danger btn-lg btn-block">
             <i class="fa fa-trash"></i> تفريغ السلة
