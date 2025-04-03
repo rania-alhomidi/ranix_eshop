@@ -1,130 +1,202 @@
 {% include 'header.html' %}
 
 <style>
-    /* تنسيق المظهر العام للصفحة */
-    .ca {
-        padding: 20px;
+    /* تنسيق الصفحة الرئيسي */
+    .subcategories-container {
+        padding: 30px 15px;
         max-width: 1200px;
-        font-family: Arial, sans-serif;
-        margin: auto; /* ضمان التوسّط */
-
+        margin: 0 auto;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     /* تنسيق العنوان */
-    .ca h2 {
-        font-size: 2em;
-        color: #333;
-        margin-bottom: 20px;
+    .section-title {
         text-align: center;
+        margin-bottom: 30px;
     }
 
-    /* تنسيق قائمة الأقسام الفرعية */
-    .ca ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: center;
-        list-style: none;
-        padding: 0;
+    .section-title h2 {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        font-weight: 700;
+        padding-bottom: 10px;
+        position: relative;
+        display: inline-block;
     }
 
-    /* تنسيق كل عنصر في القائمة */
-    .ca ul li {
-        background-color: #f9f9f9;
+    .section-title h2:after {
+        content: '';
+        position: absolute;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #ff6f61, #ffa4d6);
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* تنسيق شبكة الأقسام */
+    .subcategories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 15px 0;
+    }
+
+    /* تنسيق بطاقة القسم */
+    .category-card {
+        background: white;
         border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 180px;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
 
-    .ca ul li:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    /* تنسيق الروابط */
-    .ca ul li a {
-        display: block;
-        padding: 10px;
-        color: #333;
-        text-decoration: none;
-        font-size: 1rem;
-        font-weight: bold;
-    }
-
-    /* تنسيق الصورة */
-    .ca ul li a img {
+    /* حاوية الصورة */
+    .image-container {
         width: 100%;
-        height: 120px; /* ضبط ارتفاع الصورة */
-        object-fit: cover; /* تجنب التشويه */
-        border-bottom: 2px solid #ddd;
+        height: 180px;
+        position: relative;
+        overflow: hidden;
     }
 
-    /* عند تمرير المؤشر */
-    .ca ul li a:hover {
-        background-color: #ebbee8;
-        color: #fff;
+    .category-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
     }
 
-    /* تنسيق الرسالة عند عدم وجود أقسام */
-    .ca p {
-        color: #ff4d4d;
+    .category-card:hover .category-image {
+        transform: scale(1.03);
+    }
+
+    /* تنسيق محتوى البطاقة */
+    .category-content {
+        padding: 15px;
         text-align: center;
-        font-size: 1.2em;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
-    /* تنسيق الرابط للعودة إلى الصفحة الرئيسية */
-    .ca a {
-        display: block;
-        text-align: center;
-        font-size: 1.2em;
-        margin-top: 30px;
+    .category-name {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin: 8px 0;
+        font-weight: 600;
+    }
+
+    /* تنسيق الزر المعدل */
+    .category-link {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 8px 20px;
+        background: linear-gradient(45deg, #ff6f61, #ffa4d6);
+        color: white;
+        border-radius: 25px;
         text-decoration: none;
-        color: #007bff;
-        transition: color 0.3s ease;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 111, 97, 0.3);
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
     }
 
-    .ca a:hover {
-        color: #0056b3;
+    .category-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
+        background: linear-gradient(45deg, #ffa4d6, #ff6f61);
     }
 
-    /* ✅ تحسينات لعرض الجوال */
+    /* رسالة عدم وجود أقسام */
+    .no-categories {
+        text-align: center;
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+
+    .no-categories p {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+
+    .home-link {
+        display: inline-block;
+        padding: 8px 20px;
+        background: #2c3e50;
+        color: white;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .home-link:hover {
+        background: #1a252f;
+    }
+
+    /* التنسيق للجوال */
     @media (max-width: 768px) {
-        .ca {
-            margin: 0; /* إزالة الهامش */
-            padding: 10px;
+        .subcategories-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
-        .ca ul li {
-            width: 140px; /* تصغير العرض للهواتف */
+        
+        .image-container {
+            height: 150px;
         }
-        .ca ul {
-            gap: 10px; /* تقليل التباعد */
-        }
-        .ca ul li a img {
-            height: 100px; /* تقليل حجم الصورة */
+        
+        .category-link {
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            border-radius: 20px;
         }
     }
 
+    @media (max-width: 480px) {
+        .image-container {
+            height: 120px;
+        }
+    }
 </style>
 
-<div class="ca">
-    <h2>الأقسام الفرعية لـ {{ main_category[1] }}</h2>
+<div class="subcategories-container">
+    <div class="section-title">
+        <h2>الأقسام الفرعية لـ {{ main_category[1] }}</h2>
+    </div>
 
     {% if subcategories %}
-        <ul>
+        <div class="subcategories-grid">
             {% for subcategory in subcategories %}
-                <li>
-                    <a href="{{ url_for('show_products_by_category', category_id=subcategory[0]) }}">
+                <div class="category-card">
+                    <div class="image-container">
                         <img src="{{ url_for('static', filename='uploads/category_img/' + subcategory[2].split('/')[-1]) }}" 
-                        alt="{{ subcategory[1] }}" />                        {{ subcategory[1] }}
-                    </a>
-                </li>
+                             alt="{{ subcategory[1] }}" class="category-image">
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-name">{{ subcategory[1] }}</h3>
+                        <a href="{{ url_for('show_products_by_category', category_id=subcategory[0]) }}" class="category-link">
+                            تصفح المنتجات
+                        </a>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <p>🚫 لا توجد أقسام فرعية لهذا القسم.</p>
+        <div class="no-categories">
+            <p>لا توجد أقسام فرعية متاحة حالياً</p>
+            <a href="{{ url_for('index') }}" class="home-link">العودة للصفحة الرئيسية</a>
+        </div>
     {% endif %}
 </div>
 

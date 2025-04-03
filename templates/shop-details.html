@@ -1,11 +1,152 @@
 {% include 'header.html' %}
 <style>
-
-    .product__details__pic__item{
-        margin-top: 200px;
+    .product-details {
+        padding: 80px 0;
+    }
+    
+    .product__details__pic__item {
+        margin-top: 50px;
+        text-align: center;
+    }
+    
+    .product__details__pic__item img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .product__details__text {
+        padding: 30px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .product__details__text h3 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .product__details__price {
+        font-size: 24px;
+        color: #ff6f61;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    
+    .product__details__text p {
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 25px;
+    }
+    
+    .product__details__text ul {
+        margin-bottom: 30px;
+        padding: 0;
+        list-style: none;
+    }
+    
+    .product__details__text ul li {
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+    
+    .product__details__text ul li b {
+        color: #333;
+        margin-left: 5px;
+    }
+    
+    .product__details__quantity {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    
+    .product__details__quantity button {
+        background-color: #ff6f61;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 5px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .product__details__quantity button:disabled {
+        background-color: #ddd;
+        cursor: not-allowed;
+    }
+    
+    .product__details__quantity button:hover {
+        background-color: #e04e43;
+        transform: translateY(-2px);
+    }
+    
+    .product__details__quantity input {
+        text-align: center;
+        font-size: 18px;
+        width: 60px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin: 0 10px;
+        font-weight: bold;
+    }
+    
+    .primary-btn {
+        background-color: #ff6f61;
+        color: white;
+        padding: 15px 30px;
+        font-size: 18px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .primary-btn:hover {
+        background-color: #e04e43;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(255, 111, 97, 0.3);
+    }
+    
+    .product-meta {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    @media (max-width: 768px) {
+        .product__details__pic__item {
+            margin-top: 20px;
+        }
+        
+        .product__details__text {
+            padding: 20px;
+        }
     }
 </style>
-<section class="product-details spad mt-5">
+
+<section class="product-details spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 col-md-6">
@@ -19,135 +160,53 @@
             <div class="col-lg-6 col-md-6">
                 <div class="product__details__text">
                     <h3>{{ product.name }}</h3>
-                    <div class="product__details__price">السعر: {{ product.profit_price }} ر.ي</div>
+                    <div class="product__details__price">{{ product.profit_price }} ر.ي</div>
                     <p>{{ product.description }}</p>
 
-                    <ul>
-                        <li><b>التوفر:</b> <span>{{ product.quantity }}</span></li>
-                        <li><b>التصنيف:</b> <span>{{ product.category }}</span></li>
-                        <li><b>البائع:</b> <span>{{ product.seller }}</span></li>
-                        <li><b>الموقع:</b> <span>{{ product.address }}</span></li>
-                    </ul>
+                    <div class="product-meta">
+                        <ul>
+                            <li><b>الكمية المتوفرة:</b> <span>{{ product.quantity }}</span></li>
+                            <li><b>القسم:</b> <span>{{ product.category }}</span></li>
+                            <li><b>البائع:</b> <span>{{ product.seller }}</span></li>
+                            <li><b>الموقع:</b> <span>{{ product.address }}</span></li>
+                        </ul>
+                    </div>
 
-                    <style>
-                        .product__details__quantity {
-                            display: flex;
-                            align-items: center;
-                            justify-content: space-between;
-                            max-width: 200px;
-                            /* margin: 10px 0; */
-                        }
-                        
-                        .product__details__quantity button {
-                            background-color: #ff6f61;
-                            color: #fff;
-                            border: none;
-                            padding: 10px;
-                            font-size: 16px;
-                            cursor: pointer;
-                            transition: background-color 0.3s ease;
-                            border-radius: 5px;
-                            width: 40px;
-                            height: 40px;
-                        }
-                    
-                        .product__details__quantity button:disabled {
-                            background-color: #ddd;
-                            cursor: not-allowed;
-                        }
-                    
-                        .product__details__quantity button:hover {
-                            background-color: #e04e43;
-                        }
-                    
-                        .product__details__quantity input {
-                            text-align: center;
-                            font-size: 16px;
-                            width: 50px;
-                            padding: 8px;
-                            border: 1px solid #ddd;
-                            border-radius: 5px;
-                            margin: 0 10px;
-                        }
-                    
-                        .primary-btn {
-                            background-color: #ffa4d6;
-                            color: white;
-                            padding: 12px 25px;
-                            font-size: 18px;
-                            border: none;
-                            border-radius: 5px;
-                            cursor: pointer;
-                            transition: background-color 0.3s ease;
-                            width: 100%;
-                            margin-top: 20px;
-                        }
-                    
-                        .primary-btn:hover {
-                            background-color: #f5c3fd;
-                        }
-                    </style>
-                    
                     <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
                         <input type="hidden" name="name" value="{{ product.name }}">
                         <input type="hidden" name="price" value="{{ product.profit_price }}">
-                        <input type="hidden" name="image" value="{{ product.image }}"> <!-- إضافة رابط الصورة -->
-                        <input type="hidden" name="description" value="{{ product.description }}"> <!-- إضافة الوصف -->
-                        <input type="hidden" name="seller" value="{{ product.seller }}"> <!-- إضافة البائع -->
+                        <input type="hidden" name="image" value="{{ product.image }}">
+                        <input type="hidden" name="description" value="{{ product.description }}">
+                        <input type="hidden" name="seller" value="{{ product.seller }}">
                         
                         <div class="product__details__quantity">
-                            <button type="button" onclick="decreaseQuantity()">-</button>
-                            <input type="text" id="quantity" name="quantity" value="1" readonly>
                             <button type="button" onclick="increaseQuantity()">+</button>
+                            <input type="text" id="quantity" name="quantity" value="1" readonly>
+                            <button type="button" onclick="decreaseQuantity()">-</button>
                         </div>
                         
                         <button type="submit" class="primary-btn">
-                            <i class="fa fa-shopping-cart"></i> إضافة لسلة
+                            <i class="fa fa-shopping-cart"></i> أضف إلى السلة
                         </button>
                     </form>
-                    
-                    <script>
-                    function increaseQuantity() {
-                        let qty = document.getElementById('quantity');
-                        qty.value = parseInt(qty.value) + 1;
-                    }
-                    
-                    function decreaseQuantity() {
-                        let qty = document.getElementById('quantity');
-                        if (parseInt(qty.value) > 1) {
-                            qty.value = parseInt(qty.value) - 1;
-                        }
-                    }
-                    </script>
-                    
-                    
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- <section class="related-product">
-    <div class="container">
-        <div class="section-title related__product__title">
-            <h2>منتجات ذات صلة</h2>
-        </div>
-        <div class="row">
-            {% for related_product in related_products %}
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="{{ url_for('static', filename='uploads/' + related_product.image) }}">
-                    </div>
-                    <div class="product__item__text">
-                        <h6>{{ related_product.name }}</h6>
-                        <h5>السعر: {{ related_product.profit_price }} ر.س</h5>
-                        <a href="{{ url_for('product_details', product_id=related_product.id) }}" class="btn btn-outline-secondary">تفاصيل</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section> -->
+<script>
+    function increaseQuantity() {
+        let qty = document.getElementById('quantity');
+        qty.value = parseInt(qty.value) + 1;
+    }
+    
+    function decreaseQuantity() {
+        let qty = document.getElementById('quantity');
+        if (parseInt(qty.value) > 1) {
+            qty.value = parseInt(qty.value) - 1;
+        }
+    }
+</script>
 
 {% include 'f.html' %}

@@ -1,69 +1,274 @@
 {% include 'header.html' %}
 
-<div class="container mt-5">
-    <h1 class="cart_title">عربة التسوق</h1>
+<style>
+    /* أنماط جديدة لعربة التسوق */
+    .cart-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .cart-title {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 30px;
+        color: #333;
+        border-bottom: 2px solid #f5f5f5;
+        padding-bottom: 10px;
+    }
+    
+    .cart-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        background: #f8f9fa;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+    
+    .cart-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+    
+    .cart-item:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .product-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-right: 15px;
+    }
+    
+    .product-details h5 {
+        margin-bottom: 5px;
+        font-size: 1rem;
+    }
+    
+    .product-details p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+    }
+    
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ddd;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    .quantity-input {
+        width: 50px;
+        text-align: center;
+        height: 30px;
+        border: 1px solid #ddd;
+        margin: 0 5px;
+    }
+    
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    
+    .price {
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .cart-summary {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .total-row {
+        font-weight: bold;
+        font-size: 1.2rem;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    
+    .checkout-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.1rem;
+        margin-top: 20px;
+    }
+    
+    .empty-cart-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+    }
+    
+    /* تصميم متجاوب */
+    @media (max-width: 768px) {
+        .cart-header {
+            display: none;
+        }
+        
+        .cart-item {
+            grid-template-columns: 1fr;
+            grid-gap: 15px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .product-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+            margin-right: 0;
+        }
+        
+        .quantity-controls {
+            justify-content: space-between;
+        }
+        
+        .mobile-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #666;
+        }
+    }
+</style>
+
+<div class="cart-container">
+    <h1 class="cart-title">عربة التسوق</h1>
+    
+    {% if cart %}
+    <div class="cart-header">
+        <div>المنتج</div>
+        <div>السعر</div>
+        <div>الكمية</div>
+        <div>المجموع</div>
+    </div>
+    
     <div class="cart-items">
         {% for item in cart %}
         <div class="cart-item">
-            
-            <img src="{{ item.image_url }}" alt="{{ item.name }}">
-            <div class="details">
-                <h5>{{ item.name }}</h5>
-                <p>{{ item.description }}</p>
-                <p class="text-muted">البائع: {{ item.seller }}</p>
-                <p class="price">السعر: {{ item.price }} ريال</p>
+            <div class="product-info">
+                <img src="{{ item.image_url }}" alt="{{ item.name }}" class="product-image">
+                <div class="product-details">
+                    <h5>{{ item.name }}</h5>
+                    <p class="text-muted">{{ item.description }}</p>
+                    <p class="text-muted">البائع: {{ item.seller }}</p>
+                    <span class="mobile-label d-md-none">السعر: {{ item.price }} ريال</span>
+                </div>
             </div>
+            
+            <div class="price d-none d-md-block">
+                {{ item.price }} ريال
+            </div>
+            
             <div class="quantity-controls">
-                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" style="display:inline;">
-                    <input type="hidden" name="action" value="increase">
-                    <button type="submit" class="btn btn-success">+</button>
-                </form>
-                <span>{{ item.quantity }}</span>
-                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" style="display:inline;">
+                <span class="mobile-label d-md-none">الكمية:</span>
+                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" class="d-inline">
                     <input type="hidden" name="action" value="decrease">
-                    <button type="submit" class="btn btn-danger">-</button>
+                    <button type="submit" class="quantity-btn">-</button>
                 </form>
-                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" style="display:inline;">
+                <span class="quantity">{{ item.quantity }}</span>
+                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" class="d-inline">
+                    <input type="hidden" name="action" value="increase">
+                    <button type="submit" class="quantity-btn">+</button>
+                </form>
+                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" class="d-inline">
                     <input type="hidden" name="action" value="remove">
-                    <button type="submit" class="btn btn-warning">حذف</button>
+                    <button type="submit" class="remove-btn">حذف</button>
                 </form>
+            </div>
+            
+            <div class="price">
+                {{ item.price * item.quantity }} ريال
             </div>
         </div>
         {% endfor %}
     </div>
-
-    <div class="total-sum">
-        <h4>المجموع الكلي: {{ cart | sum(attribute='price') * cart | sum(attribute='quantity') }} ريال</h4>
-    </div>
-
-</form>
-    {%if request.cookies.get('user_auth') %}
-        <form method="POST" action="{{ url_for('checkout') }}" class="mt-4">
-            <button type="submit" class="btn btn-success btn-lg btn-block">
-                <i class="fa fa-shopping-cart"></i> إتمام الشراء
+    
+    <div class="cart-summary">
+        <div class="summary-row">
+            <span>المجموع الجزئي:</span>
+            <span>{{ cart | sum(attribute='price') * cart | sum(attribute='quantity') }} ريال</span>
+        </div>
+        <div class="summary-row">
+            <span>التوصيل:</span>
+            <span>مجاني</span>
+        </div>
+        <div class="summary-row total-row">
+            <span>المجموع الكلي:</span>
+            <span>{{ cart | sum(attribute='price') * cart | sum(attribute='quantity') }} ريال</span>
+        </div>
+        
+        {% if request.cookies.get('user_auth') %}
+            <form method="POST" action="{{ url_for('checkout') }}">
+                <button type="submit" class="btn btn-primary checkout-btn">
+                    <i class="fa fa-shopping-cart"></i> إتمام الشراء
+                </button>
+            </form>
+        {% else %}
+            <div class="alert alert-warning mt-3">
+                <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
+                <a href="{{ url_for('login') }}?next={{ url_for('checkout') }}" class="btn btn-sm btn-primary">
+                    <i class="fa fa-sign-in"></i> تسجيل الدخول
+                </a>
+            </div>
+        {% endif %}
+        
+        <form method="POST" action="{{ url_for('clear_cart') }}" onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
+            <button type="submit" class="btn btn-outline-danger empty-cart-btn">
+                <i class="fa fa-trash"></i> تفريغ السلة
             </button>
         </form>
-    {% else %}
-    <div class="alert alert-warning mt-4">
-        <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
-        <a href="{{ url_for('login') }}?next={{ url_for('checkout') }}" class="btn btn-primary">
-            <i class="fa fa-sign-in"></i> تسجيل الدخول
-        </a>
     </div>
-{% endif %}
-
-    <form method="POST" action="{{ url_for('clear_cart') }}" class="mt-4" onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
-        <button type="submit" class="btn btn-danger btn-lg btn-block">
-            <i class="fa fa-trash"></i> تفريغ السلة
-        </button>
+    {% else %}
+    <div class="alert alert-info">
+        <h4>عربة التسوق فارغة</h4>
+        <p>لم تقم بإضافة أي منتجات إلى عربة التسوق بعد.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">تصفح المنتجات</a>
+    </div>
+    {% endif %}
 </div>
 
 {% include 'f.html' %}
-
-
-
-
-
-
-
-

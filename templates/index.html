@@ -149,6 +149,8 @@
     }
     
     .latest-product__item__pic {
+        width: 200px;
+        height: 200px;
         overflow: hidden;
         border-radius: 15px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -389,29 +391,56 @@
         text-align: center;
     }
     
-    .category-img-container {
-        width: 70px;
-        height: 70px;
-        margin: 0 auto;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 2px solid #fff;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        transition: all 0.3s;
+  /* صورة القسم - مرنة حسب حجم الشاشة */
+.category-img-container {
+    width: 12vw; /* نسبة من عرض الشاشة */
+    height: 12vw; /* نفس النسبة للحفاظ على الشكل الدائري */
+    max-width: 200px; /* الحد الأقصى للحجم على الشاشات الكبيرة */
+    max-height: 200px;
+    min-width: 80px; /* الحد الأدنى للحجم على الشاشات الصغيرة */
+    min-height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #fff;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.category-img-container:hover {
+    transform: scale(1.1);
+}
+
+/* تأكد من أن الصور تغطي الحاوية بدون تشويه */
+.category-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* الأقسام على الشاشات الكبيرة */
+@media (min-width: 992px) {
+    .category-col {
+        width: 14.2857%; /* 7 أقسام في الصف */
     }
-    
-    .category-img-container:hover {
-        transform: scale(1.1);
+}
+
+/* 5 أقسام في الصف على الأجهزة اللوحية */
+@media (max-width: 768px) {
+    .category-col {
+        width: 20%;
     }
-    
-    .category-img-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+}
+
+/* 3 أقسام في الصف على الهواتف الصغيرة */
+@media (max-width: 576px) {
+    .category-col {
+        width: 33.3333%;
     }
-    
+}
+
     .category-title {
-        font-size: 12px;
+        font-size: 17px;
         font-weight: 600;
         margin-top: 8px;
         display: -webkit-box;
@@ -421,31 +450,13 @@
         height: 36px;
     }
     
-    /* 7 أقسام في الصف على الشاشات الكبيرة */
-    @media (min-width: 992px) {
-        .category-col {
-            width: 14.2857%; /* 100/7 ≈ 14.2857 */
-        }
-    }
-    
-    /* 5 أقسام في الصف على الهواتف */
-    @media (max-width: 768px) {
-        .category-col {
-            width: 20%;
-        }
-        
+   
         .category-img-container {
             width: 50px;
             height: 50px;
         }
-    }
     
-    /* 3 أقسام في الصف على الشاشات الصغيرة جداً */
-    @media (max-width: 576px) {
-        .category-col {
-            width: 33.3333%;
-        }
-    }
+ 
     
     /* بقية الأنماط (الإعلانات، السلايدر) تبقى كما هي */
     /* ... */

@@ -196,7 +196,7 @@ cursor = conn.cursor()
 
 
 
-# # إنشاء جدول المنتجات
+# إنشاء جدول المنتجات
 # cursor.execute('''CREATE TABLE IF NOT EXISTS product (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
 #     name VARCHAR(255) NULL,
@@ -207,6 +207,7 @@ cursor = conn.cursor()
 #     address_id INTEGER NOT NULL,  -- عنوان صاحب المنتج
 #     price_id INTEGER,
 #     stock_id INTEGER,
+#     featured BOOLEAN DEFAULT 1,
 #     FOREIGN KEY (category_id) REFERENCES category(id),
 #     FOREIGN KEY (seller_id) REFERENCES sellers(id),
 #     FOREIGN KEY (address_id) REFERENCES seller_address(id),
@@ -287,17 +288,18 @@ cursor = conn.cursor()
 #     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 # );
 # ''')
+# cursor.execute('''ALTER TABLE product ADD COLUMN is_hidden INTEGER DEFAULT 0;''')
 
 conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
-cursor.execute("SELECT * FROM user ")  # استعلام عن كل البيانات
-rows = cursor.fetchall()  # جلب جميع الصفوف
-print("البيانات الموجودة في قاعدة البيانات:", rows)
+# cursor.execute("SELECT * FROM user ")  # استعلام عن كل البيانات
+# rows = cursor.fetchall()  # جلب جميع الصفوف
+# print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-for row in rows:
-    print(row)
+# for row in rows:
+#     print(row)
 
 # cursor.execute("SELECT * FROM Order_Items ")  # استعلام عن كل البيانات
 # rows = cursor.fetchall()  # جلب جميع الصفوف
@@ -310,18 +312,18 @@ for row in rows:
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS Order_Items')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS product')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
 # cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
 # tables = cursor.fetchall()  # جلب النتائج
 # print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-# cursor.execute("PRAGMA table_info(sellers);")
-# columns = cursor.fetchall()
+cursor.execute("PRAGMA table_info(product);")
+columns = cursor.fetchall()
 
-# for col in columns:
-#     print(col[1])  # col[1] يحتوي على اسم العمود
+for col in columns:
+    print(col[1])  # col[1] يحتوي على اسم العمود
 
 # إغلاق الاتصال
 conn.commit()

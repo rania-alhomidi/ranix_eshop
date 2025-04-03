@@ -1,46 +1,210 @@
-{% include 'header.html' %}
+{% include 'header.html'%}
 
 
-<div class="container my-4">
-    <h1 class="text-center mb-4" style="font-size: 2.2rem; font-weight: 700; color: #333;">منتجاتنا</h1>
-    <div class="row">
-        {% for product in products %}
-        <div class="col-6 col-md-6 col-lg-4 col-xl-3 mb-3">
-            <div class="product-card card h-100">
-                <!-- صورة المنتج -->
-                <!-- تغيير سطر عرض الصورة في shop_users -->
+<style>
+    /* تنسيق عام جديد */
+    .modern-products {
+        padding: 30px 0;
+        background-color: #f5f7fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+     
+    }
+    
+    /* العنوان الرئيسي */
+    .modern-title {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2a4365;
+        font-size: 2.5rem;
+        font-weight: 700;
+        position: relative;
+    }
+    
+    .modern-title:after {
+        content: '';
+        display: block;
+        width: 100px;
+        height: 4px;
+        background: #4c51bf;
+        margin: 15px auto 0;
+    }
+    
+    /* بطاقة المنتج الجديدة */
+    .modern-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .modern-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* تنسيق الصورة الكاملة */
+    .modern-img-container {
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .modern-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+    
+    .modern-card:hover .modern-img {
+        transform: scale(1.03);
+    }
+    
+    /* محتوى البطاقة */
+    .modern-card-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .modern-product-title {
+        font-size: 1.25rem;
+        color: #2d3748;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .modern-product-desc {
+        color: #4a5568;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+    
+    .modern-product-price {
+        font-size: 1.4rem;
+        color: #ff0202;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+    
+    /* أزرار جديدة بلون مختلف */
+    .modern-btn-group {
+        display: flex;
+        gap: 10px;
+  
+    }
+    
+    .modern-btn {
+        flex: 1;
+        padding: 7px;
+        border-radius: 6px;
+        font-weight: 500;
+        text-align: center;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+    }
+    
+    .modern-btn-primary {
+        background-color: #c794ca;
+        color: rgb(0, 0, 0);
+        border: none;
+    }
+    
+    .modern-btn-primary:hover {
+        background-color: #fccff2;
+        transform: translateY(-2px);
+    }
+    
+    .modern-btn-secondary {
+        background-color: #96d4fd;
+        color: #2d3748;
+        border: none;
+      margin-right: 50px;
+    }
+    
+    .modern-btn-secondary:hover {
+        background-color: #6acbff;
+    }
+  
+
+    /* التجاوب مع الشاشات الصغيرة */
+    @media (max-width: 768px) {
+        .modern-title {
+            font-size: 2rem;
+        }
+        
+        .modern-card-body {
+            padding: 15px;
+        }
+       
+        .modern-product-title {
+            font-size: 1.1rem;
+        }
+        
+        .modern-btn {
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="modern-products">
+    <div class="container">
+        <h1 class="modern-title">منتجاتنا</h1>
+        <div class="row">
+            
+{% for product in products %}
+    {% if product.featured == 1 %}
+    
+    <div class="col-6 col-md-6 col-lg-4 col-xl-3">
+        <div class="modern-card">
+            <div class="modern-img-container">
                 <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
-                    alt="{{ product.name }}" class="card-img-top">
-                <!-- تفاصيل المنتج -->
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text">{{ product.description }}</p>
-                    <p class="price">ر.س {{ product.profit_price }}</p>
-
-                    <!-- الأزرار -->
-                    <div class="d-flex justify-content-center gap-2">
-                        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
-                            <input type="hidden" name="name" value="{{ product.name }}">
-                            <input type="hidden" name="price" value="{{ product.profit_price }}">
-                            <input type="hidden" name="image_url" value="{{ product.image }}">
-                            <input type="hidden" name="description" value="{{ product.description }}">
-                            <input type="hidden" name="seller" value="{{ product.seller }}">
-                            <input type="hidden" name="quantity" value="1"> <!-- أضف هذا الحقل -->
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-shopping-cart"></i> إضافة للسلة
-                            </button>
-                        </form>
-                        
-                        <a href="{{ url_for('product_details', product_id=product.id) }}"
-                            class="btn btn-outline-secondary">
-                            <i class="fa fa-info-circle"></i> تفاصيل
-                        </a>
-                    </div>
+                    alt="{{ product.name }}" class="modern-img">
+            </div>
+            
+            <div class="modern-card-body">
+                <h5 class="modern-product-title">{{ product.name }}</h5>
+                <p class="modern-product-desc">{{ product.description }}</p>
+                <p class="modern-product-price">ر.س {{ product.profit_price }}</p>
+                
+                <div class="modern-btn-group">
+                    <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline w-100">
+                        <input type="hidden" name="name" value="{{ product.name }}">
+                        <input type="hidden" name="price" value="{{ product.profit_price }}">
+                        <input type="hidden" name="image_url" value="{{ product.image }}">
+                        <input type="hidden" name="description" value="{{ product.description }}">
+                        <input type="hidden" name="seller" value="{{ product.seller }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="modern-btn modern-btn-primary">
+                            <i class="fa fa-shopping-cart"></i> إضافة
+                        </button>
+                    </form>
+                    
+                    <a href="{{ url_for('product_details', product_id=product.id) }}"
+                        class="modern-btn modern-btn-secondary me-2">
+                        <i class="fa fa-info-circle"></i> تفاصيل
+                    </a>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
+    
+    {% endif %}
+{% endfor %}
 </div>
-
-{% include 'f.html' %}
+</div>
+</div>
+{% include 'f.html'%}

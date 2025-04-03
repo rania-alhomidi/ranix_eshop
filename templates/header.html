@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -46,27 +46,27 @@
                 <a class="nav-link" href="{{ url_for('index') }}">
                     Rezza<!-- أيقونة بيت -->
                 </a>
-            </li>
-            <li class="nav-item user-menu">
-                <a class="nav-link" href="#">الأقسام</a>
-                <div class="user-dropdown">
-                    <ul>
-                        {% if categories %}
-                            {% for category in categories %}
-                                {% if category[2] is none %}  {# التأكد أن هذا قسم رئيسي #}
-                                    <li>
-                                        <a href="{{ url_for('show_subcategories', category_id=category[0]) }}">
-                                            {{ category[1] }}
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <li>لا توجد أقسام متاحة</li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </li>
+                <li class="nav-item user-menu">
+                    <a class="nav-link" href="#">الأقسام</a>
+                    <div class="user-dropdown">
+                        <ul>
+                            {% if categories %}
+                                {% for category in categories %}
+                                    {% if category[2] is none %}  {# التأكد أن هذا قسم رئيسي #}
+                                        <li>
+                                            <a href="{{ url_for('show_subcategories', category_id=category[0]) }}">
+                                                {{ category[1] }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <li>لا توجد أقسام متاحة</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </li>
+                
             <li class="nav-item user-menu">
                 <a class="nav-link" href="#">
                     صاحب المتجر
@@ -89,7 +89,8 @@
                         <!-- رابط لصفحة البروفايل -->
                       
                         <!-- رابط لتسجيل الخروج -->
-                        <a href="{{ url_for('logout') }}">تسجيل الخروج</a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                        </a>
                     </div>
                 {% else %}
                     <!-- إذا لم يكن المستخدم مسجلاً دخوله -->
@@ -97,17 +98,17 @@
                 {% endif %}
             </li>
 
-            <!-- <li class="nav-item user-menu">
+            <li class="nav-item user-menu">
                 <a class="nav-link" href="#">
-                    <i class="fa fa-user"></i> أيقونة المستخدم
+                    <i class="fas fa-phone"></i>
+
+                    <!-- خدمه العملاء  -->
                 </a>
                 <div class="user-dropdown">
-                    <a href="#">تسجيل</a>
-                    <a href="#">تسجيل الدخول</a>
-                    <a href="#">تسجيل الخروج</a>
-                    <a href="#">خدمة العملاء</a>
+                    <a href="#">خدمه العملاء </a>
+                    <a href="#">حول الموقع </a>
                 </div>
-            </li> -->
+            </li>
 
             <!-- <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('cart') }}">

@@ -40,21 +40,21 @@
             <td>{{ product.category }}</td>
             <td>{{ product.seller }}</td>
             <td>{{ product.address }}</td>
-
-              <td>
-                {% if product.featured %}
-                <span class="badge bg-success">مُعرض</span>
-                <a href="/toggle_featured/{{ product.id }}/0" class="btn btn-info btn-sm">إخفاء</a>
-                {% else %}
-                <span class="badge bg-secondary">غير مُعرض</span>
-                <a href="/toggle_featured/{{ product.id }}/1" class="btn btn-info btn-sm">إظهار</a>
-                {% endif %}
-
-            </td>
+            <td>
+              {% if product.featured %}
+              <span class="badge bg-success">مُعرض</span>
+              <a href="/toggle_featured/{{ product.id }}/0" class="btn btn-info btn-sm">إخفاء</a>
+              {% else %}
+              <span class="badge bg-secondary">غير مُعرض</span>
+              <a href="/toggle_featured/{{ product.id }}/1" class="btn btn-info btn-sm">إظهار</a>
+              {% endif %}
+          </td>
               <td>
               <a href="/edit_product/{{ product.id }}" class="btn btn-warning btn-sm">تعديل</a>
-              <a href="/delete_product/{{ product.id }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من الحذف؟');">حذف</a>
-
+              <form action="/delete_product/{{ product.id }}" method="POST" onsubmit="return confirm('هل أنت متأكد من الحذف؟');">
+                <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+            </form>
+            
             </td>
           </tr>
         {% endfor %}
