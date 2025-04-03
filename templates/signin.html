@@ -1,24 +1,414 @@
 {% include 'header.html' %}
 
-<main id="main" class="main">
-    <div class="container mt-5">
-        <h2 class="text-center">تسجيل الدخول</h2>
-        <form method="POST" action="{{ url_for('login') }}" class="m-3 p-3 border rounded bg-light">
-            <div class="mb-3">
-                <label class="form-label">اسم المستخدم </label>
-                <input type="text" name="name" class="form-control" required>
+<!-- أضفنا Font Awesome للرموز -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- أضفنا Animate.css للحركات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<style>
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --accent-color: #4895ef;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --success-color: #4cc9f0;
+    --border-radius: 12px;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.login-container {
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.login-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.login-header {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-header h2 {
+    margin: 0;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+}
+
+.login-header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    z-index: 1;
+    animation: pulse 6s infinite linear;
+}
+
+@keyframes pulse {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.login-body {
+    padding: 2rem;
+}
+
+.form-control {
+    border-radius: var(--border-radius);
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    transition: var(--transition);
+    position: relative;
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    transform: scale(1.02);
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+    color: var(--dark-color);
+}
+
+.btn-primary {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+    transform: translateY(-2px);
+}
+
+.btn-primary::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.btn-primary:hover::after {
+    opacity: 1;
+}
+
+.login-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+}
+
+.login-link:hover {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.login-link::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--secondary-color);
+    transition: var(--transition);
+}
+
+.login-link:hover::after {
+    width: 100%;
+}
+
+.input-icon {
+    position: relative;
+}
+
+.input-icon i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-color);
+    z-index: 2;
+}
+
+.input-icon .form-control {
+    padding-left: 45px;
+}
+
+/* تأثيرات للعناصر */
+.animate-input {
+    transition: all 0.3s ease;
+}
+
+/* تصميم متجاوب */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 0 15px;
+    }
+    
+    .login-body {
+        padding: 1.5rem;
+    }
+}
+
+/* تأثيرات للبطاقة */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* تأثيرات إضافية */
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.remember-me input {
+    margin-left: 8px;
+}
+
+.forgot-password {
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.social-login {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.social-login p {
+    position: relative;
+    margin-bottom: 1rem;
+    color: #6c757d;
+}
+
+.social-login p::before,
+.social-login p::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: #dee2e6;
+}
+
+.social-login p::before {
+    left: 0;
+}
+
+.social-login p::after {
+    right: 0;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.social-icons a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: var(--transition);
+}
+
+.social-icons a:hover {
+    transform: translateY(-3px);
+}
+
+.facebook { background-color: #3b5998; }
+.twitter { background-color: #1da1f2; }
+.google { background-color: #db4437; }
+</style>
+
+<main id="main" class="main animate__animated animate__fadeIn">
+    <div class="container login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2><i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول</h2>
             </div>
-            <div class="mb-3">
-                <label class="form-label">كلمة المرور</label>
-                <input type="password" name="password" class="form-control" required>
+            
+            <div class="login-body">
+                <form method="POST" action="{{ url_for('login') }}" class="needs-validation" novalidate>
+                    <div class="mb-4 input-icon">
+                        <label for="name" class="form-label">اسم المستخدم</label>
+                        <div class="position-relative">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="name" name="name" class="form-control animate-input" placeholder="أدخل اسم المستخدم" required>
+                        </div>
+                        <div class="invalid-feedback">يرجى إدخال اسم المستخدم</div>
+                    </div>
+                    
+                    <div class="mb-4 input-icon">
+                        <label for="password" class="form-label">كلمة المرور</label>
+                        <div class="position-relative">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" class="form-control animate-input" placeholder="أدخل كلمة المرور" required>
+                            <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password" style="position: absolute; left: auto; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
+                        </div>
+                        <div class="invalid-feedback">يرجى إدخال كلمة المرور</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember">تذكرني</label>
+                        </div>
+                        <div class="forgot-password">
+                            <a href="#" class="login-link">نسيت كلمة المرور؟</a>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
+                    </button>
+                    
+                    <div class="social-login mt-4">
+                        <p>أو سجل الدخول باستخدام</p>
+                        <div class="social-icons">
+                            <a href="#" class="facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="twitter" title="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="google" title="Google"><i class="fab fa-google"></i></a>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p>ليس لديك حساب؟ <a href="{{ url_for('signup') }}" class="login-link"><i class="fas fa-user-plus me-1"></i>إنشاء حساب جديد</a></p>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary w-100">تسجيل الدخول</button>
-        </form>
-        
-        <div class="mt-3 text-center">
-            <p>ليس لديك حساب؟ <a href="{{ url_for('signup') }}">إنشاء حساب جديد</a></p>
         </div>
     </div>
 </main>
 
+<!-- Bootstrap Validation JS -->
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(() => {
+  'use strict'
 
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  const forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if (!form.checkValidity()) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      form.classList.add('was-validated')
+    }, false)
+  })
+})()
+</script>
+
+<!-- Toggle Password Visibility -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.querySelector('.toggle-password');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            const password = document.querySelector(this.getAttribute('toggle'));
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    }
+    
+    // Add floating animation to login card
+    const loginCard = document.querySelector('.login-card');
+    if (loginCard) {
+        loginCard.addEventListener('mouseenter', () => {
+            loginCard.classList.add('floating');
+        });
+        
+        loginCard.addEventListener('mouseleave', () => {
+            loginCard.classList.remove('floating');
+        });
+    }
+});
+</script>

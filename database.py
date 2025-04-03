@@ -294,6 +294,7 @@ conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
+# cursor.execute("UPDATE product SET featured = 0 WHERE featured IS NULL;")  
 # cursor.execute("SELECT * FROM user ")  # استعلام عن كل البيانات
 # rows = cursor.fetchall()  # جلب جميع الصفوف
 # print("البيانات الموجودة في قاعدة البيانات:", rows)
@@ -301,12 +302,12 @@ conn.commit()
 # for row in rows:
 #     print(row)
 
-# cursor.execute("SELECT * FROM Order_Items ")  # استعلام عن كل البيانات
-# rows = cursor.fetchall()  # جلب جميع الصفوف
-# print("البيانات الموجودة في قاعدة البيانات:", rows)
+cursor.execute("SELECT * FROM category ")  # استعلام عن كل البيانات
+rows = cursor.fetchall()  # جلب جميع الصفوف
+print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-# for row in rows:
-#     print(row)
+for row in rows:
+    print(row)
 
 # cursor.execute('''ALTER TABLE product ADD COLUMN featured BOOLEAN DEFAULT 0;''')
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
@@ -319,11 +320,11 @@ conn.commit()
 # tables = cursor.fetchall()  # جلب النتائج
 # print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-cursor.execute("PRAGMA table_info(product);")
-columns = cursor.fetchall()
+# cursor.execute("PRAGMA table_info(product);")
+# columns = cursor.fetchall()
 
-for col in columns:
-    print(col[1])  # col[1] يحتوي على اسم العمود
+# for col in columns:
+#     print(col[1])  # col[1] يحتوي على اسم العمود
 
 # إغلاق الاتصال
 conn.commit()

@@ -1,51 +1,307 @@
 {% include 'header.html' %}
 
-<main id="main" class="main">
-    <div class="container mt-5">
-        <h2 class="text-center">إنشاء حساب جديد</h2>
-        <form method="POST" action="{{ url_for('signup') }}" class="m-3 p-3 border rounded bg-light">
-            <div class="mb-3">
-                <label class="form-label">الاسم</label>
-                <input type="text" name="name" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">رقم الهاتف</label>
-                <input type="text" name="phone_number" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">البريد الإلكتروني</label>
-                <input type="email" name="email" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">كلمة المرور</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-             <!-- Map Integration -->
-             <div class="mb-3">
-                <label class="form-label">حدد موقعك</label>
-                <div id="map" style="height: 400px;"></div>
-                <button type="button" id="getLocationButton" class="btn btn-info mt-2">استخدام الموقع الحالي</button>
-                <p id="locationStatus" class="mb-0 mt-2 text-muted small"></p>  <!-- Smaller status text -->
+<!-- أضفنا Font Awesome للرموز -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- أضفنا Animate.css للحركات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
+<style>
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --accent-color: #4895ef;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --success-color: #4cc9f0;
+    --border-radius: 12px;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
 
-                <div class="form-group mt-3">
-                    <label for="addressDisplay">العنوان</label>
-                    <input type="text" class="form-control" id="addressDisplay" name="addressDisplay">
+body {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+.registration-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.registration-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.registration-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.registration-header {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.registration-header h2 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.registration-body {
+    padding: 2rem;
+}
+
+.form-control {
+    border-radius: var(--border-radius);
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.btn-primary {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+    transform: translateY(-2px);
+}
+
+.btn-info {
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.btn-info:hover {
+    background-color: #3a7bd5;
+}
+
+#map {
+    border-radius: var(--border-radius);
+    border: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+.location-status {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.login-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.login-link:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.input-group-text {
+    background-color: #e9ecef;
+    border: 1px solid #e0e0e0;
+    border-right: none;
+}
+
+.form-floating .form-control {
+    height: calc(3.5rem + 2px);
+    padding: 1rem 0.75rem;
+}
+
+.form-floating label {
+    padding: 1rem 0.75rem;
+}
+
+/* تأثيرات للعناصر */
+.animate-input {
+    transition: all 0.3s ease;
+}
+
+.animate-input:focus {
+    transform: scale(1.02);
+}
+
+/* تصميم متجاوب */
+@media (max-width: 768px) {
+    .registration-container {
+        padding: 0 15px;
+    }
+    
+    .registration-body {
+        padding: 1.5rem;
+    }
+}
+
+/* تأثيرات خاصة للخريطة */
+.leaflet-container {
+    z-index: 1;
+}
+
+/* تحسينات لعنوان الخريطة */
+#addressDisplay {
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#addressDisplay:hover {
+    background-color: #e9ecef;
+}
+
+/* تحسينات للزر */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* تأثيرات للبطاقة */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.registration-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+</style>
+
+<main id="main" class="main animate__animated animate__fadeIn">
+    <div class="container registration-container">
+        <div class="registration-card">
+            <div class="registration-header">
+                <h2><i class="fas fa-user-plus me-2"></i>إنشاء حساب جديد</h2>
+            </div>
+            
+            <div class="registration-body">
+                <form method="POST" action="{{ url_for('signup') }}" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label for="name" class="form-label"><i class="fas fa-user me-2"></i>الاسم الكامل</label>
+                        <input type="text" id="name" name="name" class="form-control animate-input" placeholder="أدخل اسمك الكامل" required>
+                        <div class="invalid-feedback">يرجى إدخال الاسم الكامل</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="phone_number" class="form-label"><i class="fas fa-phone me-2"></i>رقم الهاتف</label>
+                        <input type="tel" id="phone_number" name="phone_number" class="form-control animate-input" placeholder="أدخل رقم هاتفك" required>
+                        <div class="invalid-feedback">يرجى إدخال رقم هاتف صحيح</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="email" class="form-label"><i class="fas fa-envelope me-2"></i>البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" class="form-control animate-input" placeholder="أدخل بريدك الإلكتروني" required>
+                        <div class="invalid-feedback">يرجى إدخال بريد إلكتروني صحيح</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label"><i class="fas fa-lock me-2"></i>كلمة المرور</label>
+                        <input type="password" id="password" name="password" class="form-control animate-input" placeholder="أدخل كلمة المرور" required>
+                        <div class="invalid-feedback">يرجى إدخال كلمة مرور</div>
+                    </div>
+                    
+                    <!-- Map Integration -->
+                    <div class="mb-4">
+                        <label class="form-label"><i class="fas fa-map-marker-alt me-2"></i>حدد موقعك</label>
+                        <div id="map" style="height: 300px;" class="mb-3"></div>
+                        <button type="button" id="getLocationButton" class="btn btn-info">
+                            <i class="fas fa-location-arrow me-2"></i>استخدام الموقع الحالي
+                        </button>
+                        <p id="locationStatus" class="location-status mt-2"></p>
+                        
+                        <div class="form-group mt-3">
+                            <label for="addressDisplay" class="form-label"><i class="fas fa-home me-2"></i>العنوان</label>
+                            <input type="text" class="form-control animate-input" id="addressDisplay" name="addressDisplay" placeholder="سيتم تعبئة العنوان تلقائياً" readonly>
+                        </div>
+                        
+                        <!-- Hidden inputs for latitude and longitude -->
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mt-4">
+                        <i class="fas fa-user-plus me-2"></i>تسجيل حساب جديد
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p>لديك حساب بالفعل؟ <a href="{{ url_for('login') }}" class="login-link"><i class="fas fa-sign-in-alt me-1"></i>تسجيل الدخول</a></p>
                 </div>
-
-                <!-- Hidden inputs for latitude and longitude -->
-                <input type="hidden" id="latitude" name="latitude">
-                <input type="hidden" id="longitude" name="longitude">
-
-
             </div>
-            <button type="submit" class="btn btn-primary w-100">تسجيل</button>
-        </form>
-        <div class="mt-3 text-center">
-            <p>لديك حساب بالفعل؟ <a href="{{ url_for('login') }}">تسجيل الدخول</a></p>
         </div>
     </div>
 </main>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Bootstrap Validation JS -->
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(() => {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  const forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if (!form.checkValidity()) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      form.classList.add('was-validated')
+    }, false)
+  })
+})()
+</script>
 
 <!-- Leaflet CSS and JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -142,4 +398,3 @@ document.addEventListener('DOMContentLoaded', function() {
     initMap();
 });
 </script>
-

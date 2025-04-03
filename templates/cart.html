@@ -193,8 +193,8 @@
                 <img src="{{ item.image_url }}" alt="{{ item.name }}" class="product-image">
                 <div class="product-details">
                     <h5>{{ item.name }}</h5>
-                    <p class="text-muted">{{ item.description }}</p>
-                    <p class="text-muted">البائع: {{ item.seller }}</p>
+                    <!-- <p class="text-muted">{{ item.description }}</p>
+                    <p class="text-muted">البائع: {{ item.seller }}</p> -->
                     <span class="mobile-label d-md-none">السعر: {{ item.price }} ريال</span>
                 </div>
             </div>
@@ -271,4 +271,4 @@
     {% endif %}
 </div>
 
-{% include 'f.html' %}
+{% include 'footer.html' %}

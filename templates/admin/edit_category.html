@@ -1,41 +1,56 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تعديل الفئة</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">تعديل الفئة</h1>
-        <form action="{{ url_for('edit_category', category_id=category.id) }}" method="POST" enctype="multipart/form-data">
+        <h1 class="text-center mb-4">تعديل الفئة</h1>
+ 
+
+        <form method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="name" class="form-label">اسم الفئة</label>
-                <input type="text" name="name" class="form-control" value="{{ category.name }}" required>
+                <input type="text" class="form-control" id="name" name="name" 
+                       value="{{ category.name }}" required>
             </div>
+            
             <div class="mb-3">
-                <label for="parent" class="form-label">الفئة الرئيسية</label>
-                <select name="parent" class="form-control">
-                    <option value="">لا شيء</option>
+                <label for="parent" class="form-label">الفئة الرئيسية (اختياري)</label>
+                <select class="form-select" id="parent" name="parent">
+                    <option value="">-- لا يوجد --</option>
                     {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if cat.id == category.parent_id %}selected{% endif %}>
+                        <option value="{{ cat.id }}" 
+                            {% if cat.id == category.parent_id %}selected{% endif %}>
                             {{ cat.name }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
+            
             <div class="mb-3">
-                <label for="images" class="form-label">الصورة</label>
-                <input type="file" name="image" class="form-control">
+                <label for="image" class="form-label">صورة الفئة</label>
+                <input class="form-control" type="file" id="image" name="image">
+                
                 {% if category.image %}
-                    <p>الصورة الحالية:</p>
-                    <img src="{{ url_for('static', filename=category.image) }}" alt="صورة الفئة" width="100">
+                    <div class="mt-2">
+                        <p>الصورة الحالية:</p>
+                        <img src="{{ url_for('static', filename=category.image) }}" 
+                             alt="صورة الفئة" class="img-thumbnail" width="150">
+                    </div>
                 {% endif %}
             </div>
-            <button type="submit" class="btn btn-success">حفظ التعديلات</button>
-            <a href="{{ url_for('categories') }}" class="btn btn-secondary">إلغاء</a>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('categories') }}" class="btn btn-secondary me-md-2">إلغاء</a>
+                <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+            </div>
         </form>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

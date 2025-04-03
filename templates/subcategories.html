@@ -10,29 +10,38 @@
     }
 
     /* تنسيق العنوان */
-    .section-title {
+    .page-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 3rem;
+        position: relative;
     }
 
-    .section-title h2 {
-        font-size: 1.8rem;
-        color: #2c3e50;
+ 
+    .page-title {
+        font-size: 2.5rem;
         font-weight: 700;
-        padding-bottom: 10px;
+        color: var(--dark-color);
+        margin-bottom: 1rem;
         position: relative;
         display: inline-block;
     }
-
-    .section-title h2:after {
+    
+    .page-title:after {
         content: '';
         position: absolute;
-        width: 60px;
-        height: 3px;
-        background: linear-gradient(90deg, #ff6f61, #ffa4d6);
-        bottom: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        bottom: -10px;
         left: 50%;
         transform: translateX(-50%);
+        border-radius: 2px;
+    }
+    .page-subtitle {
+        color: #636e72;
+        font-size: 1.1rem;
+        max-width: 700px;
+        margin: 0 auto;
     }
 
     /* تنسيق شبكة الأقسام */
@@ -171,9 +180,12 @@
 </style>
 
 <div class="subcategories-container">
-    <div class="section-title">
-        <h2>الأقسام الفرعية لـ {{ main_category[1] }}</h2>
-    </div>
+
+        <div class="page-header">
+            <h1 class="page-title">الأقسام الفرعية لـ {{ main_category[1] }}</h1>
+            <p class="page-subtitle">اكتشف مجموعة متنوعة من الأقسام الفرعية المميزة</p>
+        </div>
+
 
     {% if subcategories %}
         <div class="subcategories-grid">
@@ -200,4 +212,4 @@
     {% endif %}
 </div>
 
-{% include 'f.html' %}
+{% include 'footer.html' %}

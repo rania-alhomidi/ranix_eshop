@@ -50,15 +50,22 @@
     
     /* تنسيق الصورة الكاملة */
     .modern-img-container {
+
         width: 100%;
-        overflow: hidden;
+    height: 250px; /* تحديد ارتفاع ثابت لجميع الصور */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     }
     
     .modern-img {
         width: 100%;
-        height: auto;
+        height: 100%;
         display: block;
         transition: transform 0.5s ease;
+
+    object-fit: cover; /* يجعل جميع الصور بنفس الحجم بغض النظر عن أبعادها */
     }
     
     .modern-card:hover .modern-img {
@@ -89,9 +96,9 @@
     }
     
     .modern-product-price {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         color: #ff0202;
-        font-weight: 700;
+        font-weight: 600;
         margin-bottom: 15px;
     }
     
@@ -103,41 +110,45 @@
     }
     
     .modern-btn {
-        flex: 1;
-        padding: 7px;
-        border-radius: 6px;
-        font-weight: 500;
-        text-align: center;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
+        width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    }
+    
+.modern-btn-primary {
+    background-color: #c794ca;
+    color: #fff;
+}
 
-    }
-    
-    .modern-btn-primary {
-        background-color: #c794ca;
-        color: rgb(0, 0, 0);
-        border: none;
-    }
-    
-    .modern-btn-primary:hover {
-        background-color: #fccff2;
-        transform: translateY(-2px);
-    }
-    
-    .modern-btn-secondary {
-        background-color: #96d4fd;
-        color: #2d3748;
-        border: none;
-      margin-right: 50px;
-    }
-    
-    .modern-btn-secondary:hover {
-        background-color: #6acbff;
-    }
-  
+.modern-btn-primary:hover {
+    background-color: #fccff2;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.modern-btn-secondary {
+    background-color: #3182CE ;
+    color: #fff;
+}
+
+.modern-btn-secondary:hover {
+    background-color: #6acbff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.modern-btn-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
 
     /* التجاوب مع الشاشات الصغيرة */
     @media (max-width: 768px) {
@@ -158,6 +169,43 @@
             font-size: 0.9rem;
         }
     }
+
+/* زر الإعجاب (المفضلة) */
+.like-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.8); /* خلفية شفافة */
+    border: 1px solid #e2e8f0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* لون القلب عند عدم الإعجاب */
+.like-btn i {
+    color: #a0aec0; /* رمادي */
+    transition: color 0.3s ease;
+}
+
+/* تأثير عند مرور الماوس */
+.like-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+/* عند الضغط على زر الإعجاب */
+.like-btn.liked i {
+    color: #e53e3e; /* لون القلب أحمر عند الإعجاب */
+}
+
 </style>
 
 <div class="modern-products">
@@ -170,18 +218,23 @@
     
     <div class="col-6 col-md-6 col-lg-4 col-xl-3">
         <div class="modern-card">
+           
+            
             <div class="modern-img-container">
                 <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
                     alt="{{ product.name }}" class="modern-img">
             </div>
             
             <div class="modern-card-body">
-                <h5 class="modern-product-title">{{ product.name }}</h5>
-                <p class="modern-product-desc">{{ product.description }}</p>
+                <h5 class="modern-product-title">{{ product.name }}</h5> 
+                <!-- <button class="like-btn" onclick="toggleLike(this)">
+                    <i class="fa fa-heart"></i>
+                </button> -->
                 <p class="modern-product-price">ر.س {{ product.profit_price }}</p>
+                <p class="modern-product-desc">{{ product.description }}</p>
                 
                 <div class="modern-btn-group">
-                    <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline w-100">
+                    <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
                         <input type="hidden" name="name" value="{{ product.name }}">
                         <input type="hidden" name="price" value="{{ product.profit_price }}">
                         <input type="hidden" name="image_url" value="{{ product.image }}">
@@ -189,15 +242,15 @@
                         <input type="hidden" name="seller" value="{{ product.seller }}">
                         <input type="hidden" name="quantity" value="1">
                         <button type="submit" class="modern-btn modern-btn-primary">
-                            <i class="fa fa-shopping-cart"></i> إضافة
+                            <i class="fa fa-shopping-cart"></i>
                         </button>
                     </form>
-                    
-                    <a href="{{ url_for('product_details', product_id=product.id) }}"
-                        class="modern-btn modern-btn-secondary me-2">
-                        <i class="fa fa-info-circle"></i> تفاصيل
+                
+                    <a href="{{ url_for('product_details', product_id=product.id) }}" class="modern-btn modern-btn-secondary">
+                        <i class="fa fa-info-circle"></i>
                     </a>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -207,4 +260,11 @@
 </div>
 </div>
 </div>
-{% include 'f.html'%}
+<script>
+    function toggleLike(button) {
+        button.classList.toggle('liked');
+    }
+</script>
+
+
+{% include 'footer.html'%}

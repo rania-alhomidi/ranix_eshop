@@ -122,12 +122,26 @@ def index():
 def inject_categories():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM category")
-    categories = cursor.fetchall()
-    conn.close()
-    return dict(categories=categories)
-
-
+    try:
+        # جلب الأقسام الرئيسية فقط (التي ليس لها parent_id)
+        cursor.execute("""
+            SELECT id, name, parent_id, image 
+            FROM category 
+            WHERE parent_id IS NULL 
+            ORDER BY name
+        """)
+        main_categories = cursor.fetchall()
+        
+        # جلب جميع الأقسام لاستخدامها في أماكن أخرى
+        cursor.execute("SELECT id, name, parent_id, image FROM category ORDER BY name")
+        all_categories = cursor.fetchall()
+        
+        return {
+            'main_categories': main_categories,
+            'all_categories': all_categories
+        }
+    finally:
+        conn.close()
 @app.route('/subcategories/<int:category_id>')
 def show_subcategories(category_id):
     conn = get_db_connection()
@@ -153,7 +167,6 @@ def show_subcategories(category_id):
                          subcategories=processed_subcategories, 
                          categories=categories)
 
-
 @app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
 def edit_category(category_id):
     conn = get_db_connection()
@@ -169,7 +182,7 @@ def edit_category(category_id):
 
     if request.method == 'POST':
         name = request.form['name']
-        parent_id = request.form.get('parent', None)
+        parent_id = request.form.get('parent', None) or None  # Ensure NULL if empty
         image = request.files.get('image')
 
         # Determine the new image path
@@ -187,26 +200,27 @@ def edit_category(category_id):
             image.save(filepath)  # Save the image to the server
             image_path = f'static/uploads/category_img/{filename}'  # Save the relative path in the database
 
-        # Update the data in the database
+        # Update category in database
         cursor.execute("""
             UPDATE category 
-            SET name = ?, parent_id = ?, image = ? 
+            SET name = ?, parent_id = ?, image = ?
             WHERE id = ?
         """, (name, parent_id, image_path, category_id))
-
+        
         conn.commit()
         conn.close()
+        
         flash("تم تعديل القسم بنجاح!", "success")
-        return redirect(url_for('categories'))
+        return redirect(url_for('categories'))  # تأكد أن هذه هي الصفحة الصحيحة للعودة إليها
 
-    # Fetch all other categories for selecting the parent category
+    # Fetch all categories except current one for parent selection
     cursor.execute("SELECT * FROM category WHERE id != ?", (category_id,))
     categories = cursor.fetchall()
-
-    conn.close()
-    return render_template('admin/edit_category.html', category=category, categories=categories)
     
-
+    conn.close()
+    return render_template('admin/edit_category.html', 
+                         category=category, 
+                         categories=categories)
 # حذف قسم
 @app.route('/delete_category/<int:category_id>')
 def delete_category(category_id):
@@ -282,7 +296,7 @@ def add_product():
             ''', (
                 name, description, category_id,
                 seller_id, address_id, image_path,
-                1, None, None  # featured=1, price_id و stock_id سيتم تحديثها لاحقاً
+                0, None, None  # featured=1, price_id و stock_id سيتم تحديثها لاحقاً
             ))
             product_id = cursor.lastrowid
 

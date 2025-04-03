@@ -463,56 +463,59 @@
 </style>
 
 <!-- قسم الأقسام الرئيسية -->
-<div class="container my-4">
-    <div class="categories-row">
-        {% set main_categories = categories | selectattr("parent_id", "none") | list %}
-        {% for category in main_categories %}
-        <div class="category-col">
-            <div class="category-item">
-                <a href="{{ url_for('show_subcategories', category_id=category['id']) }}">
-                    <div class="category-img-container">
-                        <img src="{{ category['image'] }}" alt="{{ category.name }}">
+
+    <div class="container my-4">
+        <h2 class="text-center mb-4">أقسامنا الرئيسية</h2>
+        
+        <div class="categories-row">
+            {% for category in main_categories %}
+            <div class="category-col">
+                <div class="category-item">
+                    <a href="{{ url_for('show_subcategories', category_id=category['id']) }}">
+                        <div class="category-img-container">
+                            <img src="{{ category['image'] }}" alt="{{ category.name }}">
+
                     </div>
                     <div class="category-title">{{ category.name }}</div>
                 </a>
             </div>
         </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
-</div>
 
-<!-- بقية الأقسام (الإعلانات، السلايدر) تبقى كما هي -->
-<!-- ... -->
 
-<!-- الأقسام في السلايدر -->
+<!-- قسم الأقسام المميزة -->
 <section class="latest-product spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="latest-product__text">
                     <h4>تصفح الأقسام</h4>
-                    <div class="latest-product__slider owl-carousel">
-                        {% set main_categories = categories | selectattr("parent_id", "none") | list %}
-                        {% for i in range(0, main_categories|length, 4) %}
-                            <div class="latest-prdouct__slider__item">
-                                {% for category in main_categories[i:i+4] %}
-                                <a href="{{ url_for('show_subcategories', category_id=category['id']) }}" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="{{ category['image'] }}" alt="{{ category['name'] }}">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>{{ category['name'] }}</h6>
-                                    </div>
-                                </a>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-                    </div>
+        <div class="latest-product__slider owl-carousel">
+            {% for i in range(0, main_categories|length, 4) %}
+                <div class="latest-prdouct__slider__item">
+                    {% for category in main_categories[i:i+4] %}
+                    <a href="{{ url_for('show_subcategories', category_id=category.id) }}" class="latest-product__item">
+                        <div class="latest-product__item__pic">
+                            <img src="{{ category['image'] }}" alt="{{ category['name'] }}">
+
+                        </div>
+                        <div class="latest-product__item__text">
+                            <h6>{{ category.name }}</h6>
+                        </div>
+                    </a>
+                    {% endfor %}
                 </div>
-            </div>
+            {% endfor %}
         </div>
+
     </div>
+</div>
+</div>
+</div>
 </section>
+
 
 <script>
     $(document).ready(function(){
@@ -552,4 +555,10 @@
     });
 </script>
 
-{% include 'f.html' %}
+{% include 'footer.html' %}
+
+
+
+
+
+

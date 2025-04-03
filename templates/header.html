@@ -50,15 +50,14 @@
                     <a class="nav-link" href="#">الأقسام</a>
                     <div class="user-dropdown">
                         <ul>
-                            {% if categories %}
-                                {% for category in categories %}
-                                    {% if category[2] is none %}  {# التأكد أن هذا قسم رئيسي #}
-                                        <li>
-                                            <a href="{{ url_for('show_subcategories', category_id=category[0]) }}">
-                                                {{ category[1] }}
-                                            </a>
-                                        </li>
-                                    {% endif %}
+                            {% if main_categories %}
+                                {% for category in main_categories %}
+                                    <li>
+                                        <a href="{{ url_for('show_subcategories', category_id=category[0]) }}">
+                                            {{ category[1] }}
+                                          
+                                        </a>
+                                    </li>
                                 {% endfor %}
                             {% else %}
                                 <li>لا توجد أقسام متاحة</li>
