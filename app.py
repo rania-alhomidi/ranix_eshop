@@ -654,6 +654,8 @@ def datetimeformat(value, format='%d %B %Y - %H:%M'):
 
 
 
+
+
 @app.route('/seller', methods=['GET', 'POST'])
 def add_seller():
     if request.method == 'GET':
@@ -662,51 +664,44 @@ def add_seller():
     if request.method == 'POST':
         try:
             # --- الحصول على البيانات من النموذج ---
-            name = request.form['name']
-            store_name = request.form['store_name']
-            commercial_record = request.form['commercial_record']
-            latitude = request.form['latitude']
-            longitude = request.form['longitude']
-            street_address = request.form['addressDisplay']
-            number1 = request.form['number1']
-            number2 = request.form['number2']
-
-            # --- معالجة الملفات ---
-            store_image = request.files['store_image']
-            id_image = request.files['id_image']
-            documents = request.files['documents']
-
-            # تحديد المسار الأساسي لحفظ الملفات
-            upload_base_folder = app.config['UPLOAD_FOLDER']
+            name = request.form.get('name')
+            store_name = request.form.get('store_name')
+            commercial_record = request.form.get('commercial_record')
+            latitude = request.form.get('latitude')
+            longitude = request.form.get('longitude')
+            street_address = request.form.get('addressDisplay')
+            number1 = request.form.get('number1')
+            number2 = request.form.get('number2')
             
-            # تحديد مجلدات الحفظ
+            print(f"📥 بيانات مستلمة: {request.form}")
+            
+            # --- معالجة الملفات ---
+            store_image = request.files.get('store_image')
+            id_image = request.files.get('id_image')
+            documents = request.files.get('documents')
+
+            # تحديد المسارات
+            upload_base_folder = app.config['UPLOAD_FOLDER']
             store_image_folder = os.path.join(upload_base_folder, "store_images")
             id_image_folder = os.path.join(upload_base_folder, "id_images")
             documents_folder = os.path.join(upload_base_folder, "documents")
 
-            # ✅ إنشاء المجلدات إذا لم تكن موجودة
             os.makedirs(store_image_folder, exist_ok=True)
             os.makedirs(id_image_folder, exist_ok=True)
             os.makedirs(documents_folder, exist_ok=True)
 
-            # مسارات حفظ الملفات الافتراضية
-            store_image_path = ""
-            id_image_path = ""
-            documents_path = ""
+            store_image_path = id_image_path = documents_path = ""
 
-            # حفظ صور المتجر
             if store_image and allowed_file(store_image.filename):
                 store_image_filename = secure_filename(store_image.filename)
                 store_image_path = os.path.join(store_image_folder, store_image_filename)
                 store_image.save(store_image_path)
 
-            # حفظ صور الهوية
             if id_image and allowed_file(id_image.filename):
                 id_image_filename = secure_filename(id_image.filename)
                 id_image_path = os.path.join(id_image_folder, id_image_filename)
                 id_image.save(id_image_path)
 
-            # حفظ المستندات والوثائق
             if documents and allowed_file(documents.filename):
                 documents_filename = secure_filename(documents.filename)
                 documents_path = os.path.join(documents_folder, documents_filename)
@@ -716,21 +711,23 @@ def add_seller():
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            # إدخال العنوان الجديد
+            # إدخال العنوان
             cursor.execute(
                 "INSERT INTO seller_address (latitude, longitude, address) VALUES (?, ?, ?)",
                 (latitude, longitude, street_address)
             )
             address_id = cursor.lastrowid
+            print(f"✅ إدخال العنوان: {address_id}")
 
-            # إدخال الأرقام في جدول numbers
+            # إدخال الأرقام
             cursor.execute(
                 "INSERT INTO numbers (number1, number2) VALUES (?, ?)",
                 (number1, number2)
             )
             num_id = cursor.lastrowid
+            print(f"✅ إدخال الأرقام: {num_id}")
 
-            # إدخال البائع الجديد
+            # إدخال البائع
             cursor.execute('''
                 INSERT INTO sellers
                 (name, store_name, store_image, address, commercial_record, id_image, documents, SAddress_id, num_id)
@@ -740,12 +737,14 @@ def add_seller():
             ))
 
             conn.commit()
+            print("✅ إدخال البائع ناجح!")
             conn.close()
 
-            flash("تمت إضافة البائع وعنوانه بنجاح!", "success")
+            flash("تمت إضافة البائع بنجاح!", "success")
             return redirect(url_for('add_seller'))
 
         except Exception as e:
+            print(f"❌ خطأ: {str(e)}")
             flash(f"حدث خطأ: {str(e)}", "danger")
             return redirect(url_for('add_seller'))
 
@@ -758,14 +757,16 @@ def show_seller():
 
     # استرجاع جميع بيانات البائعين
     sellers = cursor.execute("""
-        SELECT sellers.id, sellers.name, sellers.store_name, sellers.store_image, 
-               sellers.commercial_record,sellers.created_at, seller_address.latitude, seller_address.longitude, 
-               seller_address.address AS street_address,
-               numbers.number1, numbers.number2
-        FROM sellers
-        JOIN seller_address ON sellers.SAddress_id = seller_address.id
-        JOIN numbers ON sellers.num_id = numbers.id
-    """).fetchall()
+        SELECT 
+        s.id, s.name, s.store_name, s.store_image, 
+        s.commercial_record, s.id_image, s.documents,
+        s.created_at,
+        sa.address,
+        n.number1, n.number2
+    FROM sellers s
+    JOIN seller_address sa ON s.SAddress_id = sa.id
+    JOIN numbers n ON s.num_id = n.id
+    ORDER BY s.created_at DESC """).fetchall()
 
     conn.close()
 

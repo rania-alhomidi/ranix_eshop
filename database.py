@@ -290,6 +290,23 @@ cursor = conn.cursor()
 # ''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_hidden INTEGER DEFAULT 0;''')
 
+# cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS sellers (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         name TEXT NOT NULL,
+#         store_name TEXT NOT NULL,
+#         store_image TEXT,
+#         address TEXT NOT NULL,  -- تمت إضافته هنا
+#         commercial_record TEXT,
+#         id_image TEXT,
+#         documents TEXT,
+#         SAddress_id INTEGER NOT NULL,
+#         num_id INTEGER NOT NULL,
+#         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#         FOREIGN KEY (SAddress_id) REFERENCES seller_address(id),
+#         FOREIGN KEY (num_id) REFERENCES numbers(id)
+#     );
+#     ''')
 conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
@@ -302,23 +319,23 @@ conn.commit()
 # for row in rows:
 #     print(row)
 
-cursor.execute("SELECT * FROM category ")  # استعلام عن كل البيانات
-rows = cursor.fetchall()  # جلب جميع الصفوف
-print("البيانات الموجودة في قاعدة البيانات:", rows)
+# cursor.execute("SELECT * FROM category ")  # استعلام عن كل البيانات
+# rows = cursor.fetchall()  # جلب جميع الصفوف
+# print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-for row in rows:
-    print(row)
+# for row in rows:
+#     print(row)
 
 # cursor.execute('''ALTER TABLE product ADD COLUMN featured BOOLEAN DEFAULT 0;''')
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS product')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS sellers')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-# tables = cursor.fetchall()  # جلب النتائج
-# print("الجداول الموجودة في قاعدة البيانات:", tables)
+cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+tables = cursor.fetchall()  # جلب النتائج
+print("الجداول الموجودة في قاعدة البيانات:", tables)
 
 # cursor.execute("PRAGMA table_info(product);")
 # columns = cursor.fetchall()
