@@ -65,19 +65,22 @@
                         </ul>
                     </div>
                 </li>
+                <li class="nav-item user-menu">
+                    <a class="nav-link" href="">
+                        صاحب المتجر
+                    </a>
                 
-            <li class="nav-item user-menu">
-                <a class="nav-link" href="#">
-                    صاحب المتجر
-                </a>
-                <div class="user-dropdown">
-                    
-                    <a href="#">تسجيل الدخول</a>
-                    <a href="#">تسجيل الدخول</a>
-                    <a href="#">تسجيل الدخول</a>
-
-                </div>
-            </li>
+                    <div class="user-dropdown" aria-labelledby="sellerDropdown">
+                        <ul>
+                        {% for seller in sellers %}
+                          <li>  <a class="" href="{{ url_for('seller_products', seller_id=seller.id) }}">
+                                {{ seller.store_name }}
+                            </a></li>
+                        {% endfor %}
+                    </ul>
+                    </div>
+                </li>
+                
             <li class="nav-item user-menu">
                 {% if request.cookies.get('user_auth') %}
                     <!-- إذا كان المستخدم مسجلاً دخوله (التحقق من وجود كوكي user_auth) -->

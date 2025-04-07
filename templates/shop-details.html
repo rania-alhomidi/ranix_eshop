@@ -319,7 +319,10 @@
                                     </div>
                                     <div class="meta-item">
                                         <span class="meta-label">البائع:</span>
-                                        <span class="meta-value">{{ product.seller }}</span>
+                                        <a href="{{ url_for('seller_products', seller_id=product.seller_id) }}" 
+                                           class="meta-value ">
+                                            {{ product.seller }}
+                                        </a>
                                     </div>
                                     <div class="meta-item">
                                         <span class="meta-label">الموقع:</span>

@@ -307,6 +307,17 @@ cursor = conn.cursor()
 #         FOREIGN KEY (num_id) REFERENCES numbers(id)
 #     );
 #     ''')
+
+# cursor.execute(''' 
+#     CREATE TABLE IF NOT EXISTS likes (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         user_id INTEGER,
+#         product_id INTEGER,
+#         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+#         FOREIGN KEY (product_id) REFERENCES product(id),
+#         FOREIGN KEY (user_id) REFERENCES users(id)  -- إذا كان لديك جدول مستخدمين
+#     )
+# ''')
 conn.commit()
 
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
@@ -319,29 +330,30 @@ conn.commit()
 # for row in rows:
 #     print(row)
 
-# cursor.execute("SELECT * FROM category ")  # استعلام عن كل البيانات
+# cursor.execute("SELECT * FROM users ")  # استعلام عن كل البيانات
 # rows = cursor.fetchall()  # جلب جميع الصفوف
 # print("البيانات الموجودة في قاعدة البيانات:", rows)
 
 # for row in rows:
 #     print(row)
 
-# cursor.execute('''ALTER TABLE product ADD COLUMN featured BOOLEAN DEFAULT 0;''')
+# cursor.execute('''ALTER TABLE category ADD COLUMN is_active INTEGER DEFAULT 0;''')
+# cursor.execute('''ALTER TABLE product ADD COLUMN is_new BOOLEAN DEFAULT TRUE;''')
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
 # cursor.execute('DROP TABLE IF EXISTS sellers')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-tables = cursor.fetchall()  # جلب النتائج
-print("الجداول الموجودة في قاعدة البيانات:", tables)
+# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+# tables = cursor.fetchall()  # جلب النتائج
+# print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-# cursor.execute("PRAGMA table_info(product);")
-# columns = cursor.fetchall()
+cursor.execute("PRAGMA table_info(sellers);")
+columns = cursor.fetchall()
 
-# for col in columns:
-#     print(col[1])  # col[1] يحتوي على اسم العمود
+for col in columns:
+    print(col[1])  # col[1] يحتوي على اسم العمود
 
 # إغلاق الاتصال
 conn.commit()

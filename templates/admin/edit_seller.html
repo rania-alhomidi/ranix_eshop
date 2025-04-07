@@ -1,58 +1,221 @@
-{% include 'admin/header.html' %}
 
-<main id="main" class="main">
-    <div class="container mt-5">
-<h1>تعديل بيانات البائع</h1>
 
-<form method="POST" enctype="multipart/form-data" class="mt-4 p-4 border rounded bg-light">
-    <div class="form-group">
-        <label for="name">الاسم</label>
-        <input type="text" id="name" name="name" class="form-control" value="{{ seller[1] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="store_name">اسم المتجر</label>
-        <input type="text" id="store_name" name="store_name" class="form-control" value="{{ seller[2] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="address">العنوان</label>
-        <input type="text" id="address" name="address" class="form-control" value="{{ seller[4] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="phone_number">رقم الهاتف</label>
-        <input type="text" id="phone_number" name="phone_number" class="form-control" value="{{ seller[5] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="password">كلمة المرور</label>
-        <input type="password" id="password" name="password" class="form-control" value="{{ seller[6] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="email">البريد الإلكتروني</label>
-        <input type="email" id="email" name="email" class="form-control" value="{{ seller[7] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="commercial_record">السجل التجاري</label>
-        <input type="text" id="commercial_record" name="commercial_record" class="form-control" value="{{ seller[8] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="product_type">نوع المنتج</label>
-        <input type="text" id="product_type" name="product_type" class="form-control" value="{{ seller[11] }}" required>
-    </div>
-    <div class="form-group">
-        <label for="store_image">صورة المتجر</label>
-        <input type="file" id="store_image" name="store_image" class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="id_image">صورة الهوية</label>
-        <input type="file" id="id_image" name="id_image" class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="documents">المستندات</label>
-        <input type="file" id="documents" name="documents" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-primary">تعديل</button>
-</form>
-</div>
-</main>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Dashboard - NiceAdmin Bootstrap Template</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="static/img/favicon.png" rel="icon">
+  <link href="static/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Vendor CSS Files -->
+  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="static/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="static/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="static/vendor/simple-datatables/style.css" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/fontawesome.min.css"> 
+  <link rel="stylesheet" href="static/css/fontawesome.css">
+  <link rel="stylesheet" href="static/css/all.min.css"> 
+
+  <!-- Template Main CSS File -->
+  <link href="static/css/index.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+        <main id="main" class="main">
+            <div class="container mt-5">
+                <h2 class="mb-4 text-center">تعديل بيانات البائع</h2>
+    
+                <form method="POST" enctype="multipart/form-data" class="p-4 border rounded bg-light shadow">
+                    <!-- المعلومات الأساسية -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">الاسم</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ seller['name'] }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="store_name" class="form-label">اسم المتجر</label>
+                            <input type="text" class="form-control" id="store_name" name="store_name" value="{{ seller['store_name'] }}" required>
+                        </div>
+                    </div>
+    
+                    <!-- خريطة الموقع -->
+                    <div class="mb-3">
+                        <label class="form-label">موقع المتجر</label>
+                        <div id="map" style="height: 400px;"></div>
+                        <button type="button" id="getLocationButton" class="btn btn-info mt-2">
+                            
+                            <i class="bi bi-geo-alt"></i> استخدام الموقع الحالي
+                        </button>
+                        <p id="locationStatus" class="mb-0 mt-2 text-muted small"></p>
+                        <div class="form-group mt-3">
+                            <label for="addressDisplay" class="form-label">العنوان</label>
+                            <input type="text" class="form-control" id="addressDisplay" name="addressDisplay" 
+                                   value="{{ seller['full_address'] if seller['full_address'] else '' }}" required>
+                        </div>
+                        <input type="hidden" id="latitude" name="latitude" 
+                               value="{{ seller['latitude'] if seller['latitude'] else '' }}">
+                        <input type="hidden" id="longitude" name="longitude" 
+                               value="{{ seller['longitude'] if seller['longitude'] else '' }}">
+                    </div>
+    
+                    <!-- أرقام الهاتف -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="number1" class="form-label">رقم الهاتف الأساسي</label>
+                            <input type="text" class="form-control" id="number1" name="number1" 
+                                   value="{{ seller['number1'] }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="number2" class="form-label">رقم الهاتف الثانوي</label>
+                            <input type="text" class="form-control" id="number2" name="number2" 
+                                   value="{{ seller['number2'] if seller['number2'] else '' }}">
+                        </div>
+                    </div>
+    
+                    <!-- السجل التجاري -->
+                    <div class="mb-3">
+                        <label for="commercial_record" class="form-label">السجل التجاري</label>
+                        <input type="text" class="form-control" id="commercial_record" name="commercial_record" 
+                               value="{{ seller['commercial_record'] if seller['commercial_record'] else '' }}">
+                    </div>
+    
+                    <!-- ملفات البائع -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="store_image" class="form-label">صورة المتجر</label>
+                            <input class="form-control" type="file" id="store_image" name="store_image">
+                            {% if seller['store_image'] %}
+                                <img src="{{ url_for('static', filename=seller['store_image'].replace('static/','')) }}" 
+                                     class="img-thumbnail mt-2" style="max-height: 150px;">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="id_image" class="form-label">صورة الهوية</label>
+                            <input class="form-control" type="file" id="id_image" name="id_image">
+                            {% if seller['id_image'] %}
+                                <img src="{{ url_for('static', filename=seller['id_image'].replace('static/','')) }}" 
+                                     class="img-thumbnail mt-2" style="max-height: 150px;">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="documents" class="form-label">المستندات</label>
+                            <input class="form-control" type="file" id="documents" name="documents">
+                            {% if seller['documents'] %}
+                                <a href="{{ url_for('static', filename=seller['documents'].replace('static/','')) }}" 
+                                   target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-file-earmark-text"></i> عرض المستند
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save"></i> حفظ التعديلات
+                        </button>
+                        <a href="/show_seller" class="btn btn-secondary px-4">
+                            <i class="bi bi-arrow-left"></i> رجوع
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    
+<!-- Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('map').setView([21.4225, 39.8262], 12);
+    let marker = null;
+    const getLocationButton = document.getElementById('getLocationButton');
+    const locationStatus = document.getElementById('locationStatus');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    const addressDisplay = document.getElementById('addressDisplay');
+
+    function initMap() {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        map.on('click', onMapClick);
+    }
+
+    function onMapClick(e) {
+        const { lat, lng } = e.latlng;
+        updateLocation(lat, lng);
+        reverseGeocode(lat, lng);
+    }
+
+    function onGetLocationClick() {
+        if (navigator.geolocation) {
+            locationStatus.textContent = '... جارِ الحصول على الموقع';
+            navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError);
+        } else {
+            locationStatus.textContent = 'تحديد الموقع الجغرافي غير مدعوم على هذا المتصفح.';
+        }
+    }
+
+    async function reverseGeocode(lat, lng) {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            let address = data.display_name;
+            addressDisplay.value = address || 'العنوان غير متوفر';
+        } catch (error) {
+            addressDisplay.value = 'لا يمكن استرجاع العنوان.';
+        }
+    }
+
+    function onGeolocationSuccess(position) {
+        const { latitude, longitude } = position.coords;
+        updateLocation(latitude, longitude);
+        reverseGeocode(latitude, longitude);
+        locationStatus.textContent = '';
+    }
+
+    function onGeolocationError(error) {
+        locationStatus.textContent = 'خطأ في الحصول على الموقع: ' + error.message;
+    }
+
+    function updateLocation(latitude, longitude) {
+        latitudeInput.value = latitude;
+        longitudeInput.value = longitude;
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        marker = L.marker([latitude, longitude], {draggable: true}).addTo(map);
+        marker.on('dragend', function(event) {
+            const newLatLng = event.target.getLatLng();
+            updateLocation(newLatLng.lat, newLatLng.lng);
+            reverseGeocode(newLatLng.lat, newLatLng.lng);
+        });
+        map.setView([latitude, longitude], 15);
+    }
+
+    getLocationButton.addEventListener('click', onGetLocationClick);
+    initMap();
+});
+</script>
 
 {% include 'admin/footer.html' %}
 

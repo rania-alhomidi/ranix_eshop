@@ -1,4 +1,5 @@
-{% include 'header.html'%}
+{% include 'header.html' %}
+
 
 
 <style>
@@ -7,7 +8,7 @@
         padding: 30px 0;
         background-color: #f5f7fa;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-     margin: 10px 0 10px 0;
+     
     }
     
     /* العنوان الرئيسي */
@@ -208,107 +209,70 @@
 
 </style>
 
-
 <div class="modern-products">
     <div class="container">
-        <h1 class="modern-title">منتجاتنا المميزة</h1>
+        <h1 class="modern-title">قائمة المفضلة ❤️</h1>
         <div class="row">
-            {% for product in products %}
-            {% if product.featured == 1 %}
-            <div class="col-6 col-md-6 col-lg-4 col-xl-3">
-                <div class="modern-card">
-                    {% if product.featured %}
-                    <div class="featured-badge">جديد</div>
-                    {% endif %}
-           
-                    <div class="modern-img-container">
-                        <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
+            {% if products %}
+                {% for product in products %}
+                <div class="col-6 col-md-6 col-lg-4 col-xl-3">
+                    <div class="modern-card">
+                       
+                        <div class="modern-img-container">
+                            <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
                             alt="{{ product.name }}" class="modern-img">
-                    </div>
+                        </div>
 
-                    <div class="modern-card-body">
-                        <h5 class="modern-product-title">{{ product.name }}</h5>
+                        <div class="modern-card-body">
+                            <h5 class="modern-product-title">{{ product.name }}</h5>
+                            
+                            <button class="like-btn liked" data-product-id="{{ product.id }}">
+                                <i class="fa fa-heart"></i>
+                            </button>
 
-                        <button class="like-btn {% if product.id in liked_products %}liked{% endif %}"
-                            data-product-id="{{ product.id }}">
-                            <i class="fa fa-heart"></i>
-                        </button>
+                            <p class="modern-product-price">
+                                ر.س {{ product.profit_price }}
+                                {% if product.original_price %}
+                                <span class="original-price">ر.س {{ product.original_price }}</span>
+                                {% endif %}
+                            </p>
+                            <p class="modern-product-desc">{{ product.description }}</p>
 
-                        <p class="modern-product-price">
-                            ر.س {{ product.profit_price }}
-                        </p>
-                        <p class="modern-product-desc">{{ product.description }}</p>
-
-                        <div class="modern-btn-group">
-                            <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
-                                <input type="hidden" name="name" value="{{ product.name }}">
-                                <input type="hidden" name="price" value="{{ product.profit_price }}">
-                                <input type="hidden" name="image_url" value="{{ product.image }}">
-                                <input type="hidden" name="description" value="{{ product.description }}">
-                                <input type="hidden" name="seller" value="{{ product.seller }}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="modern-btn modern-btn-primary">
-                                    <i class="fa fa-shopping-cart"></i>
-                                </button>
-                            </form>
-                            <a href="{{ url_for('product_details', product_id=product.id) }}"
-                               class="modern-btn modern-btn-secondary">
-                                <i class="fa fa-info-circle"></i>
-                            </a>
+                            <div class="modern-btn-group">
+                                <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
+                                    <input type="hidden" name="name" value="{{ product.name }}">
+                                    <input type="hidden" name="price" value="{{ product.profit_price }}">
+                                    <input type="hidden" name="image_url" value="{{ product.image }}">
+                                    <input type="hidden" name="description" value="{{ product.description }}">
+                                    <input type="hidden" name="seller" value="{{ product.seller }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="modern-btn modern-btn-primary">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('product_details', product_id=product.id) }}" 
+                                   class="modern-btn modern-btn-secondary">
+                                    <i class="fa fa-info-circle"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="far fa-heart fa-5x text-muted mb-4"></i>
+                    <h3>قائمة المفضلة فارغة</h3>
+                    <p class="text-muted">لم تقم بإضافة أي منتجات إلى المفضلة بعد</p>
+                    <a href="{{ url_for('products') }}" class="btn btn-primary">تصفح المنتجات</a>
+                </div>
             {% endif %}
-            {% endfor %}
         </div>
     </div>
 </div>
 
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.querySelectorAll('.like-btn').forEach(btn => {
-    btn.addEventListener('click', async function() {
-        const productId = this.dataset.productId;
-        
-        try {
-            const response = await fetch(`/toggle_like/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include'  // مهم لإرسال الكوكيز
-            });
-            
-            const data = await response.json();
-            
-            if (!data.success && !data.is_authenticated) {
-                // إذا لم يكن مسجل دخول
-                Swal.fire({
-                    title: 'تحذير',
-                    text: data.message,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'تسجيل الدخول',
-                    cancelButtonText: 'إلغاء'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/login';
-                    }
-                });
-                return;
-            }
-            
-            if (data.success) {
-                this.classList.toggle('liked');
-                // رسالة نجاح
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-});
+// نفس سكريبت الإعجاب من products.html
 </script>
 
-{% include 'footer.html' %} 
+{% include 'footer.html' %}

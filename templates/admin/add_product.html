@@ -51,7 +51,7 @@
         
         <div class="mb-3">
             <label class="form-label">البائع:</label>
-            <select name="seller" class="form-select" id="seller" onchange="fetchAddress()" >
+            <select name="seller" class="form-select" id="seller" onchange="fetchAddress()" required>
                 <option value="">اختر البائع</option>
                 {% for seller in sellers %}
                     <option value="{{ seller.id }}">{{ seller.name }}</option>
@@ -91,5 +91,4 @@
   </script>
 </main>
 
-</body>
-</html>
+{% include 'admin/footer.html' %}

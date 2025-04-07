@@ -44,79 +44,141 @@ def home():
     #return render_template('/storage/emulated/0/Documents/Pydroid3/git_eshop-main/templates/admin/index.html')
 
 
-
 @app.route('/cate', methods=['GET', 'POST'])
 def add_category():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    if request.method == 'POST':
-        name = request.form['name']
-        parent_id = request.form.get('parent', None)  # Get parent_id from the form
-        image = request.files.get('image')
+        if request.method == 'POST':
+            name = request.form.get('name')
+            if not name:
+                flash('اسم القسم مطلوب', 'danger')
+                return redirect(url_for('add_category'))
 
-        # Ensure the category name is unique
-        cursor.execute('SELECT * FROM category WHERE name = ?', (name,))
-        if cursor.fetchone():
-            flash('عذرًا، هذه الفئة موجودة بالفعل.', 'danger')
-            return redirect(url_for('add_category'))
+            parent_id = request.form.get('parent', None)
+            image = request.files.get('image')
+            is_active = 1 if request.form.get('is_active') == '1' else 0
 
-        # Handle parent_id: Convert to None if empty
-        if not parent_id or parent_id.strip() == '':
-            parent_id = None
-        else:
-            parent_id = int(parent_id)  # Convert to integer
+            # التحقق من وجود الفئة
+            cursor.execute('SELECT id FROM category WHERE name = ?', (name,))
+            if cursor.fetchone():
+                flash('هذا القسم موجود بالفعل!', 'danger')
+                return redirect(url_for('add_category'))
 
-        # Save the image if uploaded
-        image_path = None
-        if image and image.filename:
-            # Ensure the upload folder exists
-            upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'category_img')
-            if not os.path.exists(upload_folder):
-                os.makedirs(upload_folder)
+            # معالجة parent_id
+            parent_id = int(parent_id) if parent_id and parent_id.isdigit() else None
 
-            # Save the image
-            filename = secure_filename(image.filename)
-            filepath = os.path.join(upload_folder, filename)
-            image.save(filepath)  # Save the image to the server
-            image_path = f'static/uploads/category_img/{filename}'  # Save the relative path in the database
+            # تعيين مسار الصورة إذا تم تحميلها
+            image_path = None
+            if image and image.filename:
+                upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'category_img')
+                if not os.path.exists(upload_folder):
+                    os.makedirs(upload_folder)
 
-        # Insert the category into the database
-        cursor.execute(
-            'INSERT INTO category (name, parent_id, image) VALUES (?, ?, ?)',
-            (name, parent_id, image_path)
-        )
+                # حفظ الصورة
+                filename = secure_filename(image.filename)
+                filepath = os.path.join(upload_folder, filename)
+                image.save(filepath)  # حفظ الصورة على الخادم
+                image_path = f'static/uploads/category_img/{filename}'  # حفظ المسار النسبي في قاعدة البيانات
+
+            # إدراج الفئة
+            cursor.execute(
+                'INSERT INTO category (name, parent_id, image, is_active) VALUES (?, ?, ?, ?)',
+                (name, parent_id, image_path, is_active)
+            )
+            conn.commit()
+            flash('تم إضافة القسم بنجاح!', 'success')
+            return redirect(url_for('categories'))
+
+        # جلب الفئات للقائمة المنسدلة
+        categories = conn.execute('SELECT id, name FROM category').fetchall()
+        return render_template('admin/cate.html', categories=categories)
+
+    except Exception as e:
+        flash(f'حدث خطأ: {str(e)}', 'danger')
+        return redirect(url_for('add_category'))
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/toggle_category/<int:category_id>/<int:status>')
+def toggle_category(category_id, status):
+    try:
+        conn = get_db_connection()
+        conn.execute('UPDATE category SET is_active = ? WHERE id = ?', (status, category_id))
         conn.commit()
+        flash("تم تغيير حالة القسم", "success")
+    except Exception as e:
+        flash(f"خطأ في تحديث الحالة: {str(e)}", "danger")
+    finally:
         conn.close()
+    return redirect(url_for('categories'))
 
-        flash('تمت إضافة الفئة بنجاح!', 'success')
-        return redirect(url_for('categories'))
-
-    # Fetch all categories for selection
-    cursor.execute('SELECT * FROM category')
-    categories = cursor.fetchall()
-    conn.close()
-
-    return render_template('admin/cate.html', categories=categories)
-
-# عرض الأقسام
 @app.route('/showcate')
 def categories():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM category")
-    categories = cursor.fetchall()
-    conn.close()
-    return render_template('admin/showcate.html', categories=categories)
+    filter_type = request.args.get('filter', 'all')
+    try:
+        conn = get_db_connection()
+        conn.row_factory = sqlite3.Row
+        
+        query = """
+            SELECT c1.*, c2.name as parent_name 
+            FROM category c1
+            LEFT JOIN category c2 ON c1.parent_id = c2.id
+        """
+        
+        if filter_type == 'active':
+            query += " WHERE c1.is_active = 1"
+        elif filter_type == 'inactive':
+            query += " WHERE c1.is_active = 0"
+            
+        query += " ORDER BY c1.is_active DESC, c1.name"
+        
+        categories = conn.execute(query).fetchall()
+        return render_template('admin/show_cate.html', categories=categories)
+        
+    except Exception as e:
+        flash(f"خطأ في جلب البيانات: {str(e)}", "danger")
+        return redirect(url_for('index'))
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
+            
 @app.route('/')
 def index():
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM category")
-    categories = cursor.fetchall()
+    conn.row_factory = sqlite3.Row
+
+    # جلب التصنيفات الرئيسية النشطة فقط (is_active = 1)
+    main_categories = conn.execute("""
+        SELECT * FROM category 
+        WHERE parent_id IS NULL AND is_active = 1
+        ORDER BY name
+    """).fetchall()
+
+    # جلب المنتجات
+    products = conn.execute("SELECT * FROM product").fetchall()
+
+    # جلب معرف المستخدم
+    user_id = request.cookies.get('user_auth')
+
+    # جلب المنتجات التي أعجب بها المستخدم
+    if user_id:
+        liked_rows = conn.execute("SELECT product_id FROM likes WHERE user_id = ?", (user_id,)).fetchall()
+        liked_products = [row['product_id'] for row in liked_rows]
+    else:
+        liked_products = []
+
     conn.close()
-    return render_template('index.html', categories=categories)
+
+    return render_template(
+        'index.html',
+        main_categories=main_categories,  # تم تغيير الاسم من categories إلى main_categories
+        products=products,
+        liked_products=liked_products
+    )
 
 @app.context_processor
 def inject_categories():
@@ -388,10 +450,13 @@ def show_product():
     conn.close()
     return render_template('admin/show_product.html', products=products)
 
-
 @app.route('/show_product1', methods=['GET'])
 def show_product1():
+    user_id = session.get('user_id')
+    
     conn = get_db_connection()
+    
+    # جلب المنتجات المميزة
     products = conn.execute('''
         SELECT 
             p.id, 
@@ -401,17 +466,30 @@ def show_product1():
             pr.original_price, 
             pr.profit_price, 
             s.quantity,
-            c.name AS category
+            c.name AS category,
+            p.featured
         FROM product p
         LEFT JOIN prices pr ON p.price_id = pr.id
         LEFT JOIN stock s ON p.stock_id = s.id
         LEFT JOIN category c ON p.category_id = c.id
-        WHERE p.featured = 1  -- إظهار المنتجات المميزة فقط
+        WHERE p.featured = 1
         ORDER BY p.id DESC
     ''').fetchall()
+
+    # جلب المنتجات المعجبة إذا كان المستخدم مسجل الدخول
+    liked_products = []
+    if user_id:
+        liked_products = conn.execute('''
+            SELECT product_id FROM likes WHERE user_id = ?
+        ''', (user_id,)).fetchall()
+        liked_products = [p['product_id'] for p in liked_products]
     
     conn.close()
-    return render_template('shop_users.html', products=products)
+
+    return render_template('shop_user.html', 
+                         products=products,
+                         liked_products=liked_products)
+
 
 @app.route('/toggle_featured/<int:product_id>/<int:status>')
 def toggle_featured(product_id, status):
@@ -442,6 +520,7 @@ def product_details(product_id):
             COALESCE(s.quantity, 0) AS quantity, 
             c.name AS category, 
             sllr.name AS seller, 
+            sllr.id AS seller_id,
             sa.address AS address
         FROM product p
         LEFT JOIN prices pr ON p.price_id = pr.id
@@ -758,108 +837,203 @@ def show_seller():
     # استرجاع جميع بيانات البائعين
     sellers = cursor.execute("""
         SELECT 
-        s.id, s.name, s.store_name, s.store_image, 
-        s.commercial_record, s.id_image, s.documents,
-        s.created_at,
-        sa.address,
-        n.number1, n.number2
-    FROM sellers s
-    JOIN seller_address sa ON s.SAddress_id = sa.id
-    JOIN numbers n ON s.num_id = n.id
-    ORDER BY s.created_at DESC """).fetchall()
+            s.id, s.name, s.store_name, s.store_image, 
+            s.commercial_record, s.id_image, s.documents,
+            s.created_at,
+            sa.address, sa.latitude, sa.longitude,
+            n.number1, n.number2
+        FROM sellers s
+        JOIN seller_address sa ON s.SAddress_id = sa.id
+        JOIN numbers n ON s.num_id = n.id
+        ORDER BY s.created_at DESC """).fetchall()
 
     conn.close()
 
     # تمرير البيانات إلى الصفحة
     return render_template('admin/show_seller.html', sellers=sellers)
 
-@app.route('/edit_seller/<int:seller_id>', methods=['GET', 'POST'])
-def edit_seller(seller_id):
-    conn = sqlite3.connect("database/Eshop.db")
+
+# يعرض اصحاب المنتجات في الheader
+
+
+@app.route('/seller/<int:seller_id>/products')
+def seller_products(seller_id):
+    conn = get_db_connection()
     cursor = conn.cursor()
 
-    # جلب بيانات البائع الحالي
-    cursor.execute('''SELECT * FROM sellers WHERE id = ?''', (seller_id,))
-    seller = cursor.fetchone()
+    # جلب معلومات البائع أولاً
+    seller = cursor.execute('SELECT id, store_name FROM sellers WHERE id = ?', (seller_id,)).fetchone()
+    
+    if not seller:
+        abort(404)  # إذا لم يتم العثور على البائع
+    
+    products = cursor.execute('''
+        SELECT 
+            p.id, p.name, p.image, p.description,
+            pr.original_price, pr.profit_price,
+            s.quantity, c.name AS category,
+            sllr.name AS seller, sa.address AS address,
+            p.featured, p.seller_id
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        LEFT JOIN stock s ON p.stock_id = s.id
+        LEFT JOIN category c ON p.category_id = c.id
+        LEFT JOIN sellers sllr ON p.seller_id = sllr.id
+        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
+        WHERE p.seller_id = ?
+        ORDER BY p.id DESC
+    ''', (seller_id,)).fetchall()
 
-    if request.method == 'POST':
-        try:
-            # استقبال البيانات النصية
+    conn.close()
+    return render_template('seller_product.html', products=products, seller=seller)
+
+@app.context_processor
+def inject_sellers():
+    conn = get_db_connection()
+    sellers = conn.execute('SELECT id, store_name FROM sellers').fetchall()
+    conn.close()
+    return dict(sellers=sellers)
+
+
+@app.route('/edit_seller/<int:seller_id>', methods=['GET', 'POST'])
+def edit_seller(seller_id):
+    try:
+        conn = sqlite3.connect("database/Eshop.db")
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # جلب بيانات البائع مع معلومات العنوان والأرقام
+        cursor.execute('''
+            SELECT s.*, sa.latitude, sa.longitude, sa.address as full_address, 
+                   n.number1, n.number2 
+            FROM sellers s
+            LEFT JOIN seller_address sa ON s.SAddress_id = sa.id
+            LEFT JOIN numbers n ON s.num_id = n.id
+            WHERE s.id = ?
+        ''', (seller_id,))
+        seller = cursor.fetchone()
+
+        if not seller:
+            flash("صاحب المتجر غير موجود!", "danger")
+            return redirect('/show_seller')
+
+        if request.method == 'POST':
+            # استقبال البيانات الأساسية
             name = request.form['name']
             store_name = request.form['store_name']
-            address = request.form['address']
-            phone_number = request.form['phone_number']
-            password = request.form['password']
-            email = request.form['email']
             commercial_record = request.form['commercial_record']
-            product_type = request.form['product_type']
+            
+            # بيانات العنوان
+            latitude = request.form.get('latitude')
+            longitude = request.form.get('longitude')
+            street_address = request.form.get('addressDisplay')
+            
+            # أرقام الهاتف
+            number1 = request.form.get('number1')
+            number2 = request.form.get('number2')
 
-            # استقبال الملفات (إذا تم رفع ملفات جديدة)
-            store_image = request.files.get('store_image')
-            id_image = request.files.get('id_image')
-            documents = request.files.get('documents')
+            # معالجة الملفات
+            store_image = seller['store_image']
+            id_image = seller['id_image']
+            documents = seller['documents']
 
-            # دالة لحفظ الملفات وإرجاع المسار
-            def save_file(file):
-                if file and file.filename:
-                    filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-                    file.save(filepath)
-                    return filepath  # إرجاع المسار
-                return ""  # إرجاع قيمة فارغة في حال لم يتم تحميل ملف
+            if 'store_image' in request.files:
+                file = request.files['store_image']
+                if file.filename != '':
+                    filename = secure_filename(file.filename)
+                    path = os.path.join(app.config['UPLOAD_FOLDER'], 'store_images', filename)
+                    os.makedirs(os.path.dirname(path), exist_ok=True)
+                    file.save(path)
+                    store_image = path
 
-            store_image_path = save_file(store_image) or seller[2]  # استخدم الصورة الحالية إذا لم يتم رفع جديدة
-            id_image_path = save_file(id_image) or seller[8]  # استخدم الصورة الحالية إذا لم يتم رفع جديدة
-            documents_path = save_file(documents) or seller[9]  # استخدم الملف الحالي إذا لم يتم رفع جديد
+            if 'id_image' in request.files:
+                file = request.files['id_image']
+                if file.filename != '':
+                    filename = secure_filename(file.filename)
+                    path = os.path.join(app.config['UPLOAD_FOLDER'], 'id_images', filename)
+                    os.makedirs(os.path.dirname(path), exist_ok=True)
+                    file.save(path)
+                    id_image = path
+
+            if 'documents' in request.files:
+                file = request.files['documents']
+                if file.filename != '':
+                    filename = secure_filename(file.filename)
+                    path = os.path.join(app.config['UPLOAD_FOLDER'], 'documents', filename)
+                    os.makedirs(os.path.dirname(path), exist_ok=True)
+                    file.save(path)
+                    documents = path
 
             # تحديث البيانات في قاعدة البيانات
             cursor.execute("""
                 UPDATE sellers SET
                     name = ?,
                     store_name = ?,
-                    store_image = ?,
-                    address = ?,
-                    phone_number = ?,
-                    password = ?,
-                    email = ?,
                     commercial_record = ?,
+                    store_image = ?,
                     id_image = ?,
-                    documents = ?,
-                    product_type = ?
+                    documents = ?
                 WHERE id = ?
-            """, (name, store_name, store_image_path, address, phone_number, password, email, commercial_record, id_image_path, documents_path, product_type, seller_id))
+            """, (name, store_name, commercial_record, store_image, id_image, documents, seller_id))
+
+            # تحديث العنوان
+            cursor.execute("""
+                UPDATE seller_address SET
+                    latitude = ?,
+                    longitude = ?,
+                    address = ?
+                WHERE id = ?
+            """, (latitude, longitude, street_address, seller['SAddress_id']))
+
+            # تحديث الأرقام
+            cursor.execute("""
+                UPDATE numbers SET
+                    number1 = ?,
+                    number2 = ?
+                WHERE id = ?
+            """, (number1, number2, seller['num_id']))
 
             conn.commit()
-            conn.close()
-
             flash("تم تعديل بيانات البائع بنجاح!", "success")
             return redirect('/show_seller')
 
-        except Exception as e:
-            flash(f"حدث خطأ: {str(e)}", "danger")
+        # تحويل كائن sqlite3.Row إلى dict لسهولة الاستخدام في القالب
+        seller_dict = dict(seller)
+        seller_dict['has_location'] = bool(seller['latitude'] and seller['longitude'])
+        
+        return render_template('admin/edit_seller.html', seller=seller_dict)
 
-    return render_template('admin/edit_seller.html', seller=seller)
+    except Exception as e:
+        flash(f"حدث خطأ: {str(e)}", "danger")
+        return redirect('/show_seller')
+    finally:
+        conn.close()
 # حذف قسم
 @app.route('/delete_seller/<int:seller_id>')
 def delete_seller(seller_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect("database/Eshop.db")
+        cursor = conn.cursor()
 
-    # التأكد من أن القسم موجود
-    cursor.execute("SELECT * FROM sellers WHERE id = ?", (seller_id,))
-    category = cursor.fetchone()
+        # التأكد من أن البائع موجود
+        cursor.execute("SELECT * FROM sellers WHERE id = ?", (seller_id,))
+        seller = cursor.fetchone()
+        
+        if not seller:
+            flash("صاحب المتجر غير موجود!", "danger")
+            return redirect('/show_seller')
+
+        # حذف البائع من قاعدة البيانات
+        cursor.execute("DELETE FROM sellers WHERE id = ?", (seller_id,))
+        conn.commit()
+        conn.close()
+
+        flash("تم حذف صاحب المتجر بنجاح!", "success")
+        return redirect('/show_seller')
     
-    if not category:
-        flash("صاحب المتجر غير موجود!", "danger")
-        return redirect(url_for('sllers'))
-
-    # حذف القسم من قاعدة البيانات
-    cursor.execute("DELETE FROM sellers WHERE id = ?", (seller_id,))
-    conn.commit()
-    conn.close()
-
-    flash("تم حذف صاحب المتجر بنجاح!", "danger")
-    return redirect(url_for('sellers'))
-
+    except Exception as e:
+        flash(f"حدث خطأ أثناء الحذف: {str(e)}", "danger")
+        return redirect('/show_seller')
 
 
 @app.route('/blog-details')
@@ -923,6 +1097,7 @@ def view_cart():
         item['image_url'] = item['image_url'].split('/')[-1]  # يأخذ اسم الملف فقط
     
     return render_template('cart.html', cart=cart)
+
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if request.method == 'POST':
@@ -1048,7 +1223,6 @@ def contact():
 #     return render_template('shoping-cart.html')
 
 
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
@@ -1064,8 +1238,6 @@ def signup():
             longitude = request.form['longitude']
             address = request.form['addressDisplay']
 
-            print(f"بيانات الاستلام: {name}, {phone}, {email}, {latitude}, {longitude}, {address}")  # للتصحيح
-
             conn = get_db_connection()
             cursor = conn.cursor()
 
@@ -1073,24 +1245,39 @@ def signup():
             cursor.execute("INSERT INTO user_addresses (latitude, longitude, address) VALUES (?, ?, ?)",
                           (latitude, longitude, address))
             address_id = cursor.lastrowid
-            print(f"تم إدخال العنوان بالمعرف: {address_id}")  # للتصحيح
 
             # إضافة المستخدم
             cursor.execute("INSERT INTO user (name, num, pass, email, ud_ia) VALUES (?, ?, ?, ?, ?)",
                           (name, phone, password, email, address_id))
+            user_id = cursor.lastrowid
             conn.commit()
-            print("تم إدخال البيانات بنجاح!")  # للتصحيح
 
-            flash('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.', 'success')
-            return redirect(url_for('login'))
+            # تسجيل الدخول تلقائيًا باستخدام الكوكيز
+            response = make_response(redirect(url_for('index')))
+            response.set_cookie(
+                'user_auth',
+                value=str(user_id),
+                max_age=60*60*24*30,
+                secure=True,
+                httponly=True,
+                samesite='Lax'
+            )
+            response.set_cookie(
+                'user_name',
+                value=name,
+                max_age=60*60*24*7,
+                secure=True,
+                httponly=False
+            )
+
+            flash('تم إنشاء الحساب وتسجيل الدخول بنجاح!', 'success')
+            return response
 
         except sqlite3.IntegrityError as e:
-            print(f"خطأ تكامل البيانات: {str(e)}")  # للتصحيح
             flash('البريد الإلكتروني أو رقم الهاتف مسجل مسبقًا.', 'danger')
             return redirect(url_for('signup'))
 
         except Exception as e:
-            print(f"حدث خطأ غير متوقع: {str(e)}")  # للتصحيح
             flash('حدث خطأ أثناء إنشاء الحساب. الرجاء المحاولة مرة أخرى.', 'danger')
             return redirect(url_for('signup'))
 
@@ -1098,7 +1285,8 @@ def signup():
             if 'conn' in locals():
                 conn.close()
 
-# 🟢 تسجيل الدخول (معدل لاستخدام الكوكيز)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -1117,38 +1305,28 @@ def login():
         conn.close()
 
         if user is None:
-            flash('البريد الإلكتروني غير مسجل.', 'danger')
+            flash('اسم المستخدم غير موجود.', 'danger')
             return redirect(url_for('login'))
 
-        stored_password = user['pass'] if 'pass' in user.keys() else None
-
-        if stored_password is None:
-            flash('حدث خطأ داخلي. الرجاء المحاولة مرة أخرى.', 'danger')
-            return redirect(url_for('login'))
-
+        stored_password = user['pass']
         if check_password_hash(stored_password, password):
-            # إنشاء رد وإضافة الكوكيز
             response = make_response(redirect(url_for('index')))
-            
-            # كوكي المصادقة
             response.set_cookie(
                 'user_auth',
                 value=str(user['id']),
-                max_age=timedelta(days=356),  # تنتهي بعد 7 أيام
-                secure=True,  # للإرسال عبر HTTPS فقط
-                httponly=True,  # غير متاحة لـ JavaScript
-                samesite='Lax'  # حماية ضد CSRF
+                max_age=60*60*24*7,
+                secure=True,
+                httponly=True,
+                samesite='Lax'
             )
-            
-            # كوكي الاسم (اختياري)
             response.set_cookie(
                 'user_name',
                 value=user['name'],
-                max_age=timedelta(days=7),
+                max_age=60*60*24*7,
                 secure=True,
-                httponly=False  # متاحة لـ JavaScript إذا needed
+                httponly=False
             )
-            
+
             flash('تم تسجيل الدخول بنجاح.', 'success')
             return response
         else:
@@ -1163,7 +1341,6 @@ def logout():
     response.delete_cookie('user_name')
     flash('تم تسجيل الخروج بنجاح.', 'success')
     return response
-
 
 from functools import wraps
 
@@ -1238,5 +1415,123 @@ def profile():
     except Exception as e:
         print(f"خطأ مفاجئ: {str(e)}")
         return render_template('profile.html', error="حدث خطأ في جلب البيانات")
+    
+
+# show_users
+@app.route('/users')
+@login_required
+def users():
+    try:
+        conn = get_db_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT 
+                u.id, u.name, u.num, u.email, u.ud_ia,
+                a.address, a.latitude, a.longitude
+            FROM user u
+            LEFT JOIN user_addresses a ON u.ud_ia = a.id
+        """)
+        
+        users_data = cursor.fetchall()
+        conn.close()
+
+        users = []
+        for user in users_data:
+            users.append({
+                'id': user['id'],
+                'name': user['name'] or 'غير محدد',
+                'num': user['num'] or 'غير محدد',
+                'email': user['email'] or 'غير محدد',
+                'address': user['address'] or 'لم يتم إضافة عنوان',
+                'latitude': user['latitude'],
+                'longitude': user['longitude']
+            })
+
+        return render_template('admin/show_users.html', users=users)
+
+    except Exception as e:
+        print(f"خطأ مفاجئ: {str(e)}")
+        return render_template('admin/show_users.html', error="حدث خطأ أثناء جلب المستخدمين")
+
+
+
+# delete user
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # حذف المستخدم
+        cursor.execute("DELETE FROM user WHERE id = ?", (user_id,))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('users', message="تم حذف المستخدم بنجاح."))
+
+    except Exception as e:
+        print(f"خطأ أثناء الحذف: {e}")
+        return redirect(url_for('users', error="حدث خطأ أثناء حذف المستخدم."))
+
+@app.route('/toggle_like/<int:product_id>', methods=['POST'])
+def toggle_like(product_id):
+    if 'user_id' not in session:
+        return jsonify({
+            'success': False, 
+            'message': 'يجب تسجيل الدخول أولاً',
+            'is_authenticated': False
+        }), 401
+
+    user_id = session['user_id']
+    
+    conn = get_db_connection()
+    try:
+        like = conn.execute('SELECT * FROM likes WHERE user_id=? AND product_id=?', 
+                          (user_id, product_id)).fetchone()
+        
+        if like:
+            conn.execute('DELETE FROM likes WHERE user_id=? AND product_id=?', 
+                        (user_id, product_id))
+            action = 'unliked'
+        else:
+            conn.execute('INSERT INTO likes (user_id, product_id) VALUES (?, ?)', 
+                        (user_id, product_id))
+            action = 'liked'
+        
+        conn.commit()
+        return jsonify({
+            'success': True, 
+            'action': action,
+            'is_authenticated': True
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False, 
+            'message': str(e),
+            'is_authenticated': True
+        }), 500
+    finally:
+        conn.close()
+
+@app.route('/wishlist')
+def wishlist():
+    if 'user_id' not in session:
+        flash('يجب تسجيل الدخول لعرض المفضلة', 'warning')
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    liked_products = conn.execute('''
+        SELECT product.* FROM product
+        JOIN likes ON product.id = likes.product_id
+        WHERE likes.user_id = ?
+    ''', (session['user_id'],)).fetchall()
+    
+    conn.close()
+    
+    return render_template('wishlist.html', products=liked_products)
+
 if __name__ == '__main__':
     app.run()

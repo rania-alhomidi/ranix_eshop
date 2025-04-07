@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="static/css/fontawesome.min.css"> 
   <link rel="stylesheet" href="static/css/fontawesome.css">
   <link rel="stylesheet" href="static/css/all.min.css"> 
-
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/css/font-awesome.min.css') }}">
   <!-- Template Main CSS File -->
   <link href="static/css/index.css" rel="stylesheet">
 
@@ -136,7 +136,7 @@
 
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="customer.html">
+        <a class="nav-link collapsed" href="{{url_for('users')}}">
           <i class="bi bi-card-list"></i>
           <span>Users</span>
         </a>
