@@ -2,61 +2,90 @@
 
 <main id="main" class="main">
     <div class="container mt-5">
-        <h2 class="text-center">قائمة البائعين</h2>
-        <a href="/seller" class="btn btn-success">إضافة بائع جديد</a>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-center">قائمة البائعين</h2>
+            <a href="{{ url_for('admin.add_seller') }}" class="btn btn-success ps-4 pe-4">
+                <i class="bi bi-person-plus"></i> إضافة بائع جديد
+            </a>
+        </div>
 
-        <table class="table table-bordered mt-4">
-            <thead class="table-dark">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>الاسم</th>
-                        <th>اسم المتجر</th>
-                        <th>العنوان</th>
-                        <th>الرقم الأول</th>
-                        <th>الرقم الثاني</th>
-                        <th>السجل التجاري</th>
-                        <th>صورة المتجر</th>
-                        <th>صورة الهوية</th>
-                        <th>المستندات</th>
-                        <th>تاريخ الإنشاء</th>
-                        <th>العرض</th> <!-- العمود الجديد -->
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for seller in sellers %}
-                    <tr>
-                        <td>{{ seller[0] }}</td> <!-- ID -->
-                        <td>{{ seller[1] }}</td> <!-- الاسم -->
-                        <td>{{ seller[2] }}</td> <!-- اسم المتجر -->
-                        <td>{{ seller[8] }}</td> <!-- العنوان -->
-                        
-                        
-                        <td>{{ seller[11] }}</td> <!-- الرقم الأول -->
-                        <td>{{ seller[12] }}</td> <!-- الرقم الثاني -->
-                        <td>{{ seller[4] }}</td> <!-- السجل التجاري -->
-                        <td><img src="{{ seller[3] }}" alt="store_image" width="50"></td>
-                        <td><img src="{{ seller[5] }}" alt="id_image" width="50"></td>
-                        <td><img src="{{ seller[6] }}" alt="documents" width="50"></td>
-                        <td>{{ seller[7] }}</td> <!-- تاريخ الإنشاء -->
-                        <!-- العرض على الخريطة -->
-                        <td>
-                            {% if seller[9] and seller[10] %}
-                            <a href="https://maps.google.com/?q={{ seller[9] }},{{ seller[10] }}" target="_blank" class="btn btn-primary btn-sm">عرض</a>
-                            {% else %}
-                            <span class="text-muted">لا يوجد</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="/edit_seller/{{ seller[0] }}" class="btn btn-warning btn-sm">تعديل</a>
-                            <a href="/delete_seller/{{ seller[0] }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من الحذف؟')">حذف</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                
-        </table>
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>صورة المتجر</th>
+                                <th>اسم المتجر</th>
+                                <th>اسم البائع</th>
+                                <th>معلومات الاتصال</th>
+                                <th>السجل التجاري</th>
+                                <th>المستندات</th>
+                                <th>تاريخ الإنشاء</th>
+                                <th>عدد المنتجات</th>
+                                <th>الموقع</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for seller in sellers %}
+                            <tr>
+                                <td>{{ seller[0] }}</td>
+                                <td>
+                                    {% if seller[3] %}
+                                        {% set seller_image_path_no_static = seller[3].replace('static/', '', 1) %}
+                                        <img src="{{ url_for('static', filename=seller_image_path_no_static) }}" alt="صورة المتجر" width="70" class="img-thumbnail">
+                                    {% else %}
+                                        <span class="text-muted">لا توجد صورة</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ seller[2] }}</td>
+                                <td><span class="fw-bold">{{ seller[1] }}</span></td>
+                                <td>
+                                    <i class="bi bi-phone"></i> <a href="tel:{{ seller[11] }}">{{ seller[11] }}</a>
+                                    {% if seller[12] %}<br><i class="bi bi-phone"></i> <a href="tel:{{ seller[12] }}">{{ seller[12] }}</a>{% endif %}
+                                    <br>
+                                    <i class="bi bi-geo-alt"></i> <span class="text-muted">{{ seller[8] }}</span>
+                                </td>
+                                <td class="text-muted">{{ seller[4] or 'لا يوجد' }}</td>
+                                <td>
+                                    {% if seller[6] %}
+                                        <a href="{{ url_for('static', filename=seller[6].replace('static/','')) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-file-earmark-text"></i> عرض
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">لا يوجد</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted">{{ seller[7] }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin.seller_products_admin', seller_id=seller[0]) }}" class="text-primary fw-bold" title="عرض منتجات البائع">
+                                        {{ seller[13] or 0 }} منتج
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if seller[9] and seller[10] %}
+                                        <a href="https://maps.google.com/?q={{ seller[9] }},{{ seller[10] }}" target="_blank" class="btn btn-outline-info btn-sm">
+                                            <i class="bi bi-map-fill"></i> عرض على الخريطة
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">لا يوجد</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-grid gap-2 d-md-block">
+                                        <a href="{{ url_for('admin.edit_seller', seller_id=seller[0]) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> تعديل</a>
+                                        <a href="{{ url_for('admin.delete_seller', seller_id=seller[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')"><i class="bi bi-trash"></i> حذف</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 

@@ -10,7 +10,7 @@
 <body>
     <div class="container mt-5">
         <h2 class="text-center">إتمام الطلب</h2>
-        <form action="/checkout" method="post" class="mt-4">
+        <form action="{{ url_for('cart.checkout') }}" method="post" class="mt-4">
             <div class="mb-3">
                 <label class="form-label">الاسم الكامل</label>
                 <input type="text" class="form-control" name="full_name" required>

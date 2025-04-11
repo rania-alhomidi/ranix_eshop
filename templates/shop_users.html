@@ -240,7 +240,7 @@
                         <p class="modern-product-desc">{{ product.description }}</p>
 
                         <div class="modern-btn-group">
-                            <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
+                            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="d-inline">
                                 <input type="hidden" name="name" value="{{ product.name }}">
                                 <input type="hidden" name="price" value="{{ product.profit_price }}">
                                 <input type="hidden" name="image_url" value="{{ product.image }}">
@@ -251,7 +251,7 @@
                                     <i class="fa fa-shopping-cart"></i>
                                 </button>
                             </form>
-                            <a href="{{ url_for('product_details', product_id=product.id) }}"
+                            <a href="{{ url_for('product.product_details', product_id=product.id) }}"
                                class="modern-btn modern-btn-secondary">
                                 <i class="fa fa-info-circle"></i>
                             </a>

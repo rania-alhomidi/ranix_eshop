@@ -52,7 +52,7 @@
         <h1 class="text-center mb-4">تعديل الفئة</h1>
  
 
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" action="{{ url_for('admin.edit_category', category_id=category.id) }}" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="name" class="form-label">اسم الفئة</label>
                 <input type="text" class="form-control" id="name" name="name" 
@@ -79,14 +79,16 @@
                 {% if category.image %}
                     <div class="mt-2">
                         <p>الصورة الحالية:</p>
-                        <img src="{{ url_for('static', filename=category.image) }}" 
-                             alt="صورة الفئة" class="img-thumbnail" width="150">
+                        {% if category.image %}
+    {% set category_image_path_no_static = category.image.replace('static/', '', 1) %}
+    <img src="{{ url_for('static', filename=category_image_path_no_static) }}" alt="صورة الفئة" class="img-thumbnail" width="150">
+{% endif %}
                     </div>
                 {% endif %}
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a href="{{ url_for('categories') }}" class="btn btn-secondary me-md-2">إلغاء</a>
+                <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary me-md-2">إلغاء</a>
                 <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
             </div>
         </form>

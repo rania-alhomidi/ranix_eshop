@@ -1,94 +1,110 @@
 {% include 'admin/header.html' %}
 
 <main id="main" class="main">
-  <div class="container mt-5">
-    <h1 class="text-center mb-4">عرض الأقسام</h1>
-    
-    <!-- فلترة الفئات -->
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <div class="btn-group" role="group">
-          <a href="{{ url_for('categories') }}?filter=all" class="btn btn-outline-primary">الكل</a>
-          <a href="{{ url_for('categories') }}?filter=active" class="btn btn-outline-success">الظاهرة</a>
-          <a href="{{ url_for('categories') }}?filter=inactive" class="btn btn-outline-danger">المخفية</a>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-center">عرض الأقسام</h1>
+            <div>
+                <div class="btn-group" role="group">
+                    <a href="{{ url_for('admin.categories') }}?filter=all" class="btn btn-outline-primary">الكل</a>
+                    <a href="{{ url_for('admin.categories') }}?filter=active" class="btn btn-outline-success">الظاهرة</a>
+                    <a href="{{ url_for('admin.categories') }}?filter=inactive" class="btn btn-outline-danger">المخفية</a>
+                </div>
+                <a href="{{ url_for('admin.add_category') }}" class="btn btn-warning ms-3 ps-4 pe-4">
+                    <i class="bi bi-plus-circle"></i> إضافة قسم
+                </a>
+            </div>
         </div>
-      </div>
-      <div class="col-md-6 text-end">
-        <a href="{{ url_for('add_category') }}" class="btn btn-warning ps-5 pe-5">
-          <i class="bi bi-plus-circle"></i> اضافة قسم
-        </a>
-      </div>
-    </div>
 
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-        <tr>
-          <th>#</th>
-          <th>الصورة</th>
-          <th>اسم القسم</th>
-          <th>التصنيف</th>
-          <th>الحالة</th>
-          <th>الإجراءات</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for category in categories %}
-        <tr>
-          <td>{{ category['id'] }}</td>
-          <td>
-            {% if category['image'] %}
-            <img src="{{ category['image'] }}" alt="صورة {{ category['name'] }}" width="80" height="80">
-            {% else %}
-              <span class="text-muted">لا توجد صورة</span>
-            {% endif %}
-          </td>
-          <td>{{ category['name'] }}</td>
-          <td>
-            {% if category['parent_id'] %}
-              <span class="badge bg-secondary">{{ category['parent_name'] or 'فرعي' }}</span>
-            {% else %}
-              <span class="badge bg-primary">رئيسي</span>
-            {% endif %}
-          </td>
-          <td>
-            {% if category['is_active'] == 1 %}
-              <span class="badge bg-success">ظاهر</span>
-            {% else %}
-              <span class="badge bg-danger">مخفي</span>
-            {% endif %}
-          </td>
-          <td>
-            <div class="btn-group" role="group">
-              <a href="{{ url_for('edit_category', category_id=category['id']) }}" 
-                 class="btn btn-warning btn-sm" title="تعديل">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>الصورة</th>
+                                <th>اسم القسم</th>
+                                <th>التصنيف</th>
+                                <th>عدد المنتجات</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr>
+                                <td>{{ category['id'] }}</td>
+                                <td>
+                                    {% if category['image'] %}
+                                        {% set category_image_path_no_static = category.image.replace('static/', '', 1) %}
+                                        <img src="{{ url_for('static', filename=category_image_path_no_static) }}" alt="صورة {{ category['name'] }}" width="70" class="img-thumbnail">
+                                    {% else %}
+                                        <span class="text-muted">لا توجد صورة</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ category['name'] }}</td>
+                                <td>
+                                    {% if category['parent_id'] %}
+                                        <span class="badge bg-secondary">{{ category['parent_name'] or 'فرعي' }}</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">رئيسي</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('product.show_products_by_category', category_id=category['id']) }}" class="text-primary fw-bold" title="عرض منتجات القسم">
+                                        {{ category['product_count'] }} منتج
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if category['is_active'] == 1 %}
+                                        <span class="badge bg-success"><i class="bi bi-eye-fill me-1"></i> ظاهر</span>
+                                    {% else %}
+                                        <span class="badge bg-danger"><i class="bi bi-eye-slash-fill me-1"></i> مخفي</span>
+                                    {% endif %}
+                                </td>
+                                
+                                
+                              <!-- ... داخل حلقة التكرار في show_cate.html ... -->
+    <td>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('admin.edit_category', category_id=category['id']) }}"
+               class="btn btn-warning btn-sm" title="تعديل">
                 <i class="bi bi-pencil"></i>
-              </a>
-              
-              <a href="{{ url_for('delete_category', category_id=category['id']) }}" 
-                 class="btn btn-danger btn-sm" 
-                 onclick="return confirm('هل أنت متأكد من حذف هذا القسم؟');"
-                 title="حذف">
+            </a>
+            <a href="{{ url_for('admin.category_details_admin', category_id=category['id']) }}"
+               class="btn btn-info btn-sm" title="تفاصيل القسم">  <!-- رابط جديد -->
+                <i class="bi bi-eye"></i>
+            </a>
+            <a href="{{ url_for('admin.delete_category', category_id=category['id']) }}"
+               class="btn btn-danger btn-sm"
+               onclick="return confirm('هل أنت متأكد من حذف هذا القسم؟');"
+               title="حذف">
                 <i class="bi bi-trash"></i>
-              </a>
-              
-              {% if category['is_active'] == 1 %}
-                <a href="/toggle_category/{{ category['id'] }}/0" 
+            </a>
+            {% if category['is_active'] == 1 %}
+                <a href="{{ url_for('admin.toggle_category', category_id=category['id'], status=0) }}"
                    class="btn btn-secondary btn-sm" title="إخفاء">
                   <i class="bi bi-eye-slash"></i>
                 </a>
-              {% else %}
-                <a href="/toggle_category/{{ category['id'] }}/1" 
+            {% else %}
+                <a href="{{ url_for('admin.toggle_category', category_id=category['id'], status=1) }}"
                    class="btn btn-info btn-sm" title="إظهار">
                   <i class="bi bi-eye"></i>
                 </a>
-              {% endif %}
+            {% endif %}
+        </div>
+    </td>
+                                
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+        </div>
+    </div>
 </main>
 
 {% include 'admin/footer.html' %}

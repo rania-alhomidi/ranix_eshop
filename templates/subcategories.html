@@ -197,7 +197,7 @@
                     </div>
                     <div class="category-content">
                         <h3 class="category-name">{{ subcategory[1] }}</h3>
-                        <a href="{{ url_for('show_products_by_category', category_id=subcategory[0]) }}" class="category-link">
+                        <a href="{{ url_for('product.show_products_by_category', category_id=subcategory[0]) }}" class="category-link">
                             تصفح المنتجات
                         </a>
                     </div>
@@ -207,7 +207,7 @@
     {% else %}
         <div class="no-categories">
             <p>لا توجد أقسام فرعية متاحة حالياً</p>
-            <a href="{{ url_for('index') }}" class="home-link">العودة للصفحة الرئيسية</a>
+            <a href="{{ url_for('product.index') }}" class="home-link">العودة للصفحة الرئيسية</a>
         </div>
     {% endif %}
 </div>

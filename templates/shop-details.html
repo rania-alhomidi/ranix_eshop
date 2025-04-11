@@ -1,4 +1,5 @@
 {% include 'header.html' %}
+
 <style>
     :root {
         --primary-color: #4e54c8;
@@ -293,81 +294,80 @@
                             </div>
                         </div>
 
-                        <!-- Product Info Column -->
-                        <div class="col-md-6">
-                            <div class="product-info">
-                                <h1 class="product-title">{{ product.name }}</h1>
-                                <div class="product-price">
-                                    {{ product.profit_price }} ر.ي
-                                    {% if product.original_price and product.original_price > product.profit_price %}
-                                    <small class="text-muted text-decoration-line-through ms-2">
-                                        {{ product.original_price }} ر.ي
-                                    </small>
-                                    {% endif %}
+<!-- Product Info Column -->
+                    <div class="col-md-6">
+                        <div class="product-info">
+                            <h1 class="product-title">{{ product.name }}</h1>
+                            <div class="product-price">
+                                {{ product.profit_price }} ر.ي
+                                {% if product.original_price and product.original_price > product.profit_price %}
+                                <small class="text-muted text-decoration-line-through ms-2">
+                                    {{ product.original_price }} ر.ي
+                                </small>
+                                {% endif %}
+                            </div>
+
+                            <p class="product-description">{{ product.description }}</p>
+
+                            <div class="product-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">الكمية المتوفرة:</span>
+                                    <span class="meta-value">{{ product.quantity }}</span>
                                 </div>
-
-                                <p class="product-description">{{ product.description }}</p>
-
-                                <div class="product-meta">
-                                    <div class="meta-item">
-                                        <span class="meta-label">الكمية المتوفرة:</span>
-                                        <span class="meta-value">{{ product.quantity }}</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">القسم:</span>
-                                        <span class="meta-value">{{ product.category }}</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">البائع:</span>
-                                        <a href="{{ url_for('seller_products', seller_id=product.seller_id) }}" 
-                                           class="meta-value ">
-                                            {{ product.seller }}
-                                        </a>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">الموقع:</span>
-                                        <span class="meta-value">{{ product.address }}</span>
-                                    </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">القسم:</span>
+                                    <span class="meta-value">{{ product.category }}</span>
                                 </div>
-
-                                <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}"
-                                    class="mb-4">
-                                    <input type="hidden" name="name" value="{{ product.name }}">
-                                    <input type="hidden" name="price" value="{{ product.profit_price }}">
-                                    <input type="hidden" name="image" value="{{ product.image }}">
-                                    <input type="hidden" name="description" value="{{ product.description }}">
-                                    <input type="hidden" name="seller" value="{{ product.seller }}">
-
-                                    <div class="quantity-selector">
-                                        <button type="button" class="quantity-btn" onclick="decreaseQuantity()" {% if
-                                            product.quantity <=0 %}disabled{% endif %}>-</button>
-                                        <input type="text" id="quantity" name="quantity" value="1"
-                                            class="quantity-input" readonly>
-                                        <button type="button" class="quantity-btn" onclick="increaseQuantity()" {% if
-                                            product.quantity <=0 %}disabled{% endif %}>+</button>
-                                    </div>
-
-                                    <button type="submit" class="add-to-cart-btn" {% if product.quantity <=0
-                                        %}disabled{% endif %}>
-                                        <i class="fas fa-shopping-cart"></i>
-                                        أضف إلى السلة
-                                    </button>
-                                </form>
-
-                                <div class="social-share">
-                                    <a href="#" class="social-icon facebook">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a href="#" class="social-icon twitter">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                    <a href="#" class="social-icon instagram">
-                                        <i class="fab fa-instagram"></i>
-                                    </a>
-                                    <a href="#" class="social-icon whatsapp">
-                                        <i class="fab fa-whatsapp"></i>
+                                <div class="meta-item">
+                                    <span class="meta-label">البائع:</span>
+                                    <a href="{{ url_for('seller.seller_products', seller_id=product.seller_id) }}" 
+                                       class="meta-value ">
+                                        {{ product.seller }}
                                     </a>
                                 </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">الموقع:</span>
+                                    <span class="meta-value">{{ product.address }}</span>
+                                </div>
+                            </div>
+
+                            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}"
+                                class="mb-4">
+                                <input type="hidden" name="name" value="{{ product.name }}">
+                                <input type="hidden" name="price" value="{{ product.profit_price }}">
+                                <input type="hidden" name="image" value="{{ product.image }}">
+                                <input type="hidden" name="description" value="{{ product.description }}">
+                                <input type="hidden" name="seller" value="{{ product.seller }}">
+
+                                <div class="quantity-selector">
+                                    <button type="button" class="quantity-btn" onclick="decreaseQuantity()" {% if
+                                        product.quantity <=0 %}disabled{% endif %}>-</button>
+                                    <input type="text" id="quantity" name="quantity" value="1"
+                                        class="quantity-input" readonly>
+                                    <button type="button" class="quantity-btn" onclick="increaseQuantity()" {% if
+                                        product.quantity <=0 %}disabled{% endif %}>+</button>
+                                </div>
+
+                                <button type="submit" class="add-to-cart-btn" {% if product.quantity <=0
+                                    %}disabled{% endif %}>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    أضف إلى السلة
+                                </button>
+                            </form>
+
+                            <div class="social-share">
+                                <a href="#" class="social-icon facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="social-icon twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="social-icon instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="social-icon whatsapp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -375,6 +375,12 @@
             </div>
         </div>
     </div>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
 </section>
 
 <script>
@@ -423,5 +429,6 @@
         });
     });
 </script>
+
 
 {% include 'footer.html' %}

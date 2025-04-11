@@ -1,0 +1,82 @@
+{% include 'admin/header.html' %}
+
+<main id="main" class="main">
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-center">تفاصيل المنتج</h1>
+            <a href="{{ url_for('admin.show_product') }}" class="btn btn-secondary ps-4 pe-4">
+                <i class="bi bi-arrow-left"></i> رجوع إلى قائمة المنتجات
+            </a>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if product.image %}
+                            {% set image_path_no_static = product.image.replace('static/', '', 1) %}
+                            <img src="{{ url_for('static', filename=image_path_no_static) }}" alt="صورة {{ product.name }}" class="img-fluid rounded">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='static/uploads/products/default_seller.jpg') }}" alt="لا توجد صورة" class="img-fluid rounded">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h2 class="card-title fw-bold">{{ product.name }}</h2>
+                        <p class="card-text">{{ product.description }}</p>
+
+                        <hr>
+
+                        <p class="card-text">
+                            <strong>السعر:</strong>
+                            <span class="text-decoration-line-through text-muted small">{{ product.original_price }} $</span>
+                            <strong class="text-danger ms-2">{{ product.profit_price }} $</strong>
+                        </p>
+                        <p class="card-text">
+                            <strong>الكمية المتوفرة:</strong>
+                            {% if product.quantity > 10 %}
+                                <span class="badge bg-success">{{ product.quantity }}</span>
+                            {% elif product.quantity > 0 %}
+                                <span class="badge bg-warning">{{ product.quantity }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">غير متوفر</span>
+                            {% endif %}
+                        </p>
+                        <p class="card-text">
+                            <strong>الفئة:</strong>
+                            <a href="{{ url_for('admin.edit_category', category_id=product.category_id) }}" title="تعديل الفئة">
+                                <span class="badge bg-info">{{ product.category }}</span>
+                            </a>
+                        </p>
+                        <p class="card-text">
+                            <strong>البائع:</strong>
+                            <a href="{{ url_for('admin.edit_seller', seller_id=product.seller_id) }}" title="تعديل البائع">
+                                <span class="badge bg-primary">{{ product.seller }}</span>
+                            </a>
+                        </p>
+                        <p class="card-text">
+                            <strong>عنوان البائع:</strong>
+                            <span class="text-muted">{{ product.address }}</span>
+                        </p>
+                        <p class="card-text">
+                            <strong>حالة العرض في الواجهة:</strong>
+                            {% if product.featured %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> مُعرض</span>
+                            {% else %}
+                                <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i> مخفي</span>
+                            {% endif %}
+                        </p>
+
+                        <div class="mt-4">
+                            <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-warning"><i class="bi bi-pencil"></i> تعديل المنتج</a>
+                            <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');"><i class="bi bi-trash"></i> حذف المنتج</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% include 'admin/footer.html' %}

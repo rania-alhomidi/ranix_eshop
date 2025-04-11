@@ -3,9 +3,13 @@
 <main id="main" class="main">
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="text-center">عرض المنتجات</h1>
-            <a href="{{ url_for('admin.add_product') }}" class="btn btn-warning ps-4 pe-4">
-                <i class="bi bi-plus-circle"></i> إضافة منتج
+            {% if seller %}
+                <h1 class="text-center">منتجات المتجر: <span class="fw-bold text-warning">{{ seller.store_name }}</span></h1>
+            {% else %}
+                <h1 class="text-center">منتجات البائع</h1>
+            {% endif %}
+            <a href="{{ url_for('admin.show_product') }}" class="btn btn-secondary ps-4 pe-4">
+                <i class="bi bi-arrow-left"></i> رجوع إلى قائمة المنتجات
             </a>
         </div>
 
@@ -22,9 +26,8 @@
                                 <th>السعر</th>
                                 <th>الكمية</th>
                                 <th>الفئة</th>
-                                <th>البائع</th>
-                                <th>العنوان</th>
                                 <th>الحالة</th>
+                                <th>تاريخ الإضافة</th> <!-- حقل إضافي -->
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
@@ -40,7 +43,12 @@
                                         <span class="text-muted">لا توجد صورة</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ product.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" title="تعديل المنتج">
+                                        
+                     <span class="fw-bold text-secondary">  {{ product.name }}</span>
+                                    </a>
+                                </td>
                                 <td class="text-truncate" style="max-width: 200px;" title="{{ product.description }}">{{ product.description }}</td>
                                 <td>
                                     <span class="text-decoration-line-through text-muted small">{{ product.original_price }} $</span>
@@ -57,39 +65,26 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('admin.categories') }}?filter=all" title="عرض جميع الأقسام">
-                                        <span class="fw-bold text-info">{{ product.category }}</span>
+                                    <a href="{{ url_for('admin.edit_category', category_id=product.category_id) }}" title="تعديل الفئة">
+                                        <span class="fw-bold text-primary">{{ product.category }}</span>
                                     </a>
                                 </td>
-                                <td>
-                                    <a href="{{ url_for('admin.seller_products_admin', seller_id=product.seller_id) }}" title="عرض منتجات البائع">
-                                        <span class="fw-bold text-primary">{{ product.seller }}</span>
-                                    </a>
-                                </td>
-                                <td class="text-muted">{{ product.address }}</td>
                                 <td>
                                     {% if product.featured %}
                                         <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> مُعرض</span>
-                                        <a href="{{ url_for('admin.toggle_featured', product_id=product.id, status=0) }}" class="btn btn-outline-secondary btn-sm">إخفاء</a>
                                     {% else %}
                                         <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i> مخفي</span>
-                                        <a href="{{ url_for('admin.toggle_featured', product_id=product.id, status=1) }}" class="btn btn-outline-info btn-sm">إظهار</a>
                                     {% endif %}
                                 </td>
-                                
-                                
-                       <!-- ... داخل حلقة التكرار في show_product.html ... -->
-    <td>
-        <div class="d-grid gap-2 d-md-block">
-            <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i> تعديل</a>
-            <a href="{{ url_for('admin.product_details_admin', product_id=product.id) }}" class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i> تفاصيل</a>  <!-- رابط جديد -->
-            <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من الحذف؟');">
-                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> حذف</button>
-            </form>
-        </div>
-    </td>
-    
-    
+                                <td class="text-muted">غير متوفر</td>  <!-- يمكنك إضافة تاريخ الإنشاء من قاعدة البيانات هنا -->
+                                <td>
+                                    <div class="d-grid gap-2 d-md-block">
+                                        <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> تعديل</a>
+                                        <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من الحذف؟');">
+                                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

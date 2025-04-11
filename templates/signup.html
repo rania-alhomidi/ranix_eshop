@@ -221,7 +221,7 @@ body {
             </div>
             
             <div class="registration-body">
-                <form method="POST" action="{{ url_for('signup') }}" class="needs-validation" novalidate>
+                <form method="POST" action="{{ url_for('user.signup') }}" class="needs-validation" novalidate>
                     <div class="mb-4">
                         <label for="name" class="form-label"><i class="fas fa-user me-2"></i>الاسم الكامل</label>
                         <input type="text" id="name" name="name" class="form-control animate-input" placeholder="أدخل اسمك الكامل" required>
@@ -271,7 +271,7 @@ body {
                 </form>
                 
                 <div class="text-center mt-4">
-                    <p>لديك حساب بالفعل؟ <a href="{{ url_for('login') }}" class="login-link"><i class="fas fa-sign-in-alt me-1"></i>تسجيل الدخول</a></p>
+                    <p>لديك حساب بالفعل؟ <a href="{{ url_for('user.login') }}" class="login-link"><i class="fas fa-sign-in-alt me-1"></i>تسجيل الدخول</a></p>
                 </div>
             </div>
         </div>

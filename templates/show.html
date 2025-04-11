@@ -48,7 +48,7 @@
                             <span class="featured-badge">Featured</span>
                         {% endif %}
 
-                        <a href="#" class="btn btn-primary">Add to Cart</a>
+                        <a href="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="btn btn-primary">Add to Cart</a>
                     </div>
                 </div>
             </div>

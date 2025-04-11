@@ -205,16 +205,16 @@
             
             <div class="quantity-controls">
                 <span class="mobile-label d-md-none">الكمية:</span>
-                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" class="d-inline">
+                <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}" class="d-inline">
                     <input type="hidden" name="action" value="decrease">
                     <button type="submit" class="quantity-btn">-</button>
                 </form>
                 <span class="quantity">{{ item.quantity }}</span>
-                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" class="d-inline">
+                <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}" class="d-inline">
                     <input type="hidden" name="action" value="increase">
                     <button type="submit" class="quantity-btn">+</button>
                 </form>
-                <form method="POST" action="{{ url_for('update_cart', product_id=item.product_id) }}" class="d-inline">
+                <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}" class="d-inline">
                     <input type="hidden" name="action" value="remove">
                     <button type="submit" class="remove-btn">حذف</button>
                 </form>
@@ -242,7 +242,7 @@
         </div>
         
         {% if request.cookies.get('user_auth') %}
-            <form method="POST" action="{{ url_for('checkout') }}">
+            <form method="POST" action="{{ url_for('cart.checkout') }}">
                 <button type="submit" class="btn btn-primary checkout-btn">
                     <i class="fa fa-shopping-cart"></i> إتمام الشراء
                 </button>
@@ -250,13 +250,13 @@
         {% else %}
             <div class="alert alert-warning mt-3">
                 <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
-                <a href="{{ url_for('login') }}?next={{ url_for('checkout') }}" class="btn btn-sm btn-primary">
+                <a href="{{ url_for('user.login') }}?next={{ url_for('cart.checkout') }}" class="btn btn-sm btn-primary">
                     <i class="fa fa-sign-in"></i> تسجيل الدخول
                 </a>
             </div>
         {% endif %}
         
-        <form method="POST" action="{{ url_for('clear_cart') }}" onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
+        <form method="POST" action="{{ url_for('cart.clear_cart') }}" onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
             <button type="submit" class="btn btn-outline-danger empty-cart-btn">
                 <i class="fa fa-trash"></i> تفريغ السلة
             </button>

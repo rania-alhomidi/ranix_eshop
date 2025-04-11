@@ -310,7 +310,7 @@ body {
             </div>
             
             <div class="login-body">
-                <form method="POST" action="{{ url_for('login') }}" class="needs-validation" novalidate>
+                <form method="POST" action="{{ url_for('user.login') }}" class="needs-validation" novalidate>
                     <div class="mb-4 input-icon">
                         <label for="name" class="form-label">اسم المستخدم</label>
                         <div class="position-relative">
@@ -355,7 +355,7 @@ body {
                 </form>
                 
                 <div class="text-center mt-4">
-                    <p>ليس لديك حساب؟ <a href="{{ url_for('signup') }}" class="login-link"><i class="fas fa-user-plus me-1"></i>إنشاء حساب جديد</a></p>
+                    <p>ليس لديك حساب؟ <a href="{{ url_for('user.signup') }}" class="login-link"><i class="fas fa-user-plus me-1"></i>إنشاء حساب جديد</a></p>
                 </div>
             </div>
         </div>

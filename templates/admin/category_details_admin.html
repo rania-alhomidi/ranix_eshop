@@ -1,0 +1,59 @@
+{% include 'admin/header.html' %}
+
+<main id="main" class="main">
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-center">تفاصيل القسم</h1>
+            <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary ps-4 pe-4">
+                <i class="bi bi-arrow-left"></i> رجوع إلى قائمة الأقسام
+            </a>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if category.image %}
+                            {% set category_image_path_no_static = category.image.replace('static/', '', 1) %}
+                            <img src="{{ url_for('static', filename=category_image_path_no_static) }}" alt="صورة {{ category.name }}" class="img-fluid rounded">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='static/uploads/category_img/default_category.png') }}" alt="لا توجد صورة للقسم" class="img-fluid rounded">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h2 class="card-title fw-bold">{{ category.name }}</h2>
+                        <p class="card-text">
+                            <strong>التصنيف:</strong>
+                            {% if category.parent_name %}
+                                <span class="badge bg-secondary">{{ category.parent_name }} (فرعي)</span>
+                            {% else %}
+                                <span class="badge bg-primary">رئيسي</span>
+                            {% endif %}
+                        </p>
+                        <p class="card-text">
+                            <strong>عدد المنتجات:</strong>
+                            <a href="{{ url_for('product.show_products_by_category', category_id=category.id) }}" class="text-primary fw-bold" title="عرض منتجات القسم">
+                                {{ category.product_count }} منتج
+                            </a>
+                        </p>
+                        <p class="card-text">
+                            <strong>الحالة:</strong>
+                            {% if category.is_active == 1 %}
+                                <span class="badge bg-success"><i class="bi bi-eye-fill me-1"></i> ظاهر</span>
+                            {% else %}
+                                <span class="badge bg-danger"><i class="bi bi-eye-slash-fill me-1"></i> مخفي</span>
+                            {% endif %}
+                        </p>
+
+                        <div class="mt-4">
+                            <a href="{{ url_for('admin.edit_category', category_id=category.id) }}" class="btn btn-warning"><i class="bi bi-pencil"></i> تعديل القسم</a>
+                            <a href="{{ url_for('admin.delete_category', category_id=category.id) }}" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من حذف هذا القسم؟');"><i class="bi bi-trash"></i> حذف القسم</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% include 'admin/footer.html' %}

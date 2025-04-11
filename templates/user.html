@@ -4,7 +4,7 @@
 <main id="main" class="main">
     <div class="container mt-5">
         <h2 class="text-center"> تسجيل الدخول</h2>
-        <form method="POST" action="{{ url_for('add_seller') }}" class="m-3 p-3 border rounded bg-light" enctype="multipart/form-data">
+        <form method="POST" action="{{ url_for('admin.add_seller') }}" class="m-3 p-3 border rounded bg-light" enctype="multipart/form-data">
             <div class="mb-3">
                 <label class="form-label">الاسم</label>
                 <input type="text" name="name" class="form-control" required>

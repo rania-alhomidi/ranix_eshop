@@ -154,6 +154,7 @@
         }
     }
 </style>
+
 </head>
 <body>
     <div class="container py-5">
@@ -172,94 +173,96 @@
                 </div>
                 <h1 class="mb-1">{{ user.name }}</h1>
                 <p class="mb-0 opacity-75">
-                   
-                </p>
-            </div>
-            
-            <!-- Main Content -->
-            <div class="row">
-                <!-- Personal Info -->
-                <div class="col-lg-4 mb-4">
-                    <div class="info-card p-4 h-100">
-                        <h3 class="mb-4 d-flex align-items-center">
-                            <i class="fas fa-user-circle card-icon me-2"></i>
-                            المعلومات الشخصية
-                        </h3>
-                        
-                        <div class="detail-item">
-                            <small class="text-muted">الاسم الكامل</small>
-                            <p class="mb-0 fw-bold">{{ user.name }}</p>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <small class="text-muted">البريد الإلكتروني</small>
-                            <p class="mb-0 fw-bold">{{ user.email }}</p>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <small class="text-muted">رقم الهاتف</small>
-                            <p class="mb-0 fw-bold">{{ user.num }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Address Section -->
-                <div class="col-lg-8">
-                    <div class="info-card p-4 mb-4">
-                        <h3 class="mb-4 d-flex align-items-center">
-                            <i class="fas fa-map-marker-alt card-icon me-2"></i>
-                            العنوان
-                        </h3>
-                        
-                        <div class="d-flex align-items-start mb-4">
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">العنوان الرئيسي</h5>
-                                <p class="text-muted mb-0">{{ user.address }}</p>
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-edit me-1"></i> تعديل
-                            </button>
-                        </div>
-                        
-                        {% if user.latitude and user.longitude %}
-                        <h5 class="mb-3">الموقع على الخريطة</h5>
-                        <div class="map-container">
-                            <iframe 
-                                width="100%" 
-                                height="100%" 
-                                frameborder="0" 
-                                scrolling="no" 
-                                marginheight="0" 
-                                marginwidth="0" 
-                                src="https://maps.google.com/maps?q={{ user.latitude }},{{ user.longitude }}&hl=ar&z=15&output=embed"
-                                style="border:0;"
-                                allowfullscreen>
-                            </iframe>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Floating Edit Button -->
-            <a href="#" class="edit-btn btn btn-primary">
-                <i class="fas fa-pencil-alt"></i>
-            </a>
-        {% endif %}
-    </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Animation for cards on load
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.info-card');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 100 * index);
-            });
+</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Personal Info -->
+            <div class="col-lg-4 mb-4">
+                <div class="info-card p-4 h-100">
+                    <h3 class="mb-4 d-flex align-items-center">
+                        <i class="fas fa-user-circle card-icon me-2"></i>
+                        المعلومات الشخصية
+                    </h3>
+                    
+                    <div class="detail-item">
+                        <small class="text-muted">الاسم الكامل</small>
+                        <p class="mb-0 fw-bold">{{ user.name }}</p>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <small class="text-muted">البريد الإلكتروني</small>
+                        <p class="mb-0 fw-bold">{{ user.email }}</p>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <small class="text-muted">رقم الهاتف</small>
+                        <p class="mb-0 fw-bold">{{ user.num }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Address Section -->
+            <div class="col-lg-8">
+                <div class="info-card p-4 mb-4">
+                    <h3 class="mb-4 d-flex align-items-center">
+                        <i class="fas fa-map-marker-alt card-icon me-2"></i>
+                        العنوان
+                    </h3>
+                    
+                    <div class="d-flex align-items-start mb-4">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">العنوان الرئيسي</h5>
+                            <p class="text-muted mb-0">{{ user.address }}</p>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> تعديل
+                        </button>
+                    </div>
+                    
+                    {% if user.latitude and user.longitude %}
+                    <h5 class="mb-3">الموقع على الخريطة</h5>
+                    <div class="map-container">
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            frameborder="0" 
+                            scrolling="no" 
+                            marginheight="0" 
+                            marginwidth="0" 
+                            src="https://maps.google.com/maps?q={{ user.latitude }},{{ user.longitude }}&hl=ar&z=15&output=embed"
+                            style="border:0;"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating Edit Button -->
+        <a href="#" class="edit-btn btn btn-primary">
+            <i class="fas fa-pencil-alt"></i>
+        </a>
+    {% endif %}
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Animation for cards on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.info-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
         });
-    </script>
+    });
+</script>
+
+
 {% include 'footer.html' %}

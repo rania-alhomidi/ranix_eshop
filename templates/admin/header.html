@@ -31,19 +31,19 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Vendor CSS Files -->
-  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <link href="static/vendor/quill/quill.snow.css" rel="stylesheet">
-  <link href="static/vendor/quill/quill.bubble.css" rel="stylesheet">
-  <link href="static/vendor/remixicon/remixicon.css" rel="stylesheet">
-  <link href="static/vendor/simple-datatables/style.css" rel="stylesheet">
-  <link rel="stylesheet" href="static/css/fontawesome.min.css"> 
-  <link rel="stylesheet" href="static/css/fontawesome.css">
-  <link rel="stylesheet" href="static/css/all.min.css"> 
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/quill/quill.snow.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/quill/quill.bubble.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/remixicon/remixicon.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/simple-datatables/style.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.min.css') }}"> 
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}"> 
   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/font-awesome.min.css') }}">
   <!-- Template Main CSS File -->
-  <link href="static/css/index.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
 
 </head>
 
@@ -53,7 +53,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="{{ url_for('home') }}" class="logo d-flex align-items-center">
+      <a href="{{ url_for('admin.home') }}" class="logo d-flex align-items-center">
         <!-- <img src="static/img/logo.png" alt=""> -->
         <span class="d-none d-lg-block">Admin</span>
       </a>
@@ -78,15 +78,15 @@
 
       <ul class="dropdown-menu me-3">
         <li> 
-         <a href="profile.html"><i class='bi bi-person'></i>Profile</a>
+         <a href="{{ url_for('admin.profile') }}"><i class='bi bi-person'></i>Profile</a>
         </li>
   
         <li>
-          <a href="../index.html"><i class='bi bi-eye'></i>View Page</a>
+          <a href="{{ url_for('product.index') }}"><i class='bi bi-eye'></i>View Page</a>
         </li>
   
         <li>
-          <a href="logout.html"><i class='bi bi-unlock'></i>Logout</a>
+          <a href="{{ url_for('user.logout') }}"><i class='bi bi-unlock'></i>Logout</a>
         </li>
   
       </ul>
@@ -102,7 +102,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="{{url_for('home')}}">
+        <a class="nav-link " href="{{url_for('admin.home')}}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -111,23 +111,22 @@
       <li class="nav-heading">Pages</li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{{ url_for('show_product')}}">
+        <a class="nav-link collapsed" href="{{ url_for('admin.show_product')}}">
           <i class="bi bi-card-list"></i>
           <span>Products</span>
         </a>
         </li>
       
         <li class="nav-item">
-        <a class="nav-link collapsed" href="{{ url_for('categories') }}">
-          <i class="bi bi-card-list"></i>
-          <span>Categorices</span>
-        </a>
-      </li><!-- End Register Page Nav -->  
-
+  <a class="nav-link collapsed" href="{{ url_for('admin.categories')}}"> 
+    <i class="bi bi-card-list"></i>
+    <span>Categorices</span>
+  </a>
+</li>
 
 <!-- start manage  members -->  
         <li class="nav-item">
-        <a class="nav-link collapsed" href="{{url_for('show_seller')}}">
+        <a class="nav-link collapsed" href="{{url_for('admin.show_seller')}}">
           <i class="bi bi-card-list"></i>
           <span>Customer</span>
         </a>
@@ -136,7 +135,7 @@
 
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{{url_for('users')}}">
+        <a class="nav-link collapsed" href="{{url_for('admin.users')}}">
           <i class="bi bi-card-list"></i>
           <span>Users</span>
         </a>

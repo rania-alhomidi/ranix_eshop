@@ -1,7 +1,7 @@
 <!--signin page  -->
 <main id="main" class="main">
   <div class="sing-in">
-    <form class="from1" action="" method="POST">
+    <form class="from1" action="{{ url_for('admin.signin') }}" method="POST">
       <center>
         <h2 class="sing">Sing in</h2>
       </center>
@@ -13,7 +13,7 @@
       <a href="password.php" class="forgot-password">Forgot Your Password?</a>
       <center>
         <button class="btn-login" type="submit" name="login">Login</button><br><br>
-        Don't have account? <a href="signup.php" class="ms-6" style="color:blue;">signup</a>
+        Don't have account? <a href="{{ url_for('admin.signup') }}" class="ms-6" style="color:blue;">signup</a>
       </center>
 
     </form>

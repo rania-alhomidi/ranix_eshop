@@ -51,7 +51,7 @@
 <main id="main" class="main">
   <div class="container mt-5">
     <h1 class="text-center">تعديل المنتج</h1>
-    <form method="POST" enctype="multipart/form-data" class="mt-4 p-4 border rounded bg-light">
+    <form method="POST" action="{{ url_for('admin.edit_product', product_id=product.id) }}" enctype="multipart/form-data" class="mt-4 p-4 border rounded bg-light">
         <div class="mb-3">
             <label class="form-label">اسم المنتج:</label>
             <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
@@ -79,9 +79,14 @@
         
         <div class="mb-3">
             <label for="image" class="form-label">الصورة الحالية:</label>
-            <img src="{{ url_for('static', filename=product.image) }}" alt="صورة المنتج" class="img-fluid mb-2" width="150">
+            {% if product.image %}
+    {% set product_image_path_no_static = product.image.replace('static/', '', 1) %}
+    <img src="{{ url_for('static', filename=product_image_path_no_static) }}" alt="صورة المنتج" class="img-fluid mb-2" width="150">
+{% endif %}
             <input type="file" name="image" class="form-control">
         </div>
+
+
         
         <div class="mb-3">
             <label class="form-label">الفئة:</label>
