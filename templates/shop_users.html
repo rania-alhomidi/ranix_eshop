@@ -1,15 +1,14 @@
 {% include 'header.html'%}
 
-
 <style>
     /* تنسيق عام جديد */
     .modern-products {
         padding: 30px 0;
         background-color: #f5f7fa;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-     margin: 10px 0 10px 0;
+        margin: 10px 0;
     }
-    
+
     /* العنوان الرئيسي */
     .modern-title {
         text-align: center;
@@ -19,7 +18,7 @@
         font-weight: 700;
         position: relative;
     }
-    
+
     .modern-title:after {
         content: '';
         display: block;
@@ -28,7 +27,7 @@
         background: #4c51bf;
         margin: 15px auto 0;
     }
-    
+
     /* بطاقة المنتج الجديدة */
     .modern-card {
         background: white;
@@ -41,37 +40,36 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        position: relative;
     }
-    
+
     .modern-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     }
-    
+
     /* تنسيق الصورة الكاملة */
     .modern-img-container {
-
         width: 100%;
-    height: 250px; /* تحديد ارتفاع ثابت لجميع الصور */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
     }
-    
+
     .modern-img {
         width: 100%;
         height: 100%;
         display: block;
         transition: transform 0.5s ease;
-
-    object-fit: cover; /* يجعل جميع الصور بنفس الحجم بغض النظر عن أبعادها */
+        object-fit: cover;
     }
-    
+
     .modern-card:hover .modern-img {
         transform: scale(1.03);
     }
-    
+
     /* محتوى البطاقة */
     .modern-card-body {
         padding: 20px;
@@ -79,14 +77,14 @@
         display: flex;
         flex-direction: column;
     }
-    
+
     .modern-product-title {
         font-size: 1.25rem;
         color: #2d3748;
         margin-bottom: 10px;
         font-weight: 600;
     }
-    
+
     .modern-product-desc {
         color: #4a5568;
         font-size: 0.95rem;
@@ -94,120 +92,130 @@
         line-height: 1.5;
         flex-grow: 1;
     }
-    
+
     .modern-product-price {
         font-size: 1.3rem;
         color: #ff0202;
         font-weight: 600;
         margin-bottom: 15px;
     }
-    
+
     /* أزرار جديدة بلون مختلف */
     .modern-btn-group {
         display: flex;
-        gap: 10px;
-  
+        gap: 15px;
+        justify-content: center;
+        margin-top: auto;
     }
-    
+
     .modern-btn {
         width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: none;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
     }
-    
-.modern-btn-primary {
-    background-color: #c794ca;
-    color: #fff;
-}
 
-.modern-btn-primary:hover {
-    background-color: #fccff2;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-}
+    .modern-btn-primary {
+        background-color: #c794ca;
+        color: #fff;
+    }
 
-.modern-btn-secondary {
-    background-color: #3182CE ;
-    color: #fff;
-}
+    .modern-btn-primary:hover {
+        background-color: #fccff2;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
 
-.modern-btn-secondary:hover {
-    background-color: #6acbff;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-}
+    .modern-btn-secondary {
+        background-color: #3182CE;
+        color: #fff;
+    }
 
-.modern-btn-group {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-}
+    .modern-btn-secondary:hover {
+        background-color: #6acbff;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
 
-    /* التجاوب مع الشاشات الصغيرة */
-    @media (max-width: 768px) {
+    /* زر الإعجاب (المفضلة) */
+    .like-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid #e2e8f0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+    }
+
+    .like-btn i {
+        color: #a0aec0;
+        transition: color 0.3s ease;
+    }
+
+    .like-btn:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.1);
+    }
+
+    .like-btn.liked i {
+        color: #e53e3e;
+    }
+
+    /* شارة المنتج الجديد */
+    .featured-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #4c51bf;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        z-index: 10;
+        text-transform: uppercase;
+    }
+
+    /* التجاوب مع الشاشات */
+    @media (max-width: 767.98px) {
+        /* على شاشات الهاتف (أقل من 768 بكسل) - منتجان في الصف */
         .modern-title {
             font-size: 2rem;
         }
-        
+
         .modern-card-body {
             padding: 15px;
         }
-       
+
         .modern-product-title {
             font-size: 1.1rem;
         }
-        
+
         .modern-btn {
-            padding: 8px;
-            font-size: 0.9rem;
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
         }
     }
-
-/* زر الإعجاب (المفضلة) */
-.like-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.8); /* خلفية شفافة */
-    border: 1px solid #e2e8f0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-}
-
-/* لون القلب عند عدم الإعجاب */
-.like-btn i {
-    color: #a0aec0; /* رمادي */
-    transition: color 0.3s ease;
-}
-
-/* تأثير عند مرور الماوس */
-.like-btn:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
-}
-
-/* عند الضغط على زر الإعجاب */
-.like-btn.liked i {
-    color: #e53e3e; /* لون القلب أحمر عند الإعجاب */
-}
-
+    
+    /* لا حاجة لاستعلام وسائط إضافي لـ col-lg-3 هنا، فـ Bootstrap سيتعامل معها */
 </style>
-
 
 <div class="modern-products">
     <div class="container">
@@ -215,12 +223,11 @@
         <div class="row">
             {% for product in products %}
             {% if product.featured == 1 %}
-            <div class="col-6 col-md-6 col-lg-4 col-xl-3">
-                <div class="modern-card">
+            <div class="col-6 col-lg-3"> <div class="modern-card">
                     {% if product.featured %}
                     <div class="featured-badge">جديد</div>
                     {% endif %}
-           
+
                     <div class="modern-img-container">
                         <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
                             alt="{{ product.name }}" class="modern-img">
@@ -235,12 +242,13 @@
                         </button>
 
                         <p class="modern-product-price">
-                            ر.س {{ product.profit_price }}
+                            ر.ي{{ product.profit_price }}
                         </p>
                         <p class="modern-product-desc">{{ product.description }}</p>
 
                         <div class="modern-btn-group">
-                            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="d-inline">
+                            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}"
+                                class="d-inline">
                                 <input type="hidden" name="name" value="{{ product.name }}">
                                 <input type="hidden" name="price" value="{{ product.profit_price }}">
                                 <input type="hidden" name="image_url" value="{{ product.image }}">
@@ -252,7 +260,7 @@
                                 </button>
                             </form>
                             <a href="{{ url_for('product.product_details', product_id=product.id) }}"
-                               class="modern-btn modern-btn-secondary">
+                                class="modern-btn modern-btn-secondary">
                                 <i class="fa fa-info-circle"></i>
                             </a>
                         </div>
@@ -265,50 +273,47 @@
     </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.querySelectorAll('.like-btn').forEach(btn => {
-    btn.addEventListener('click', async function() {
-        const productId = this.dataset.productId;
-        
-        try {
-            const response = await fetch(`/toggle_like/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include'  // مهم لإرسال الكوكيز
-            });
-            
-            const data = await response.json();
-            
-            if (!data.success && !data.is_authenticated) {
-                // إذا لم يكن مسجل دخول
-                Swal.fire({
-                    title: 'تحذير',
-                    text: data.message,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'تسجيل الدخول',
-                    cancelButtonText: 'إلغاء'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/login';
-                    }
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', async function () {
+            const productId = this.dataset.productId;
+
+            try {
+                const response = await fetch(`/toggle_like/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include'
                 });
-                return;
+
+                const data = await response.json();
+
+                if (!data.success && !data.is_authenticated) {
+                    Swal.fire({
+                        title: 'تحذير',
+                        text: data.message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'تسجيل الدخول',
+                        cancelButtonText: 'إلغاء'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/login';
+                        }
+                    });
+                    return;
+                }
+
+                if (data.success) {
+                    this.classList.toggle('liked');
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
-            
-            if (data.success) {
-                this.classList.toggle('liked');
-                // رسالة نجاح
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        });
     });
-});
 </script>
 
-{% include 'footer.html' %} 
+{% include 'footer.html' %}
