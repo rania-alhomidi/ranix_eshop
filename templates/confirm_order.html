@@ -1,0 +1,428 @@
+{% include 'header.html' %}
+<style>
+    :root {
+        --primary-color: #c794ca;
+        --secondary-color: #f8f9fa;
+        --text-color: #333;
+        --light-text: #6c757d;
+        --border-color: #dee2e6;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-color);
+    }
+
+    h1, h2, h3, h4 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+        border-left: 4px solid var(--primary-color);
+        padding-left: 10px;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: rgba(40, 167, 69, 0.2);
+        border: 1px solid var(--success-color);
+        color: var(--success-color);
+    }
+
+    .alert-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        border: 1px solid var(--warning-color);
+        color: var(--warning-color);
+    }
+
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border: 1px solid var(--danger-color);
+        color: var(--danger-color);
+    }
+
+    .order-summary, .delivery-address, .payment-details {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .items-list {
+        margin-bottom: 20px;
+    }
+
+    .item-details {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 15px;
+    }
+
+    .item-details img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-left: 20px;
+    }
+
+    .item-details div {
+        flex: 1;
+    }
+
+    .pricing-details {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .pricing-details p {
+        margin-bottom: 10px;
+    }
+
+    .pricing-details h3 {
+        margin-top: 15px;
+        color: var(--primary-color);
+    }
+
+    .delivery-address p {
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+
+    .delivery-address a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .delivery-address a:hover {
+        text-decoration: underline;
+    }
+
+    #address-select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        margin: 10px 0;
+        background-color: white;
+    }
+
+    .payment-details form {
+        margin-top: 20px;
+    }
+
+    label {
+        display: block;
+        margin: 15px 0 5px;
+        font-weight: bold;
+    }
+
+    select, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    textarea {
+        min-height: 100px;
+    }
+
+    .checkout-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1.1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .checkout-btn:hover {
+        background-color: #b57cb8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .checkout-btn i {
+        margin-left: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .item-details {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .item-details img {
+            margin-left: 0;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+    }
+    /* أضف هذه الأنماط الجديدة مع الحفاظ على الأنماط السابقة */
+    
+    .address-details {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .address-details p {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px dashed #eee;
+    }
+    
+    .address-details p:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .address-actions {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .address-actions .btn {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .address-actions .btn-secondary {
+        background-color: #f0f0f0;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+    }
+    
+    .address-actions .btn-secondary:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    #address-select-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+        display: none;
+    }
+    
+    #address-selector {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        margin-bottom: 15px;
+        background-color: white;
+        font-size: 1rem;
+    }
+    
+    #address-select-container button {
+        width: 100%;
+        padding: 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    #address-select-container button:hover {
+        background-color: #e9ecef;
+    }
+
+</style>
+<div class="container">
+    <h1>تأكيد الطلب</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="order-summary">
+        <h2>عناصر الطلب</h2>
+        {% if order_items %}
+            <div class="items-list">
+                {% for item in order_items %}
+                    <div class="item-details">
+                        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}">
+                        <div>
+                            <h4>{{ item.name }}</h4>
+                            <p>السعر: {{ item.price | round(2) }} ريال</p>
+                            <p>الكمية: {{ item.quantity }}</p>
+                            <p>المجموع الفرعي: {{ item.total_item_price | round(2) }} ريال</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>لا توجد عناصر في سلة التسوق.</p>
+        {% endif %}
+
+        <div class="pricing-details">
+            <p><strong>إجمالي المنتجات:</strong> {{ total_items_price | round(2) }} ريال</p>
+            <p><strong>تكلفة التوصيل:</strong> {{ delivery_cost | round(2) }} ريال</p>
+            <h3>المجموع الكلي للطلب: {{ total_order_price | round(2) }} ريال</h3>
+        </div>
+    </div>
+
+    <div class="address-details" id="current-recipient-address">
+        <p><strong>اسم المستلم:</strong> <span id="recipient-name">{{ recipient_address.recipient_name }}</span></p>
+        <p><strong>رقم الهاتف:</strong> <span id="recipient-phone">{{ recipient_address.recipient_phone }}</span></p>
+        <p><strong>نوع العنوان:</strong> <span id="address-type">{{ recipient_address.address_type }}</span></p>
+        <p><strong>المدينة:</strong> <span id="address-city">{{ recipient_address.city }}</span></p>
+        <p><strong>المنطقة:</strong> <span id="address-region">{{ recipient_address.region }}</span></p>
+        <p><strong>الوصف التفصيلي:</strong> <span id="full-address-description">{{ recipient_address.full_address_description }}</span></p>
+    </div>
+    
+    <div class="address-actions">
+        <a href="#" onclick="toggleAddressSelect(); return false;" class="btn btn-secondary">تغيير العنوان</a>
+        <a href="{{ url_for('order.add_address_page') }}" class="btn btn-secondary">إضافة عنوان جديد</a>
+    </div>
+    
+    <div id="address-select-container" style="display:none;">
+        <select id="address-selector" onchange="setDefaultAddress(this.value)">
+            {% for addr in all_addresses %}
+                <option value="{{ addr.id }}" {% if addr.id == recipient_address.id %}selected{% endif %}>
+                    {{ addr.address_type }} - {{ addr.full_address_description }}
+                </option>
+            {% endfor %}
+        </select>
+        <button onclick="toggleAddressSelect();" class="btn btn-secondary">إلغاء</button>
+    </div>
+    
+    <script>
+        // دالة لتبديل عرض قائمة العناوين المنسدلة
+        function toggleAddressSelect() {
+            var container = document.getElementById('address-select-container');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+    
+        // دالة لتحديث تفاصيل العنوان في الواجهة الأمامية
+        function updateAddressUI(address) {
+            document.getElementById('recipient-name').innerText = address.recipient_name;
+            document.getElementById('recipient-phone').innerText = address.recipient_phone;
+            document.getElementById('address-type').innerText = address.address_type;
+            document.getElementById('address-city').innerText = address.city;
+            document.getElementById('address-region').innerText = address.region;
+            document.getElementById('full-address-description').innerText = address.full_address_description;
+        }
+    
+        // الدالة التي يتم استدعاؤها عند تغيير العنوان من القائمة المنسدلة
+        async function setDefaultAddress(addressId) {
+            if (!addressId) return; // لا تفعل شيئًا إذا كانت القيمة فارغة
+    
+            try {
+                // أرسل طلب Fetch (AJAX) إلى الخادم لتعيين العنوان الافتراضي
+                const response = await fetch(`/set_default_address/${addressId}`, { 
+                    method: 'GET', // أو POST إذا أردت استخدام POST هنا
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+    
+                if (data.success) {
+                    // إذا نجحت العملية، قم بتحديث الواجهة الأمامية
+                    updateAddressUI(data.address); // تحديث تفاصيل العنوان المعروضة
+                    toggleAddressSelect(); // إخفاء قائمة الاختيار
+                    // يمكنك إظهار رسالة نجاح مؤقتة للمستخدم هنا
+                    // showFlashMessage('تم تحديث العنوان الافتراضي بنجاح', 'success');
+                } else {
+                    // إذا حدث خطأ، أظهر رسالة الخطأ
+                    alert(data.message); // يمكنك استخدام flash message هنا بدلاً من alert
+                }
+            } catch (error) {
+                console.error('Error setting default address:', error);
+                alert('حدث خطأ أثناء تحديث العنوان. يرجى المحاولة مرة أخرى.');
+            }
+        }
+    </script>
+    <div class="payment-details">
+        <h2>تفاصيل الدفع</h2>
+        <p>رصيدك الحالي: {{ user_balance | round(2) }} ريال</p>
+        
+        <form action="{{ url_for('order.process_order') }}" method="POST">
+            <input type="hidden" name="selected_address_id" value="{{ recipient_address.id if recipient_address.id }}">
+            
+            <label for="payment_method">طريقة الدفع:</label>
+            <select name="payment_method" id="payment_method">
+                <option value="from_balance">الدفع من رصيد التطبيق</option>
+                {# يمكنك إضافة خيارات دفع أخرى هنا لاحقاً #}
+            </select>
+            
+            <label for="order_notes">ملاحظات إضافية (اختياري):</label>
+            <textarea name="order_notes" id="order_notes" rows="3"></textarea>
+
+            <button type="submit" class="btn btn-primary checkout-btn">
+                <i class="fas fa-money-check-alt"></i> إتمام الطلب
+            </button>
+        </form>
+    </div>
+</div>
+
+{% include 'footer.html' %}

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة عنوان جديد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        /* General Body & Container Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5; /* Light grey background */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px; /* Max width for forms on larger screens */
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden; /* Ensures rounded corners apply to children */
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allow container to grow if content is short */
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #008779; /* Primary color */
+            color: white;
+            padding: 20px 25px;
+            text-align: center;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        /* Main Content & Form Styling */
+        main {
+            padding: 25px;
+            flex-grow: 1; /* Allow main content to take available space */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="tel"],
+        .form-group textarea {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #555;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="tel"]:focus,
+        .form-group textarea:focus {
+            border-color: #008779;
+            box-shadow: 0 0 0 3px rgba(0, 135, 121, 0.2); /* Light teal focus ring */
+            outline: none;
+        }
+
+        .form-group textarea {
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 80px;
+        }
+
+        /* Checkbox Styling */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 25px;
+            margin-bottom: 30px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-left: 10px; /* Space between checkbox and label */
+            transform: scale(1.2); /* Slightly larger checkbox */
+            accent-color: #008779; /* Custom color for checkbox */
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0; /* Remove default margin for label */
+            font-weight: 500;
+            color: #444;
+        }
+
+        /* Buttons Styling */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #008779; /* Primary button color */
+            color: white;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:hover {
+            background-color: #006f63; /* Darker shade on hover */
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0; /* Light background for secondary */
+            color: #555;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        /* Flash Messages */
+        .flashes {
+            list-style: none;
+            padding: 0;
+            margin: -15px 0 20px 0; /* Adjust margin to fit well below header */
+            border-radius: 8px;
+            overflow: hidden; /* For rounded corners */
+        }
+
+        .flashes li {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .flashes li.success {
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green text */
+            border: 1px solid #c3e6cb;
+        }
+
+        .flashes li.error, .flashes li.danger {
+            background-color: #f8d7da; /* Light red */
+            color: #721c24; /* Dark red text */
+            border: 1px solid #f5c6cb;
+        }
+
+        .flashes li.info {
+            background-color: #d1ecf1; /* Light blue */
+            color: #0c5460; /* Dark blue text */
+            border: 1px solid #bee5eb;
+        }
+
+        /* Footer Styling */
+        footer {
+            margin-top: 20px; /* Space from main content */
+            padding: 15px;
+            text-align: center;
+            color: #777;
+            font-size: 0.85em;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            header {
+                border-radius: 0;
+            }
+            footer {
+                border-radius: 0;
+            }
+            main {
+                padding: 15px;
+            }
+            header h1 {
+                font-size: 1.4em;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>إضافة عنوان جديد</h1>
+        </header>
+
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('order.add_address_page') }}" method="post">
+                <div class="form-group">
+                    <label for="recipient_name">اسم المستلم:</label>
+                    <input type="text" id="recipient_name" name="recipient_name" 
+                           value="{{ recipient_name if recipient_name is defined else '' }}" 
+                           placeholder="أدخل اسم المستلم كاملاً" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="recipient_phone">رقم هاتف المستلم:</label>
+                    <input type="tel" id="recipient_phone" name="recipient_phone" 
+                           value="{{ recipient_phone if recipient_phone is defined else '' }}" 
+                           placeholder="مثال: 771234567" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address_type">نوع العنوان:</label>
+                    <input type="text" id="address_type" name="address_type" 
+                           value="{{ address_type if address_type is defined else '' }}" 
+                           placeholder="مثلاً: منزل، عمل، آخر" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">المدينة:</label>
+                    <input type="text" id="city" name="city" 
+                           value="{{ city if city is defined else '' }}" 
+                           placeholder="مثلاً: صنعاء، عدن" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="region">المنطقة/الحي:</label>
+                    <input type="text" id="region" name="region" 
+                           value="{{ region if region is defined else '' }}" 
+                           placeholder="مثلاً: السنينة، الستين" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="full_address_description">الوصف التفصيلي للعنوان:</label>
+                    <textarea id="full_address_description" name="full_address_description" rows="4" 
+                              placeholder="الشارع، رقم المبنى، علامات مميزة (بجوار المسجد الفلاني)" required>{{ full_address_description if full_address_description is defined else '' }}</textarea>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="is_default" name="is_default" 
+                           {% if is_default is defined and is_default %} checked {% endif %}>
+                    <label for="is_default">تعيين كعنوان افتراضي</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">حفظ العنوان</button>
+                <a href="{{ url_for('order.confirm_order_page') }}" class="btn btn-secondary">العودة لصفحة الطلب</a>
+            </form>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 متجر Rezza. كل الحقوق محفوظة.</p>
+        </footer>
+    </div>
+</body>
+</html>
