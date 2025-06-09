@@ -6,8 +6,7 @@
     <title>Rezza | متجرك المميز</title>
     
     
-   <!-- CSS Styles -->
-   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/nice-select.css') }}">
     <link rel=ink rel="stylesheet" href="{{ url_for('static', filename='style/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/jquery-ui.min.css') }}">
@@ -16,13 +15,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/use.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/inn.css')}}">
     
-    <!-- JavaScript Files -->
     <script src="{{ url_for('static', filename='style/js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='style/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='style/js/owl.carousel.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
      
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -371,91 +368,85 @@
                 width: 320px;
             }
             
-           
+            
         }
 
         /* تصميم عصري لأيقونة القائمة */
-.menu-toggle {
-    background: transparent;
-    border: none;
-    padding: 12px;
-    cursor: pointer;
-    z-index: 1000;
-    transition: all 0.4s ease;
-    outline: none;
-}
+        .menu-toggle {
+            background: transparent;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.4s ease;
+            outline: none;
+        }
 
-.hamburger {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 28px;
-    height: 20px;
-    position: relative;
-    transition: all 0.4s ease;
-}
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 28px;
+            height: 20px;
+            position: relative;
+            transition: all 0.4s ease;
+        }
 
-.bar {
-    height: 3px;
-    width: 100%;
-    background: #333; /* لون العصا */
-    border-radius: 3px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-origin: center;
-}
+        .bar {
+            height: 3px;
+            width: 100%;
+            background: #333; /* لون العصا */
+            border-radius: 3px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center;
+        }
 
-/* تأثيرات عند المرور */
-.menu-toggle:hover .bar {
-    background: #c664a6; /* تغيير اللون عند المرور */
-}
+        /* تأثيرات عند المرور */
+        .menu-toggle:hover .bar {
+            background: #c664a6; /* تغيير اللون عند المرور */
+        }
 
-.menu-toggle:hover .hamburger {
-    transform: scale(1.1);
-}
+        .menu-toggle:hover .hamburger {
+            transform: scale(1.1);
+        }
 
-/* تأثيرات عند النقر */
-.menu-toggle:active .hamburger {
-    transform: scale(0.95);
-}
+        /* تأثيرات عند النقر */
+        .menu-toggle:active .hamburger {
+            transform: scale(0.95);
+        }
 
-/* تحويل الأيقونة إلى X عند التنشيط */
-.menu-toggle.active .bar:nth-child(1) {
-    transform: translateY(8px) rotate(45deg);
-}
+        /* تحويل الأيقونة إلى X عند التنشيط */
+        .menu-toggle.active .bar:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
 
-.menu-toggle.active .bar:nth-child(2) {
-    opacity: 0;
-}
+        .menu-toggle.active .bar:nth-child(2) {
+            opacity: 0;
+        }
 
-.menu-toggle.active .bar:nth-child(3) {
-    transform: translateY(-8px) rotate(-45deg);
-}
+        .menu-toggle.active .bar:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
 
-/* تأثيرات للشاشات الصغيرة */
-@media (max-width: 768px) {
-    .hamburger {
-        width: 24px;
-        height: 18px;
-    }
-}
+        /* تأثيرات للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .hamburger {
+                width: 24px;
+                height: 18px;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- الهيدر الفاخر -->
     <header class="premium-header">
-        <!-- أيقونة القائمة -->
-        
-       
-        <!-- أيقونة القائمة المعدلة -->
-<button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">
-    <div class="hamburger">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-    </div>
-</button>
-        <!-- شريط البحث المتقدم -->
+        <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </button>
         <div class="search-bar">
             <form class="search-form">
                 <input type="text" class="search-input" placeholder="ابحث عن منتجات، أقسام، عروض...">
@@ -465,18 +456,24 @@
             </form>
         </div>
         
-        <!-- أدوات التنقل -->
         <div class="nav-tools">
-
+            {# يمكنك إضافة أيقونات أخرى هنا إذا أردت، مثل أيقونة سلة التسوق أو المفضلة #}
+            {# مثال: #}
+            <a href="{{ url_for('cart.view_cart') }}" class="nav-icon">
+                <i class="fas fa-shopping-cart"></i>
+                {% if total_items_count > 0 %}
+                    <span class="cart-counter">{{ total_items_count }}</span>
+                {% endif %}
+            </a>
+            <!-- <a href="#" class="nav-icon">
+                <i class="fas fa-heart"></i>
+            </a> -->
         </div>
-         <!-- الشعار المميز -->
-         <a href="{{ url_for('product.index') }}" class="brand">
+        <a href="{{ url_for('product.index') }}" class="brand">
             <span class="brand-name">Rezza</span>
-            <!-- <i class="fas fa-store brand-logo"></i> -->
-        </a>
+            </a>
     </header>
     
-    <!-- القائمة الجانبية الفاخرة -->
     <div class="luxury-sidebar" id="sideMenu">
         <div class="sidebar-header">
             <h3 class="sidebar-title">مرحباً بك في Rezza</h3>
@@ -492,13 +489,24 @@
                     <i class="fas fa-chevron-down section-toggle"></i>
                 </div>
                 <ul class="sidebar-list">
+                    {# استخدام 'logged_in' بدلاً من 'user_name' لتوحيد التحقق من تسجيل الدخول #}
+                    {% if logged_in %}
+                    <li>
+                        <a class="nav-link" href="{{ url_for('user.logout') }}" id="logout-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            {# عرض اسم المستخدم إذا كان متاحًا #}
+                            {% if user_name %} مرحباً {{ user_name }}، {% endif %} تسجيل الخروج
+                        </a>
+                    </li>
+                    {% else %}
                     <li>
                         <a class="nav-link" href="{{ url_for('user.login') }}">
-
                             <i class="fas fa-sign-in-alt"></i>
                             تسجيل الدخول
                         </a>
                     </li>
+                    {% endif %}
+                    
                     <li>
                         <a href="#">
                             <i class="fas fa-user-cog"></i>
@@ -522,7 +530,7 @@
                 <ul class="sidebar-list">
                     {% for category in main_categories %}
                     <li>
-                        <a href="{{ url_for('product.show_subcategories', category_id=category[0]) }}">
+                        <a href="{{ url_for('product.show_subcategories', category_id=category.id) }}"> {# تأكد أنك تمرر category.id وليس category[0] #}
                             <i class="fas fa-tag"></i>
                             {{ category.name }}
                         </a>
@@ -539,7 +547,7 @@
                 <ul class="sidebar-list">
                     {% for seller in sellers %}
                     <li>
-                        <li>  <a class="" href="{{ url_for('seller.seller_products', seller_id=seller.id) }}">
+                        <a class="" href="{{ url_for('seller.seller_products', seller_id=seller.id) }}">
                             <i class="fas fa-store-alt"></i>
                             {{ seller.store_name }}
                         </a>
@@ -577,13 +585,25 @@
         </div>
     </div>
     
-    <!-- طبقة التعتيم -->
     <div class="overlay" id="overlay"></div>
     
-    <!-- المحتوى الرئيسي -->
     <main class="main-content">
-        <!-- محتوى الصفحة هنا -->
-    </main>
+        </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const logoutLink = document.getElementById("logout-link");
+    
+            if (logoutLink) {
+                logoutLink.addEventListener("click", function(event) {
+                    const confirmLogout = confirm("هل أنت متأكد أنك تريد تسجيل الخروج؟");
+                    if (!confirmLogout) {
+                        event.preventDefault(); // منع الانتقال للرابط
+                    }
+                });
+            }
+        });
+    </script>
     
     <script>
         // التحكم في القائمة الجانبية
@@ -596,18 +616,21 @@
             sideMenu.classList.add('active');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            menuToggle.classList.add('active'); // إضافة كلاس active لزر التبديل
         });
         
         closeMenu.addEventListener('click', () => {
             sideMenu.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = 'auto';
+            menuToggle.classList.remove('active'); // إزالة كلاس active من زر التبديل
         });
         
         overlay.addEventListener('click', () => {
             sideMenu.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = 'auto';
+            menuToggle.classList.remove('active'); // إزالة كلاس active من زر التبديل
         });
         
         // تفعيل/تعطيل أقسام القائمة
@@ -619,26 +642,11 @@
             });
         });
     </script>
-
-
-<script>
-    document.getElementById('menuToggle').addEventListener('click', function() {
-this.classList.toggle('active');
-// كود لفتح/إغلاق القائمة هنا
-});
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            // كود لفتح/إغلاق القائمة هنا (تم التعامل معه بالفعل بواسطة الكود أعلاه)
+        });
+    </script>
 

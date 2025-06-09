@@ -163,19 +163,78 @@ def inject_sellers():
     return dict(sellers=sellers)
 
 # 🟢 تصحيح: إضافة context processor لجلب user_id من الكوكي بشكل عام للقوالب
+# @app.context_processor
+# def inject_user_info():
+#     user_id = request.cookies.get('user_auth')
+#     user_name = request.cookies.get('user_name') # إذا كنت تخزن الاسم في كوكي منفصل
+
+#     # يمكنك هنا جلب المزيد من بيانات المستخدم إذا احتجت إليها في جميع القوالب
+#     # user_data = None
+#     # if user_id:
+#     #     conn = get_db_connection()
+#     #     user_data = conn.execute("SELECT name, email FROM user WHERE id = ?", (user_id,)).fetchone()
+#     #     conn.close()
+
+#     return dict(current_user_id=user_id, current_user_name=user_name) # قم بتمرير هذه المتغيرات للقوالب
+
+
+# *** Context Processor الرئيسي لضمان اتساق حالة تسجيل الدخول وعدد المنتجات في السلة ***
 @app.context_processor
-def inject_user_info():
-    user_id = request.cookies.get('user_auth')
-    user_name = request.cookies.get('user_name') # إذا كنت تخزن الاسم في كوكي منفصل
+def inject_user_data_and_cart_count():
+    """
+    هذه الدالة تعمل قبل كل طلب (request) وتجعل متغيرات مثل 'logged_in',
+    'user_name', و 'total_items_count' متاحة لكل القوالب.
+    """
+    user_id = request.cookies.get('user_auth') # كوكي يدل على أن المستخدم مسجل دخول
+    current_user_name = None 
+    total_items_in_cart = 0 
 
-    # يمكنك هنا جلب المزيد من بيانات المستخدم إذا احتجت إليها في جميع القوالب
-    # user_data = None
-    # if user_id:
-    #     conn = get_db_connection()
-    #     user_data = conn.execute("SELECT name, email FROM user WHERE id = ?", (user_id,)).fetchone()
-    #     conn.close()
+    if user_id:
+        try:
+            # الخيار المفضل: جلب اسم المستخدم من كوكي 'user_name'
+            # تأكد أنك تقوم بإنشاء هذا الكوكي في دالة 'login' في user_routes.py
+            current_user_name = request.cookies.get('user_name') 
+            
+            # إذا لم تكن تخزن اسم المستخدم في كوكي، يمكنك جلبه من قاعدة البيانات
+            # قم بإلغاء التعليق عن هذا الجزء إذا كنت تفضل جلب الاسم من DB
+            # conn = get_db_connection() 
+            # user_data = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,)).fetchone()
+            # conn.close()
+            # if user_data:
+            #     current_user_name = user_data['username']
 
-    return dict(current_user_id=user_id, current_user_name=user_name) # قم بتمرير هذه المتغيرات للقوالب
+            # جلب عدد المنتجات في سلة التسوق للمستخدم المسجل
+            conn = get_db_connection()
+            cart_item_count_row = conn.execute(
+                "SELECT SUM(quantity) AS total FROM cart_items WHERE user_id = ?",
+                (user_id,)
+            ).fetchone()
+            conn.close()
+            
+            if cart_item_count_row and cart_item_count_row['total']:
+                total_items_in_cart = int(cart_item_count_row['total'])
+
+            # *** أضف هذا السطر للتصحيح ***
+            # print(f"DEBUG: In context processor. user_id={user_id}, user_name={current_user_name}, total_items_count={total_items_in_cart}")
+
+        except Exception as e:
+            print(f"Error in inject_user_data_and_cart_count context processor: {e}")
+            current_user_name = None 
+            total_items_in_cart = 0
+    # else:
+        # print("DEBUG: In context processor. User not logged in.")
+    
+    # إرجاع القاموس الذي يحتوي على المتغيرات المتاحة للقوالب
+    return dict(
+        user_name=current_user_name, # اسم المستخدم (أو None)
+        logged_in=bool(user_id), # True إذا كان user_id موجوداً (أي مسجل دخول)
+        total_items_count=total_items_in_cart # العدد الكلي للمنتجات في السلة
+    )
+# *** التعامل مع الأخطاء (مثال: صفحة 404 غير موجودة) ***
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404 # تأكد أن لديك قالب 404.html
+
 
 if __name__ == '__main__':
     app.run(debug=True) # 🟢 تشغيل وضع التصحيح مفيد أثناء التطوير

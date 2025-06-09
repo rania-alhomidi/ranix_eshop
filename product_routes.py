@@ -25,6 +25,7 @@ def index():
 
     # جلب معرف المستخدم
     user_id = request.cookies.get('user_auth')
+    user_name = request.cookies.get('user_name')  # ✅ إضافة هذا السطر
 
     # جلب المنتجات التي أعجب بها المستخدم
     if user_id:
@@ -37,9 +38,10 @@ def index():
 
     return render_template(
         'index.html',
-        main_categories=main_categories,  # تم تغيير الاسم من categories إلى main_categories
+        main_categories=main_categories,
         products=products,
-        liked_products=liked_products
+        liked_products=liked_products,
+        user_name=user_name  # ✅ تمرير المتغير للقالب
     )
 
 

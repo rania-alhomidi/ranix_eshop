@@ -1,5 +1,5 @@
 # order_routes.py
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash, make_response,jsonify
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash, make_response, jsonify
 import sqlite3
 import json
 from datetime import datetime, timedelta
@@ -12,6 +12,17 @@ def get_db_connection():
     conn = sqlite3.connect('database/Eshop.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+# *** دالة مساعدة جديدة (منقولة من cart_routes.py) ***
+def get_current_user_key():
+    """
+    يحصل على المفتاح الفريد لسلة التسوق للمستخدم الحالي (المسجل دخوله أو الضيف).
+    يعتمد على كوكي 'user_auth' لتحديد المستخدم المسجل دخوله.
+    """
+    user_id = request.cookies.get('user_auth')
+    if user_id:
+        return str(user_id) # يجب أن يكون المفتاح string في قاموس JSON
+    return 'guest_cart' # المفتاح الافتراضي لجميع المستخدمين غير المسجلين (الضيوف)
 
 def get_user_balance_from_db(user_id):
     conn = get_db_connection()
@@ -86,13 +97,19 @@ def set_default_address_in_db(user_id, address_id):
 
 @order_bp.route('/confirm_order_page')
 def confirm_order_page():
-    user_id = request.cookies.get('user_auth') 
-    if not user_id:
+    user_id_cookie = request.cookies.get('user_auth') 
+    if not user_id_cookie: # يجب التحقق من تسجيل الدخول بشكل صحيح
         flash("يجب تسجيل الدخول أولاً.", "error")
         return redirect(url_for('user.login'))
-
-    cart_cookie = request.cookies.get('cart')
-    cart_items_raw = json.loads(cart_cookie) if cart_cookie else []
+    
+    user_key = get_current_user_key() # جلب مفتاح سلة المستخدم الحالي
+    
+    # *** التعديل هنا: قراءة الكوكي 'all_user_carts' ***
+    all_carts_cookie = request.cookies.get('all_user_carts')
+    all_user_carts = json.loads(all_carts_cookie) if all_carts_cookie else {}
+    
+    # جلب سلة التسوق الخاصة بالمستخدم الحالي
+    cart_items_raw = all_user_carts.get(user_key, [])
 
     if not cart_items_raw:
         flash("عربة التسوق فارغة، يرجى إضافة منتجات قبل إتمام الشراء.", "info")
@@ -102,6 +119,7 @@ def confirm_order_page():
     total_items_price = 0.0
 
     for item in cart_items_raw:
+        # تأكد من أن 'price' و 'quantity' موجودين كأرقام
         item_price = float(item.get('price', 0.0))
         item_quantity = int(item.get('quantity', 0))
         item_total_price = item_price * item_quantity
@@ -119,8 +137,9 @@ def confirm_order_page():
     delivery_cost = 1500.0 
     total_order_price = total_items_price + delivery_cost
     
-    recipient_address_obj, all_addresses = get_user_addresses_and_default(user_id)
-    user_balance_display = get_user_balance_from_db(user_id)
+    # استخدام user_id_cookie (المفترض أنه معرف المستخدم الفعلي) لجلب البيانات من DB
+    recipient_address_obj, all_addresses = get_user_addresses_and_default(int(user_id_cookie)) 
+    user_balance_display = get_user_balance_from_db(int(user_id_cookie))
 
     return render_template(
         'confirm_order.html',
@@ -130,38 +149,29 @@ def confirm_order_page():
         user_balance=user_balance_display,
         total_order_price=total_order_price,
         delivery_cost=delivery_cost,
-        # أضف هذا السطر:
-        total_items_price=total_items_price # <--- هنا يجب أن تمرر المتغير
+        total_items_price=total_items_price 
     )
 
 @order_bp.route('/set_default_address/<int:address_id>')
 def set_default_address(address_id):
-    user_id = request.cookies.get('user_auth') 
-    if not user_id:
-        # إذا لم يكن هناك user_id، أعد استجابة JSON بالخطأ
-        return jsonify({'success': False, 'message': 'يجب تسجيل الدخول أولاً.'}), 401 # Unauthorized
+    user_id_cookie = request.cookies.get('user_auth') 
+    if not user_id_cookie:
+        return jsonify({'success': False, 'message': 'يجب تسجيل الدخول أولاً.'}), 401 
 
-    # تأكد أن get_user_addresses_and_default يمكنها جلب عنوان واحد
-    # (ربما تحتاج دالة مساعدة جديدة لعنوان واحد فقط)
-    # أو نستخدم الدالة الموجودة ونجلب العنوان المحدد من القائمة الكاملة
-    
+    user_id = int(user_id_cookie) # تحويل user_id إلى عدد صحيح
+
     conn = get_db_connection()
     try:
-        # تحقق أولاً مما إذا كان العنوان المحدد يخص المستخدم
         address_row = conn.execute("SELECT * FROM cust_addresses WHERE id = ? AND user_id = ?", (address_id, user_id)).fetchone()
         if not address_row:
-            return jsonify({'success': False, 'message': 'الوصول غير مصرح به لهذا العنوان.'}), 403 # Forbidden
+            return jsonify({'success': False, 'message': 'الوصول غير مصرح به لهذا العنوان.'}), 403 
 
-        # إزالة الافتراضي من جميع العناوين الأخرى للمستخدم
         conn.execute("UPDATE cust_addresses SET is_default = 0 WHERE user_id = ?", (user_id,))
-        # تعيين العنوان المحدد كافتراضي
         conn.execute("UPDATE cust_addresses SET is_default = 1 WHERE id = ? AND user_id = ?", (address_id, user_id))
         conn.commit()
 
-        # جلب تفاصيل العنوان الذي تم تعيينه كافتراضي لكي نرسلها إلى الواجهة الأمامية
         updated_address_details = dict(conn.execute("SELECT * FROM cust_addresses WHERE id = ?", (address_id,)).fetchone())
         
-        # أعد استجابة JSON بالنجاح وتفاصيل العنوان الجديد
         return jsonify({
             'success': True, 
             'message': 'تم تحديث العنوان الافتراضي بنجاح.',
@@ -181,10 +191,12 @@ def set_default_address(address_id):
 
 @order_bp.route('/add_address_page', methods=['GET', 'POST'])
 def add_address_page():
-    user_id = request.cookies.get('user_auth') 
-    if not user_id:
+    user_id_cookie = request.cookies.get('user_auth') 
+    if not user_id_cookie:
         flash("عذراً، لا يمكن إضافة عنوان بدون تسجيل دخول.", "error")
         return redirect(url_for('user.login'))
+    
+    user_id = int(user_id_cookie)
 
     if request.method == 'POST':
         recipient_name = request.form.get('recipient_name')
@@ -198,12 +210,12 @@ def add_address_page():
         if not all([recipient_name, recipient_phone, address_type, city, region, full_address_description]):
             flash("الرجاء تعبئة جميع الحقول المطلوبة لإضافة العنوان.", "error")
             return render_template('add_address.html', 
-                                   address_type=address_type, 
-                                   full_address_description=full_address_description, 
-                                   region=region, city=city, 
-                                   recipient_name=recipient_name, 
-                                   recipient_phone=recipient_phone, 
-                                   is_default=is_default)
+                                    address_type=address_type, 
+                                    full_address_description=full_address_description, 
+                                    region=region, city=city, 
+                                    recipient_name=recipient_name, 
+                                    recipient_phone=recipient_phone, 
+                                    is_default=is_default)
 
         conn = get_db_connection()
         try:
@@ -236,17 +248,24 @@ def add_address_page():
 
 @order_bp.route('/process_order', methods=['POST'])
 def process_order():
-    user_id = request.cookies.get('user_auth') 
-    if not user_id:
+    user_id_cookie = request.cookies.get('user_auth') 
+    if not user_id_cookie:
         flash("يجب تسجيل الدخول أولاً لإتمام الطلب.", "error")
         return redirect(url_for('user.login'))
+    
+    user_id = int(user_id_cookie) # تحويل user_id إلى عدد صحيح
+    user_key = get_current_user_key() # جلب مفتاح سلة المستخدم الحالي
 
-    cart_cookie = request.cookies.get('cart')
-    if not cart_cookie:
+    # *** التعديل هنا: قراءة الكوكي 'all_user_carts' ***
+    all_carts_cookie = request.cookies.get('all_user_carts')
+    all_user_carts = json.loads(all_carts_cookie) if all_carts_cookie else {}
+    
+    # جلب سلة التسوق الخاصة بالمستخدم الحالي
+    cart_items_raw = all_user_carts.get(user_key, [])
+
+    if not cart_items_raw:
         flash("عربة التسوق فارغة، لا يمكن معالجة الطلب.", "warning")
         return redirect(url_for('product.index')) 
-
-    cart_items_raw = json.loads(cart_cookie)
 
     selected_address_id = request.form.get('selected_address_id')
     order_notes = request.form.get('order_notes')
@@ -306,8 +325,13 @@ def process_order():
                 flash("تم تأكيد طلبك بنجاح! شكراً لطلبك.", "success")
                 
                 response = make_response(redirect(url_for('order.order_success_page', order_id=order_id)))
-                # قم بإزالة سلة التسوق بعد تأكيد الطلب
-                response.set_cookie('cart', '', expires=0, httponly=True, secure=True, samesite='Lax') 
+                
+                # *** التعديل هنا: إزالة سلة المستخدم الحالية من الكوكي 'all_user_carts' ***
+                if user_key in all_user_carts:
+                    del all_user_carts[user_key]
+                # حفظ الكوكي المحدث بعد إزالة سلة المستخدم
+                response.set_cookie('all_user_carts', json.dumps(all_user_carts), expires=datetime.now() + timedelta(days=7), httponly=True, secure=True, samesite='Lax') 
+                
                 return response
 
             except sqlite3.Error as e:
@@ -328,7 +352,6 @@ def order_success_page(order_id):
     conn = get_db_connection()
     order = conn.execute("SELECT * FROM orders1 WHERE id = ?", (order_id,)).fetchone()
     
-    # جلب تفاصيل المنتجات في الطلب
     items = conn.execute('''
         SELECT oi.quantity, oi.price, p.name, p.image 
         FROM Order_Items oi
@@ -336,7 +359,6 @@ def order_success_page(order_id):
         WHERE oi.order_id = ?
     ''', (order_id,)).fetchall()
 
-    # جلب تفاصيل عنوان التوصيل
     delivery_address = None
     if order and order['delivery_address_id']:
         delivery_address_row = conn.execute("SELECT * FROM cust_addresses WHERE id = ?", (order['delivery_address_id'],)).fetchone()

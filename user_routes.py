@@ -121,14 +121,13 @@ def login():
             flash('كلمة المرور غير صحيحة.', 'danger')
             return redirect(url_for('user.login'))
 
-# 🟢 تسجيل الخروج
+
 @user_bp.route('/logout')
 def logout():
     flash('تم تسجيل الخروج بنجاح.', 'success')
-    # 🟢 تصحيح: حذف الكوكيز هنا
-    response = make_response(redirect(url_for('product.index'))) # 🟢 التوجيه لصفحة عامة (الرئيسية)
+    response = make_response(redirect(url_for('product.index'))) # أو الصفحة الرئيسية
     response.delete_cookie('user_auth')
-    response.delete_cookie('user_name') # إذا كنت تستخدم هذا الكوكي
+    response.delete_cookie('user_name') # **مهم جداً إذا كنت تستخدم هذا الكوكي لعرض اسم المستخدم**
     return response
 
 # 🟢 تصحيح: استخدام الكوكيز في login_required
