@@ -247,8 +247,8 @@
                         <p class="modern-product-desc">{{ product.description }}</p>
 
                         <div class="modern-btn-group">
-                            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}"
-                                class="d-inline">
+                            <form class="add-to-cart-form d-inline" method="POST"
+                                action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
                                 <input type="hidden" name="name" value="{{ product.name }}">
                                 <input type="hidden" name="price" value="{{ product.profit_price }}">
                                 <input type="hidden" name="image_url" value="{{ product.image }}">
@@ -275,43 +275,91 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', async function () {
-            const productId = this.dataset.productId;
+    document.addEventListener('DOMContentLoaded', function() {
+        // JavaScript for Like button (already exists and works)
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const productId = this.dataset.productId;
 
-            try {
-                const response = await fetch(`/toggle_like/${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include'
-                });
-
-                const data = await response.json();
-
-                if (!data.success && !data.is_authenticated) {
-                    Swal.fire({
-                        title: 'تحذير',
-                        text: data.message,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'تسجيل الدخول',
-                        cancelButtonText: 'إلغاء'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '/login';
-                        }
+                try {
+                    const response = await fetch(`/toggle_like/${productId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include'
                     });
-                    return;
-                }
 
-                if (data.success) {
-                    this.classList.toggle('liked');
+                    const data = await response.json();
+
+                    if (!data.success && !data.is_authenticated) {
+                        Swal.fire({
+                            title: 'تحذير',
+                            text: data.message,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'تسجيل الدخول',
+                            cancelButtonText: 'إلغاء'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/login';
+                            }
+                        });
+                        return;
+                    }
+
+                    if (data.success) {
+                        this.classList.toggle('liked');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('خطأ', 'حدث خطأ أثناء معالجة طلبك.', 'error');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            });
+        });
+
+        // NEW JavaScript for Add to Cart forms
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault(); // منع الإرسال الافتراضي للنموذج (الذي يسبب إعادة التوجيه)
+
+                const form = this;
+                const formData = new FormData(form);
+                const actionUrl = form.action; // URL الذي سيتم إرسال الطلب إليه
+
+                try {
+                    const response = await fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData, // إرسال بيانات النموذج
+                        credentials: 'include' // للحفاظ على الكوكيز (مثل كوكي السلة)
+                    });
+
+                    const data = await response.json(); // افتراض أن الخادم سيعيد استجابة JSON
+
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'تمت الإضافة!',
+                            text: data.message,
+                            icon: 'success',
+                            showConfirmButton: false, // لا حاجة لزر التأكيد
+                            timer: 1500 // إغلاق التنبيه تلقائياً بعد 1.5 ثانية
+                        });
+
+                        // تحديث عدد العناصر في سلة التسوق في شريط التنقل (إذا كان لديك عنصر لعرضه)
+                        // ستحتاج إلى تحديد العنصر في header.html الذي يعرض عدد العناصر
+                        // مثال: const cartCountElement = document.getElementById('cart-items-count');
+                        // if (cartCountElement && data.total_items_count !== undefined) {
+                        //     cartCountElement.textContent = data.total_items_count;
+                        // }
+
+                    } else {
+                        Swal.fire('خطأ', data.message || 'حدث خطأ أثناء إضافة المنتج إلى السلة.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('خطأ', 'حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى.', 'error');
+                }
+            });
         });
     });
 </script>

@@ -222,3 +222,125 @@
     });
 
 })(jQuery);
+
+
+
+
+
+
+
+
+
+
+
+// // هذا هو ملف static/js/main.js
+
+// // --- دالة لإظهار إشعار التوست (Toast) ---
+// const cartToast = document.getElementById('cart-toast');
+// const toastMessage = document.getElementById('toast-message');
+
+// function showToast(message, isSuccess = true) {
+//     if (!cartToast || !toastMessage) {
+//         console.error("عنصر التوست أو رسالته غير موجودين في HTML. تأكد من وجود <div id=\"cart-toast\">.");
+//         return; // توقف إذا كانت العناصر غير موجودة
+//     }
+
+//     toastMessage.textContent = message;
+//     cartToast.classList.remove('error');
+//     cartToast.querySelector('i').classList.remove('fa-exclamation-circle');
+//     cartToast.querySelector('i').classList.add('fa-check-circle');
+
+//     if (!isSuccess) {
+//         cartToast.classList.add('error');
+//         cartToast.querySelector('i').classList.add('fa-exclamation-circle');
+//         cartToast.querySelector('i').classList.remove('fa-check-circle');
+//     }
+
+//     cartToast.classList.add('show');
+
+//     setTimeout(() => {
+//         cartToast.classList.remove('show');
+//     }, 3000); // إخفاء التوست بعد 3 ثوانٍ
+// }
+
+// // --- جافا سكريبت لإضافات سلة التسوق باستخدام AJAX ---
+// // نستمع لحدث إرسال كل نموذج يحمل الكلاس 'add-to-cart-form'
+// document.querySelectorAll('.add-to-cart-form').forEach(form => {
+//     form.addEventListener('submit', async function (event) {
+//         event.preventDefault(); // منع الإرسال الافتراضي للنموذج (الذي يسبب إعادة التوجيه)
+
+//         const formData = new FormData(this); // الحصول على بيانات النموذج (مثل quantity)
+//         const actionUrl = this.action; // الحصول على عنوان URL الذي سيُرسل إليه الطلب (مثال: /cart/add_to_cart/3)
+
+//         try {
+//             const response = await fetch(actionUrl, {
+//                 method: 'POST', // التأكد من إرسال الطلب كـ POST
+//                 body: formData,
+//                 headers: {
+//                     'X-Requested-With': 'XMLHttpRequest' // هذا يُخبر الخادم بأن الطلب هو AJAX
+//                 }
+//             });
+
+//             // التحقق مما إذا كانت الاستجابة JSON
+//             const contentType = response.headers.get("content-type");
+//             if (contentType && contentType.indexOf("application/json") !== -1) {
+//                 const data = await response.json(); // تحليل استجابة JSON من الخادم
+
+//                 if (data.success) {
+//                     showToast(data.message, true); // إظهار رسالة نجاح باستخدام دالة التوست
+//                 } else {
+//                     showToast(data.message, false); // إظهار رسالة خطأ
+//                 }
+//             } else {
+//                 console.error("لم يتم استلام استجابة JSON. قد تكون هناك مشكلة في الخادم أو إعادة توجيه غير متوقعة.");
+//                 showToast('حدث خطأ غير متوقع في الخادم.', false);
+//             }
+
+//         } catch (error) {
+//             console.error('خطأ أثناء الإضافة إلى سلة التسوق:', error);
+//             showToast('حدث خطأ أثناء إضافة المنتج إلى سلة التسوق.', false);
+//         }
+//     });
+// });
+
+// // --- كود الإعجاب (Like) ---
+// // (هذا الكود كان موجودًا لديك بالفعل)
+// document.querySelectorAll('.like-btn').forEach(btn => {
+//     btn.addEventListener('click', async function () {
+//         const productId = this.dataset.productId;
+
+//         try {
+//             const response = await fetch(`/toggle_like/${productId}`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//                 credentials: 'include'
+//             });
+
+//             const data = await response.json();
+
+//             if (!data.success && !data.is_authenticated) {
+//                 Swal.fire({
+//                     title: 'تحذير',
+//                     text: data.message,
+//                     icon: 'warning',
+//                     showCancelButton: true,
+//                     confirmButtonText: 'تسجيل الدخول',
+//                     cancelButtonText: 'إلغاء'
+//                 }).then((result) => {
+//                     if (result.isConfirmed) {
+//                         window.location.href = '/login';
+//                     }
+//                 });
+//                 return;
+//             }
+
+//             if (data.success) {
+//                 this.classList.toggle('liked');
+//             }
+//         } catch (error) {
+//             console.error('Error:', error);
+//         }
+//     });
+// });
