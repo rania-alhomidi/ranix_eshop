@@ -1,183 +1,196 @@
 {% include 'header.html' %}
-
 <style>
-    /* تنسيق الصفحة الرئيسي */
-    .subcategories-container {
-        padding: 30px 15px;
-        max-width: 1200px;
-        margin: 0 auto;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+/* ---------------------------------------------------- */
+/* تنسيقات خاصة بصفحة 'subcategories.html' - بدء */
+/* هذه التنسيقات تنطبق على صفحات عرض الأقسام الفرعية.
+ * (المسار: /subcategories/<id>)
+ * ---------------------------------------------------- */
 
-    /* تنسيق العنوان */
-    .page-header {
-        text-align: center;
-        margin-bottom: 3rem;
-        position: relative;
-    }
+/* تنسيق الصفحة الرئيسي */
+.subcategories-container {
+    padding: 30px 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
- 
-    .page-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--dark-color);
-        margin-bottom: 1rem;
-        position: relative;
-        display: inline-block;
+/* تنسيق العنوان العام للصفحة (مثل "الأقسام الفرعية لـ...") */
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+}
+
+/* الخط الزخرفي تحت العنوان */
+.page-title:after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); /* استخدام الزهري */
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.page-subtitle {
+    color: #636e72;
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* تنسيق شبكة الأقسام الفرعية */
+.subcategories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 15px 0;
+}
+
+/* تنسيق بطاقة القسم الفرعي */
+.category-card {
+    background: white;
+    border-radius: 10px; /* زوايا دائرية بسيطة للصورة العادية */
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* حاوية الصورة - لجعلها مستطيلة/مربعة عادية */
+.image-container {
+    width: 100%;
+    height: 200px; /* ارتفاع ثابت للصورة */
+    position: relative;
+    overflow: hidden;
+    border-radius: 0; /* لا توجد زوايا دائرية هنا إذا كانت الصورة تمثل معظم البوكس العلوي */
+}
+
+.category-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* لملء الحاوية وقص الزوائد */
+    transition: transform 0.4s ease;
+    border-radius: 0; /* الصورة نفسها ليس لها زوايا دائرية إضافية */
+}
+
+/* تأثير التحويم على بطاقة القسم */
+.category-card:hover .category-image {
+    transform: scale(1.03);
+}
+
+/* تنسيق محتوى البطاقة */
+.category-content {
+    padding: 15px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.category-name {
+    font-size: 1.1rem;
+    color: var(--dark-color); /* استخدام اللون الداكن */
+    margin: 8px 0;
+    font-weight: 600;
+}
+
+/* تنسيق الزر "تصفح المنتجات" - تم تعديل لونه وشكله */
+.category-link {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* تدرج زهري */
+    color: white;
+    border-radius: 25px; /* شكل زر حبوب منع الحمل */
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); /* ظل زهري */
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.category-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4); /* ظل أقوى عند التحويم */
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); /* عكس التدرج عند التحويم */
+}
+
+/* رسالة عدم وجود أقسام */
+.no-categories {
+    text-align: center;
+    padding: 30px;
+    background: var(--light-color);
+    border-radius: 8px;
+    margin: 20px auto; /* توسيط العنصر */
+    max-width: 500px;
+}
+
+.no-categories p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.home-link {
+    display: inline-block;
+    padding: 8px 20px;
+    background: var(--dark-color);
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.home-link:hover {
+    background: #1a252f;
+}
+
+/* التنسيق للجوال */
+@media (max-width: 768px) {
+    .subcategories-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
     }
     
-    .page-title:after {
-        content: '';
-        position: absolute;
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        border-radius: 2px;
-    }
-    .page-subtitle {
-        color: #636e72;
-        font-size: 1.1rem;
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
-    /* تنسيق شبكة الأقسام */
-    .subcategories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
-        padding: 15px 0;
-    }
-
-    /* تنسيق بطاقة القسم */
-    .category-card {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    /* حاوية الصورة */
     .image-container {
-        width: 100%;
-        height: 180px;
-        position: relative;
-        overflow: hidden;
+        height: 150px;
     }
-
-    .category-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.4s ease;
-    }
-
-    .category-card:hover .category-image {
-        transform: scale(1.03);
-    }
-
-    /* تنسيق محتوى البطاقة */
-    .category-content {
-        padding: 15px;
-        text-align: center;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .category-name {
-        font-size: 1.1rem;
-        color: #2c3e50;
-        margin: 8px 0;
-        font-weight: 600;
-    }
-
-    /* تنسيق الزر المعدل */
+    
     .category-link {
-        display: inline-block;
-        margin-top: 15px;
-        padding: 8px 20px;
-        background: linear-gradient(45deg, #ff6f61, #ffa4d6);
-        color: white;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(255, 111, 97, 0.3);
-        border: none;
-        cursor: pointer;
-        font-size: 0.9rem;
-        letter-spacing: 0.5px;
-    }
-
-    .category-link:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
-        background: linear-gradient(45deg, #ffa4d6, #ff6f61);
-    }
-
-    /* رسالة عدم وجود أقسام */
-    .no-categories {
-        text-align: center;
-        padding: 30px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        margin: 20px 0;
-    }
-
-    .no-categories p {
-        font-size: 1rem;
-        color: #6c757d;
-        margin-bottom: 15px;
-    }
-
-    .home-link {
-        display: inline-block;
-        padding: 8px 20px;
-        background: #2c3e50;
-        color: white;
+        padding: 6px 16px;
+        font-size: 0.8rem;
         border-radius: 20px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
     }
+}
 
-    .home-link:hover {
-        background: #1a252f;
+@media (max-width: 480px) {
+    .image-container {
+        height: 120px;
     }
-
-    /* التنسيق للجوال */
-    @media (max-width: 768px) {
-        .subcategories-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .image-container {
-            height: 150px;
-        }
-        
-        .category-link {
-            padding: 6px 16px;
-            font-size: 0.8rem;
-            border-radius: 20px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .image-container {
-            height: 120px;
-        }
-    }
+}
 </style>
+<!-- /* ---------------------------------------------------- */
+/* تنسيقات خاصة بصفحة 'subcategories.html' - نهاية */
+/* ---------------------------------------------------- */ -->
 
 <div class="subcategories-container">
 

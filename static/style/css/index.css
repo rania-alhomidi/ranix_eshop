@@ -1,0 +1,416 @@
+/*
+ * ملف CSS موحد لجميع تنسيقات الموقع
+ * تم تجميع التنسيقات من index.html و footer.html هنا.
+ * (تمت إزالة التنسيقات التي قد تخص الرأس بشكل مباشر بناءً على طلبك)
+ *
+ * ملاحظة: تم ضبط المتغيرات اللونية في :root لتعكس اللون الزهري المطلوب،
+ * وهذا سيؤثر على جميع العناصر التي تستخدم هذه المتغيرات لضمان تناسق التصميم.
+ */
+
+/* ---------------------------------------------------- */
+/* المتغيرات اللونية والظلال والانتقالات (اللون الرسمي للموقع: الزهري) */
+/* ---------------------------------------------------- */
+:root {
+    --primary-color: #ba4ac2;    /* لون أساسي (زهري غامق) */
+    --secondary-color: #f48fb1;  /* لون ثانوي (زهري فاتح) */
+    --accent-color: #ff6b6b;     /* لون مميز/أبرز (أحمر، للحالات الخاصة مثل شارة التوفر) */
+    --dark-color: #333;          /* لون نص داكن */
+    --light-color: #f8f9fa;      /* لون خلفية فاتح */
+    --text-color: #333;          /* لون النص الافتراضي */
+    --shadow: 0 4px 12px rgba(0,0,0,0.1); /* ظل افتراضي للمكونات */
+    --transition: all 0.3s ease; /* انتقالات سلسة */
+
+    /* متغيرات خاصة بالفوتر */
+    --footer-bg: #ffffff;
+    --footer-text: #5f6368;
+    --active-color: var(--primary-color); /* اللون النشط في الفوتر هو اللون الأساسي الزهري */
+    --footer-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+}
+
+/* ---------------------------------------------------- */
+/* التنسيقات الأساسية والعامة لجميع الصفحات */
+/* ---------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif; /* تأكد من تضمين هذا الخط في رأس الصفحة */
+}
+
+body {
+    background-color: #f5f5f5; /* لون خلفية الجسم */
+    color: var(--text-color); /* لون النص الافتراضي */
+    /* تم إلغاء padding-top الخاص بالرأس بناءً على طلبك */
+    padding-bottom: 90px; /* مسافة للفوتر الثابت */
+}
+
+
+/* تنسيق عام لوسم <a> (الروابط) - تمت إضافته هنا */
+a {
+    text-decoration: none; /* إزالة خط التسطير */
+    color: inherit; /* تجعل لون الرابط يرث لون العنصر الأب */
+    /* أو يمكنك تعيين لون افتراضي ثابت للموقع: */
+    /* color: var(--text-color); */
+    transition: var(--transition); /* تطبيق انتقال سلس عند التحويم */
+}
+
+a:hover {
+    color: var(--primary-color); /* تغيير لون الرابط إلى الزهري الأساسي عند التحويم */
+    /* يمكنك إضافة تأثيرات أخرى هنا مثل: */
+    /* text-decoration: underline; */
+}
+.main-content {
+    padding: 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 70px; /* لتجنب تداخل المحتوى مع الفوتر الثابت */
+}
+
+/* ---------------------------------------------------- */
+/* تنسيقات خاصة بصفحة 'index.html' - بدء */
+/* هذه التنسيقات تنطبق على سلايدر الهيرو، أقسام التصنيفات، والأقسام المميزة.
+ * (المسار: /)
+ * ---------------------------------------------------- */
+
+/* سلايدر الهيرو */
+.hero-slider {
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+    height: 200px;
+    box-shadow: var(--shadow);
+}
+
+.hero-slide {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    padding: 20px;
+    color: white;
+}
+
+.hero-tag {
+    background: var(--secondary-color); /* استخدام اللون الزهري الثانوي */
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.hero-title {
+    font-size: 18px;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.hero-desc {
+    font-size: 13px;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.hero-btn {
+    background: white;
+    color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    transition: var(--transition);
+}
+
+.hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* العناوين والأقسام العامة */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 25px 0 15px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark-color);
+    position: relative;
+    padding-right: 15px;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -5px;
+    width: 40px;
+    height: 3px;
+    background: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    border-radius: 3px;
+}
+
+.view-all {
+    color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* أقسام التصنيفات (في index.html) - grid */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 10px;
+}
+
+.category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    transition: var(--transition); /* انتقال سلس للحركات */
+}
+
+.image-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border: 2px solid #f0f0f0;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: var(--transition); /* انتقال سلس للحركات */
+}
+
+.category-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.category-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    transition: var(--transition); /* انتقال سلس للحركات */
+}
+
+/* تأثيرات التحويم على بطاقات التصنيفات */
+.category-item:hover {
+    transform: translateY(-5px);
+}
+
+.category-item:hover .image-container {
+    transform: scale(1.1);
+    border-color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+}
+
+.category-item:hover .category-name {
+    color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    font-weight: bold;
+}
+
+/* تأثيرات النقر على بطاقات التصنيفات */
+.category-item:active {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* الأقسام المميزة في index.html */
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.featured-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.featured-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.featured-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.featured-info {
+    padding: 12px;
+}
+
+.featured-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--dark-color);
+}
+
+.featured-link {
+    color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* التعديلات المتجاوبة لـ index.html */
+@media (min-width: 768px) {
+    .hero-slider {
+        height: 250px;
+    }
+    .hero-title {
+        font-size: 22px;
+    }
+    .featured-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    /* الأقسام الرئيسية (categories-grid) قد تحتاج لتعديلات إضافية هنا للشاشات الأكبر */
+}
+
+@media (max-width: 768px) {
+    .image-container {
+        width: 70px;
+        height: 70px;
+    }
+    .category-name {
+        font-size: 12px;
+    }
+}
+/* ---------------------------------------------------- */
+/* تنسيقات خاصة بصفحة 'index.html' - نهاية */
+/* ---------------------------------------------------- */
+
+
+/* ---------------------------------------------------- */
+/* تنسيقات خاصة بصفحة 'footer.html' - بدء */
+/* هذه التنسيقات تنطبق على شريط التنقل السفلي الثابت (الفوتر).
+ * ---------------------------------------------------- */
+
+.modern-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--footer-bg);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 15px 0;
+    box-shadow: var(--footer-shadow);
+    z-index: 1000;
+    border-radius: 25px 25px 0 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.footer-item {
+    text-align: center;
+    color: var(--footer-text);
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+    flex: 1;
+    max-width: 25%;
+}
+
+.footer-item.active {
+    color: var(--active-color); /* استخدام اللون الزهري النشط */
+}
+
+.footer-icon {
+    color:var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    font-size: 22px;
+    margin-bottom: 5px;
+    transition: var(--transition);
+}
+
+.footer-label {
+    font-size: 12px;
+    display: block;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.footer-item::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--active-color); /* استخدام اللون الزهري النشط */
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.footer-item:hover {
+    color: var(--active-color); /* استخدام اللون الزهري النشط */
+    transform: translateY(-5px);
+}
+
+.footer-item:hover .footer-icon {
+    transform: scale(1.15);
+}
+
+.footer-item:hover::before {
+    opacity: 1;
+    top: -5px;
+}
+
+.footer-item.active::before {
+    opacity: 1;
+    top: -5px;
+}
+
+/* تأثيرات النقر */
+.footer-item:active {
+    transform: scale(0.95);
+}
+
+/* تصميم للشاشات الصغيرة للفوتر */
+@media (max-width: 480px) {
+    .modern-footer {
+        padding: 12px 0;
+        border-radius: 20px 20px 0 0;
+    }
+    .footer-icon {
+        font-size: 20px;
+    }
+    .footer-label {
+        font-size: 11px;
+    }
+}
+/* ---------------------------------------------------- */
+/* تنسيقات خاصة بصفحة 'footer.html' - نهاية */
+/* ---------------------------------------------------- */
