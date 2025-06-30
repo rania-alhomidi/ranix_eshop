@@ -1,221 +1,7 @@
+<!-- shop_users.html -->
+
 {% include 'header.html'%}
 
-<style>
-    /* تنسيق عام جديد */
-    .modern-products {
-        padding: 30px 0;
-        background-color: #f5f7fa;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 10px 0;
-    }
-
-    /* العنوان الرئيسي */
-    .modern-title {
-        text-align: center;
-        margin-bottom: 40px;
-        color: #2a4365;
-        font-size: 2.5rem;
-        font-weight: 700;
-        position: relative;
-    }
-
-    .modern-title:after {
-        content: '';
-        display: block;
-        width: 100px;
-        height: 4px;
-        background: #4c51bf;
-        margin: 15px auto 0;
-    }
-
-    /* بطاقة المنتج الجديدة */
-    .modern-card {
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        margin-bottom: 30px;
-        border: 1px solid #e2e8f0;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        position: relative;
-    }
-
-    .modern-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* تنسيق الصورة الكاملة */
-    .modern-img-container {
-        width: 100%;
-        height: 250px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .modern-img {
-        width: 100%;
-        height: 100%;
-        display: block;
-        transition: transform 0.5s ease;
-        object-fit: cover;
-    }
-
-    .modern-card:hover .modern-img {
-        transform: scale(1.03);
-    }
-
-    /* محتوى البطاقة */
-    .modern-card-body {
-        padding: 20px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .modern-product-title {
-        font-size: 1.25rem;
-        color: #2d3748;
-        margin-bottom: 10px;
-        font-weight: 600;
-    }
-
-    .modern-product-desc {
-        color: #4a5568;
-        font-size: 0.95rem;
-        margin-bottom: 15px;
-        line-height: 1.5;
-        flex-grow: 1;
-    }
-
-    .modern-product-price {
-        font-size: 1.3rem;
-        color: #ff0202;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-
-    /* أزرار جديدة بلون مختلف */
-    .modern-btn-group {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: auto;
-    }
-
-    .modern-btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border: none;
-    }
-
-    .modern-btn-primary {
-        background-color: #c794ca;
-        color: #fff;
-    }
-
-    .modern-btn-primary:hover {
-        background-color: #fccff2;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    .modern-btn-secondary {
-        background-color: #3182CE;
-        color: #fff;
-    }
-
-    .modern-btn-secondary:hover {
-        background-color: #6acbff;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    /* زر الإعجاب (المفضلة) */
-    .like-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(255, 255, 255, 0.8);
-        border: 1px solid #e2e8f0;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-        z-index: 10;
-    }
-
-    .like-btn i {
-        color: #a0aec0;
-        transition: color 0.3s ease;
-    }
-
-    .like-btn:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: scale(1.1);
-    }
-
-    .like-btn.liked i {
-        color: #e53e3e;
-    }
-
-    /* شارة المنتج الجديد */
-    .featured-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background-color: #4c51bf;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        z-index: 10;
-        text-transform: uppercase;
-    }
-
-    /* التجاوب مع الشاشات */
-    @media (max-width: 767.98px) {
-        /* على شاشات الهاتف (أقل من 768 بكسل) - منتجان في الصف */
-        .modern-title {
-            font-size: 2rem;
-        }
-
-        .modern-card-body {
-            padding: 15px;
-        }
-
-        .modern-product-title {
-            font-size: 1.1rem;
-        }
-
-        .modern-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 1rem;
-        }
-    }
-    
-    /* لا حاجة لاستعلام وسائط إضافي لـ col-lg-3 هنا، فـ Bootstrap سيتعامل معها */
-</style>
 
 <div class="modern-products">
     <div class="container">
@@ -223,6 +9,7 @@
         <div class="row">
             {% for product in products %}
             {% if product.featured == 1 %}
+            
             <div class="col-6 col-lg-3"> <div class="modern-card">
                     {% if product.featured %}
                     <div class="featured-badge">جديد</div>
@@ -365,3 +152,7 @@
 </script>
 
 {% include 'footer.html' %}
+
+
+
+

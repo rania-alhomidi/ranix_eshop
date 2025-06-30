@@ -2,16 +2,30 @@
 
 <style>
     /* تعريف المتغيرات اللونية والظلال والانتقالات - تم التعديل للألوان الزهرية */
-    :root {
-        --primary-color: #e91e63;    /* لون أساسي (زهري) */
-        --secondary-color: #f48fb1;  /* لون ثانوي (زهري فاتح) */
-        --accent-color: #ff6b6b;     /* لون مميز/أبرز (أحمر) */
-        --dark-color: #333;          /* لون نص داكن */
-        --light-color: #f8f9fa;      /* لون خلفية فاتح */
-        --border-radius: 12px;       /* نصف قطر الزوايا */
-        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* ظل افتراضي */
-        --transition: all 0.3s ease; /* انتقالات سلسة */
-    }
+:root {
+    --primary-color: #ba4ac2;    /* لون أساسي (زهري غامق) */
+    --secondary-color: #f48fb1;  /* لون ثانوي (زهري فاتح) */
+    --accent-color: #ff6b6b;     /* لون مميز/أبرز (أحمر) */
+    --dark-color: #333;          /* لون نص داكن */
+    --light-color: #f8f9fa;      /* لون خلفية فاتح */
+    --border-radius: 12px;       /* نصف قطر الزوايا */
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* ظل افتراضي */
+    --transition: all 0.3s ease; /* انتقالات سلسة */
+
+  /* متغيرات خاصة بالفوتر */
+    --footer-bg: #ffffff;
+    --footer-text: #5f6368;
+    --active-color: var(--primary-color); /* اللون النشط في الفوتر هو اللون الأساسي الزهري */
+    --footer-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+}
+
+
+* {
+    /* margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif; تأكد من تضمين هذا الخط في رأس الصفحة */
+}
 
     /* قسم تفاصيل المنتج العام */
     .product-details-section {

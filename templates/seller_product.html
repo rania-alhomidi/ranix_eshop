@@ -1,221 +1,5 @@
 {% include 'header.html'%}
 
-<style>
-    /* تنسيق عام جديد */
-    .modern-products {
-        padding: 30px 0;
-        background-color: #f5f7fa;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 10px 0 10px 0;
-    }
-
-    /* العنوان الرئيسي */
-    .modern-title {
-        text-align: center;
-        margin-bottom: 40px;
-        color: #2a4365;
-        font-size: 2.5rem;
-        font-weight: 700;
-        position: relative;
-    }
-
-    .modern-title:after {
-        content: '';
-        display: block;
-        width: 100px;
-        height: 4px;
-        background: #4c51bf;
-        margin: 15px auto 0;
-    }
-
-    /* بطاقة المنتج الجديدة */
-    .modern-card {
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        margin-bottom: 30px;
-        border: 1px solid #e2e8f0;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        position: relative; /* مهم لتموضع الشارة وزر الإعجاب */
-    }
-
-    .modern-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* تنسيق الصورة الكاملة */
-    .modern-img-container {
-        width: 100%;
-        height: 250px; /* تحديد ارتفاع ثابت لجميع الصور */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .modern-img {
-        width: 100%;
-        height: 100%;
-        display: block;
-        transition: transform 0.5s ease;
-        object-fit: cover; /* يجعل جميع الصور بنفس الحجم بغض النظر عن أبعادها */
-    }
-
-    .modern-card:hover .modern-img {
-        transform: scale(1.03);
-    }
-
-    /* محتوى البطاقة */
-    .modern-card-body {
-        padding: 20px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .modern-product-title {
-        font-size: 1.25rem;
-        color: #2d3748;
-        margin-bottom: 10px;
-        font-weight: 600;
-    }
-
-    .modern-product-desc {
-        color: #4a5568;
-        font-size: 0.95rem;
-        margin-bottom: 15px;
-        line-height: 1.5;
-        flex-grow: 1;
-    }
-
-    .modern-product-price {
-        font-size: 1.3rem;
-        color: #ff0202;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-
-    /* أزرار جديدة بلون مختلف */
-    .modern-btn-group {
-        display: flex;
-        gap: 15px; /* تم تعديل هذا من 10px إلى 15px ليتناسب مع الأكواد السابقة */
-        justify-content: center; /* تم إضافة هذا ليتوسط الأزرار */
-        margin-top: auto; /* يدفع الأزرار إلى أسفل البطاقة */
-    }
-
-    .modern-btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border: none;
-    }
-
-    .modern-btn-primary {
-        background-color: #c794ca;
-        color: #fff;
-    }
-
-    .modern-btn-primary:hover {
-        background-color: #fccff2;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    .modern-btn-secondary {
-        background-color: #3182CE;
-        color: #fff;
-    }
-
-    .modern-btn-secondary:hover {
-        background-color: #6acbff;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    /* زر الإعجاب (المفضلة) */
-    .like-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(255, 255, 255, 0.8); /* خلفية شفافة */
-        border: 1px solid #e2e8f0;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-        z-index: 10; /* ضمان ظهوره فوق العناصر الأخرى */
-    }
-
-    /* لون القلب عند عدم الإعجاب */
-    .like-btn i {
-        color: #a0aec0; /* رمادي */
-        transition: color 0.3s ease;
-    }
-
-    /* تأثير عند مرور الماوس */
-    .like-btn:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: scale(1.1);
-    }
-
-    /* عند الضغط على زر الإعجاب */
-    .like-btn.liked i {
-        color: #e53e3e; /* لون القلب أحمر عند الإعجاب */
-    }
-
-    /* شارة المنتج الجديد */
-    .featured-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background-color: #4c51bf; /* لون الشارة */
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        z-index: 10;
-        text-transform: uppercase;
-    }
-
-    /* التجاوب مع الشاشات */
-    @media (max-width: 767.98px) { /* استخدام 767.98 بدلاً من 768 ليتناسب مع نقاط توقف Bootstrap */
-        .modern-title {
-            font-size: 2rem;
-        }
-
-        .modern-card-body {
-            padding: 15px;
-        }
-
-        .modern-product-title {
-            font-size: 1.1rem;
-        }
-
-        .modern-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 1rem;
-        }
-    }
-</style>
 
 <div class="modern-products">
     <div class="container">
@@ -226,9 +10,9 @@
             {# إذا كنت تريد عرض كل المنتجات، أزل شرط if product.featured == 1 #}
             {# إذا كان product.featured هو حقل في قاعدة البيانات يشير إلى ما إذا كان المنتج مميزًا أم لا #}
             {# يمكنك استخدام product.featured مباشرة إذا كان قيمته True/False أو 1/0 #}
-            {% if product.featured is defined and product.featured == 1 %} 
-            <div class="col-6 col-md-4 col-lg-3"> <div class="modern-card">
-                    {# شارة المنتج الجديد - تظهر فقط إذا كان product.featured صحيحاً #}
+            {% if product.featured is defined and product.featured == 1 %}
+           
+            <div class="col-6 col-lg-3"> <div class="modern-card">
                     {% if product.featured %}
                     <div class="featured-badge">جديد</div>
                     {% endif %}
@@ -237,6 +21,7 @@
                         <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
                             alt="{{ product.name }}" class="modern-img">
                     </div>
+
                     <div class="modern-card-body">
                         <h5 class="modern-product-title">{{ product.name }}</h5>
 
@@ -246,13 +31,13 @@
                         </button>
 
                         <p class="modern-product-price">
-                            ر.س {{ product.profit_price }}
+                            ر.ي{{ product.profit_price }}
                         </p>
                         <p class="modern-product-desc">{{ product.description }}</p>
 
                         <div class="modern-btn-group">
-                            <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}"
-                                class="d-inline">
+                            <form class="add-to-cart-form d-inline" method="POST"
+                                action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
                                 <input type="hidden" name="name" value="{{ product.name }}">
                                 <input type="hidden" name="price" value="{{ product.profit_price }}">
                                 <input type="hidden" name="image_url" value="{{ product.image }}">
@@ -271,56 +56,105 @@
                     </div>
                 </div>
             </div>
-            {% endif %} {# نهاية شرط product.featured #}
+            {% endif %}
             {% endfor %}
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-    document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', async function () {
-            const productId = this.dataset.productId;
+    document.addEventListener('DOMContentLoaded', function() {
+        // JavaScript for Like button (already exists and works)
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const productId = this.dataset.productId;
 
-            try {
-                const response = await fetch(`/toggle_like/${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include'  // مهم لإرسال الكوكيز
-                });
-
-                const data = await response.json();
-
-                if (!data.success && !data.is_authenticated) {
-                    // إذا لم يكن مسجل دخول
-                    Swal.fire({
-                        title: 'تحذير',
-                        text: data.message,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'تسجيل الدخول',
-                        cancelButtonText: 'إلغاء'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '/login';
-                        }
+                try {
+                    const response = await fetch(`/toggle_like/${productId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include'
                     });
-                    return;
-                }
 
-                if (data.success) {
-                    this.classList.toggle('liked');
-                    // رسالة نجاح
+                    const data = await response.json();
+
+                    if (!data.success && !data.is_authenticated) {
+                        Swal.fire({
+                            title: 'تحذير',
+                            text: data.message,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'تسجيل الدخول',
+                            cancelButtonText: 'إلغاء'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/login';
+                            }
+                        });
+                        return;
+                    }
+
+                    if (data.success) {
+                        this.classList.toggle('liked');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('خطأ', 'حدث خطأ أثناء معالجة طلبك.', 'error');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            });
+        });
+
+        // NEW JavaScript for Add to Cart forms
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault(); // منع الإرسال الافتراضي للنموذج (الذي يسبب إعادة التوجيه)
+
+                const form = this;
+                const formData = new FormData(form);
+                const actionUrl = form.action; // URL الذي سيتم إرسال الطلب إليه
+
+                try {
+                    const response = await fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData, // إرسال بيانات النموذج
+                        credentials: 'include' // للحفاظ على الكوكيز (مثل كوكي السلة)
+                    });
+
+                    const data = await response.json(); // افتراض أن الخادم سيعيد استجابة JSON
+
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'تمت الإضافة!',
+                            text: data.message,
+                            icon: 'success',
+                            showConfirmButton: false, // لا حاجة لزر التأكيد
+                            timer: 1500 // إغلاق التنبيه تلقائياً بعد 1.5 ثانية
+                        });
+
+                        // تحديث عدد العناصر في سلة التسوق في شريط التنقل (إذا كان لديك عنصر لعرضه)
+                        // ستحتاج إلى تحديد العنصر في header.html الذي يعرض عدد العناصر
+                        // مثال: const cartCountElement = document.getElementById('cart-items-count');
+                        // if (cartCountElement && data.total_items_count !== undefined) {
+                        //     cartCountElement.textContent = data.total_items_count;
+                        // }
+
+                    } else {
+                        Swal.fire('خطأ', data.message || 'حدث خطأ أثناء إضافة المنتج إلى السلة.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('خطأ', 'حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى.', 'error');
+                }
+            });
         });
     });
 </script>
 
 {% include 'footer.html' %}
+
+
+
+

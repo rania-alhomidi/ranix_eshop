@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 # الاتصال بقاعدة البيانات
 conn = sqlite3.connect('database/Eshop.db')
@@ -308,12 +309,13 @@ conn.commit()
 # for row in rows:
 #     print(row)
 
-cursor.execute("SELECT * FROM cust_addresses ")  # استعلام عن كل البيانات
-rows = cursor.fetchall()  # جلب جميع الصفوف
-print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-for row in rows:
-    print(row)
+# cursor.execute("SELECT * FROM cust_addresses ")  # استعلام عن كل البيانات
+# rows = cursor.fetchall()  # جلب جميع الصفوف
+# print("البيانات الموجودة في قاعدة البيانات:", rows)
+
+# for row in rows:
+#     print(row)
 
 # cursor.execute('''ALTER TABLE category ADD COLUMN is_active INTEGER DEFAULT 0;''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_new BOOLEAN DEFAULT TRUE;''')
@@ -325,7 +327,11 @@ for row in rows:
 
 # cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
 # tables = cursor.fetchall()  # جلب النتائج
-# print("الجداول الموجودة في قاعدة البيانات:", tables)
+# # print("الجداول الموجودة في قاعدة البيانات:", tables)
+
+# newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
+# print(newdata)
+
 
 # cursor.execute("PRAGMA table_info(product);")
 # columns = cursor.fetchall()

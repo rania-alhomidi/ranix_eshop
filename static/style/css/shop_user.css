@@ -1,0 +1,444 @@
+:root {
+    --primary-color: #ba4ac2;    /* لون أساسي (زهري غامق) */
+    --secondary-color: #f48fb1;  /* لون ثانوي (زهري فاتح) */
+    --accent-color: #ff6b6b;     /* لون مميز/أبرز (أحمر) */
+    --dark-color: #333;          /* لون نص داكن */
+    --light-color: #f8f9fa;      /* لون خلفية فاتح */
+    --border-radius: 12px;       /* نصف قطر الزوايا */
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* ظل افتراضي */
+    --transition: all 0.3s ease; /* انتقالات سلسة */
+
+  /* متغيرات خاصة بالفوتر */
+    --footer-bg: #ffffff;
+    --footer-text: #5f6368;
+    --active-color: var(--primary-color); /* اللون النشط في الفوتر هو اللون الأساسي الزهري */
+    --footer-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif; /* تأكد من تضمين هذا الخط في رأس الصفحة */
+}
+
+body {
+    background-color: #f5f5f5; /* لون خلفية الجسم */
+    color: var(--text-color); /* لون النص الافتراضي */
+    /* تم إلغاء padding-top الخاص بالرأس بناءً على طلبك */
+    /* padding-bottom: 90px; مسافة للفوتر الثابت */
+}
+
+
+
+
+/* a:hover {
+    color: var(--primary-color); تغيير لون الرابط إلى الزهري الأساسي عند التحويم */
+    /* يمكنك إضافة تأثيرات أخرى هنا مثل: */
+    /* text-decoration: underline; */
+/* } */
+
+/* -- subcategories.html styles -- */
+
+/* ---------------------------------------------------- */
+/* هذه التنسيقات تنطبق على صفحات عرض الأقسام الفرعية.
+ * (المسار: /subcategories/<id>)
+ * ---------------------------------------------------- */
+
+
+ 
+/* تنسيق الصفحة الرئيسي */
+.sc-container {
+    padding: 30px 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* تنسيق العنوان العام للصفحة (مثل "الأقسام الفرعية لـ...") */
+.sc-page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.sc-page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+}
+
+/* الخط الزخرفي تحت العنوان */
+.sc-page-title:after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); /* استخدام الزهري */
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.sc-page-subtitle {
+    color: #636e72;
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* تنسيق شبكة الأقسام الفرعية */
+.sc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 15px 0;
+}
+
+/* تنسيق بطاقة القسم الفرعي */
+.sc-category-card {
+    background: white;
+    border-radius: 10px; /* زوايا دائرية بسيطة للصورة العادية */
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* حاوية الصورة - لجعلها مستطيلة/مربعة عادية */
+.sc-image-container {
+    width: 100%;
+    height: 200px; /* ارتفاع ثابت للصورة */
+    position: relative;
+    overflow: hidden;
+    border-radius: 0; /* لا توجد زوايا دائرية هنا إذا كانت الصورة تمثل معظم البوكس العلوي */
+}
+
+.sc-category-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* لملء الحاوية وقص الزوائد */
+    transition: transform 0.4s ease;
+    border-radius: 0; /* الصورة نفسها ليس لها زوايا دائرية إضافية */
+}
+
+/* تأثير التحويم على بطاقة القسم */
+.sc-category-card:hover .sc-category-image {
+    transform: scale(1.03);
+}
+
+/* تنسيق محتوى البطاقة */
+.sc-category-content {
+    padding: 15px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sc-category-name {
+    font-size: 1.1rem;
+    color: var(--dark-color); /* استخدام اللون الداكن */
+    margin: 8px 0;
+    font-weight: 600;
+}
+
+/* تنسيق الزر "تصفح المنتجات" - تم تعديل لونه وشكله */
+.sc-category-link {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* تدرج زهري */
+    color: white;
+    border-radius: 25px; /* شكل زر حبوب منع الحمل */
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); /* ظل زهري */
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.sc-category-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4); /* ظل أقوى عند التحويم */
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); /* عكس التدرج عند التحويم */
+}
+
+/* رسالة عدم وجود أقسام */
+.sc-no-categories {
+    text-align: center;
+    padding: 30px;
+    background: var(--light-color);
+    border-radius: 8px;
+    margin: 20px auto; /* توسيط العنصر */
+    max-width: 500px;
+}
+
+.sc-no-categories p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.sc-home-link {
+    display: inline-block;
+    padding: 8px 20px;
+    background: var(--dark-color);
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.sc-home-link:hover {
+    background: #1a252f;
+}
+
+/* التنسيق للجوال */
+@media (max-width: 768px) {
+    .sc-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .sc-image-container {
+        height: 150px;
+    }
+    
+    .sc-category-link {
+        padding: 6px 16px;
+        font-size: 0.8rem;
+        border-radius: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sc-image-container {
+        height: 120px;
+    }
+}
+    /* تنسيق عام جديد */
+    .modern-products {
+        padding: 30px 0;
+        background-color: #f5f7fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 10px 0;
+    }
+
+    /* العنوان الرئيسي */
+    .modern-title {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2a4365;
+        font-size: 2.5rem;
+        font-weight: 700;
+        position: relative;
+    }
+
+    .modern-title:after {
+        content: '';
+        display: block;
+        width: 100px;
+        height: 4px;
+        background: #4c51bf;
+        margin: 15px auto 0;
+    }
+
+    /* بطاقة المنتج الجديدة */
+    .modern-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+    }
+
+    .modern-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* تنسيق الصورة الكاملة */
+    .modern-img-container {
+        width: 100%;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .modern-img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        transition: transform 0.5s ease;
+        object-fit: cover;
+    }
+
+    .modern-card:hover .modern-img {
+        transform: scale(1.03);
+    }
+
+    /* محتوى البطاقة */
+    .modern-card-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modern-product-title {
+        font-size: 1.25rem;
+        color: #2d3748;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .modern-product-desc {
+        color: #4a5568;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    .modern-product-price {
+        font-size: 1.3rem;
+        color: #ff0202;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    /* أزرار جديدة بلون مختلف */
+    .modern-btn-group {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: auto;
+    }
+
+    .modern-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+
+    .modern-btn-primary {
+        background-color: #c794ca;
+        color: #fff;
+    }
+
+    .modern-btn-primary:hover {
+        background-color: #fccff2;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .modern-btn-secondary {
+        background-color: #3182CE;
+        color: #fff;
+    }
+
+    .modern-btn-secondary:hover {
+        background-color: #6acbff;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* زر الإعجاب (المفضلة) */
+    .like-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid #e2e8f0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+    }
+
+    .like-btn i {
+        color: #a0aec0;
+        transition: color 0.3s ease;
+    }
+
+    .like-btn:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.1);
+    }
+
+    .like-btn.liked i {
+        color: #e53e3e;
+    }
+
+    /* شارة المنتج الجديد */
+    .featured-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #4c51bf;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        z-index: 10;
+        text-transform: uppercase;
+    }
+
+    /* التجاوب مع الشاشات */
+    @media (max-width: 767.98px) {
+        /* على شاشات الهاتف (أقل من 768 بكسل) - منتجان في الصف */
+        .modern-title {
+            font-size: 2rem;
+        }
+
+        .modern-card-body {
+            padding: 15px;
+        }
+
+        .modern-product-title {
+            font-size: 1.1rem;
+        }
+
+        .modern-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+    
