@@ -1,23 +1,7 @@
 {% include 'header.html'%}
 
 <style>
-:root {
-    --primary-color: #ba4ac2;    /* لون أساسي (زهري غامق) */
-    --secondary-color: #f48fb1;  /* لون ثانوي (زهري فاتح) */
-    --accent-color: #ff6b6b;     /* لون مميز/أبرز (أحمر) */
-    --dark-color: #333;          /* لون نص داكن */
-    --light-color: #f8f9fa;      /* لون خلفية فاتح */
-    --border-radius: 12px;       /* نصف قطر الزوايا */
-    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* ظل افتراضي */
-    --transition: all 0.3s ease; /* انتقالات سلسة */
-
-  /* متغيرات خاصة بالفوتر */
-    --footer-bg: #ffffff;
-    --footer-text: #5f6368;
-    --active-color: var(--primary-color); /* اللون النشط في الفوتر هو اللون الأساسي الزهري */
-    --footer-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-}
-
+ 
 /* 
 * {
     margin: 0;
@@ -33,8 +17,8 @@
     }
     
     .profile-header {
-        background: var(--primary-color);
-        color: white;
+        /* background: var(--primary-color); */
+        color: rgb(0, 0, 0);
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         position: relative;
@@ -50,15 +34,20 @@
         width: 200%;
         height: 200%;
         background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        
     }
     
     .profile-avatar {
         width: 120px;
         height: 120px;
-        border: 4px solid white;
+        border: 4px solid #ba4ac2;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        
     }
-    
+    .profile-header .profile-avatar i{
+    color: #ba4ac2;
+
+    } 
     .info-card {
         border: none;
         border-radius: 12px;
@@ -185,7 +174,7 @@
             <div class="profile-header p-4 mb-5 text-center">
                 <div class="d-flex justify-content-center mb-3">
                     <div class="profile-avatar bg-white rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="fas fa-user text-primary" style="font-size: 3rem;"></i>
+                        <i class="fas fa-user " style="font-size: 3rem;"></i>
                     </div>
                 </div>
                 <h1 class="mb-1">{{ user.name }}</h1>
@@ -260,9 +249,9 @@
         </div>
         
         <!-- Floating Edit Button -->
-        <a href="#" class="edit-btn btn btn-primary">
+        <!-- <a href="#" class="edit-btn btn btn-primary"> زر لصعود  الى اعلاء
             <i class="fas fa-pencil-alt"></i>
-        </a>
+        </a> -->
     {% endif %}
 </div>
 

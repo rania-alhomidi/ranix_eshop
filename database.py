@@ -29,23 +29,23 @@ cursor = conn.cursor()
 # )''')
 
 # إنشاء جدول المنتجات
-# cursor.execute('''CREATE TABLE IF NOT EXISTS product (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     name VARCHAR(255) NULL,
-#     image VARCHAR(500),
-#     description TEXT,
-#     category_id INTEGER NOT NULL,  -- القسم الفرعي
-#     seller_id INTEGER NOT NULL,  -- صاحب المنتج
-#     address_id INTEGER NOT NULL,  -- عنوان صاحب المنتج
-#     price_id INTEGER,
-#     stock_id INTEGER,
-#     featured BOOLEAN DEFAULT 1,
-#     FOREIGN KEY (category_id) REFERENCES category(id),
-#     FOREIGN KEY (seller_id) REFERENCES sellers(id),
-#     FOREIGN KEY (address_id) REFERENCES seller_address(id),
-#     FOREIGN KEY (price_id) REFERENCES prices(id),
-#     FOREIGN KEY (stock_id) REFERENCES stock(id)
-# )''')
+cursor.execute('''CREATE TABLE IF NOT EXISTS product (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) NULL,
+    image VARCHAR(500),
+    description TEXT,
+    category_id INTEGER NOT NULL,  -- القسم الفرعي
+    seller_id INTEGER NOT NULL,  -- صاحب المنتج
+    address_id INTEGER NULL,  -- عنوان صاحب المنتج
+    price_id INTEGER,
+    stock_id INTEGER,
+    featured BOOLEAN DEFAULT 1,
+    FOREIGN KEY (category_id) REFERENCES category(id),
+    FOREIGN KEY (seller_id) REFERENCES sellers(id),
+    FOREIGN KEY (address_id) REFERENCES seller_address(id),
+    FOREIGN KEY (price_id) REFERENCES prices(id),
+    FOREIGN KEY (stock_id) REFERENCES stock(id)
+)''')
 
 
 # cursor.execute('''
@@ -322,15 +322,15 @@ conn.commit()
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS sellers')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS product')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-# tables = cursor.fetchall()  # جلب النتائج
-# # print("الجداول الموجودة في قاعدة البيانات:", tables)
+cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+tables = cursor.fetchall()  # جلب النتائج
+# print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-# newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
-# print(newdata)
+newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
+print(newdata)
 
 
 # cursor.execute("PRAGMA table_info(product);")

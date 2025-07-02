@@ -9,51 +9,54 @@
         <div class="row">
             {% for product in products %}
             {% if product.featured == 1 %}
-            
-            <div class="col-6 col-lg-3"> <div class="modern-card">
-                    {% if product.featured %}
-                    <div class="featured-badge">جديد</div>
-                    {% endif %}
 
-                    <div class="modern-img-container">
-                        <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
-                            alt="{{ product.name }}" class="modern-img">
-                    </div>
+            <div class="col-6 col-lg-3">
+                <div class="modern-card">
+                    <a href="{{ url_for('product.product_details', product_id=product.id) }}" class="modern-card-link">
 
-                    <div class="modern-card-body">
-                        <h5 class="modern-product-title">{{ product.name }}</h5>
+                        {% if product.featured %}
+                        <div class="featured-badge">جديد</div>
+                        {% endif %}
 
-                        <button class="like-btn {% if product.id in liked_products %}liked{% endif %}"
-                            data-product-id="{{ product.id }}">
-                            <i class="fa fa-heart"></i>
-                        </button>
-
-                        <p class="modern-product-price">
-                            ر.ي{{ product.profit_price }}
-                        </p>
-                        <p class="modern-product-desc">{{ product.description }}</p>
-
-                        <div class="modern-btn-group">
-                            <form class="add-to-cart-form d-inline" method="POST"
-                                action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
-                                <input type="hidden" name="name" value="{{ product.name }}">
-                                <input type="hidden" name="price" value="{{ product.profit_price }}">
-                                <input type="hidden" name="image_url" value="{{ product.image }}">
-                                <input type="hidden" name="description" value="{{ product.description }}">
-                                <input type="hidden" name="seller" value="{{ product.seller }}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="modern-btn modern-btn-primary">
-                                    <i class="fa fa-shopping-cart"></i>
-                                </button>
-                            </form>
-                            <a href="{{ url_for('product.product_details', product_id=product.id) }}"
-                                class="modern-btn modern-btn-secondary">
-                                <i class="fa fa-info-circle"></i>
-                            </a>
+                        <div class="modern-img-container">
+                            <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
+                                alt="{{ product.name }}" class="modern-img">
                         </div>
-                    </div>
+
+                        <div class="modern-card-body">
+                            <h5 class="modern-product-title">{{ product.name }}</h5>
+
+                            <button class="like-btn {% if product.id in liked_products %}liked{% endif %}"
+                                data-product-id="{{ product.id }}">
+                                <i class="fa fa-heart"></i>
+                            </button>
+
+                            <p class="modern-product-price">
+                                ر.ي{{ product.profit_price }}
+                            </p>
+                            <p class="modern-product-desc">{{ product.description }}</p>
+
+                            <div class="modern-btn-group">
+                                <form class="add-to-cart-form d-inline" method="POST"
+                                    action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                                    <input type="hidden" name="name" value="{{ product.name }}">
+                                    <input type="hidden" name="price" value="{{ product.profit_price }}">
+                                    <input type="hidden" name="image_url" value="{{ product.image }}">
+                                    <input type="hidden" name="description" value="{{ product.description }}">
+                                    <input type="hidden" name="seller" value="{{ product.seller }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="modern-btn modern-btn-primary">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('product.product_details', product_id=product.id) }}"
+                                    class="modern-btn modern-btn-secondary">
+                                    <i class="fa fa-info-circle"></i>
+                                </a>
+                            </div>
+                        </div>
                 </div>
-            </div>
+            </a></div>
             {% endif %}
             {% endfor %}
         </div>
@@ -62,7 +65,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // JavaScript for Like button (already exists and works)
         document.querySelectorAll('.like-btn').forEach(btn => {
             btn.addEventListener('click', async function () {
@@ -107,7 +110,7 @@
 
         // NEW JavaScript for Add to Cart forms
         document.querySelectorAll('.add-to-cart-form').forEach(form => {
-            form.addEventListener('submit', async function(event) {
+            form.addEventListener('submit', async function (event) {
                 event.preventDefault(); // منع الإرسال الافتراضي للنموذج (الذي يسبب إعادة التوجيه)
 
                 const form = this;
@@ -152,7 +155,3 @@
 </script>
 
 {% include 'footer.html' %}
-
-
-
-
