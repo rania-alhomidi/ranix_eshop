@@ -235,6 +235,12 @@ def inject_user_data_and_cart_count():
 def page_not_found(e):
     return render_template('404.html'), 404 # تأكد أن لديك قالب 404.html
 
+@app.template_filter('handle_product_image')
+def handle_product_image(image_path):
+    if not image_path:
+        return 'uploads/products/default_product.jpg'
+    return image_path.replace('static/', '')
+
 
 if __name__ == '__main__':
     app.run(debug=True) # 🟢 تشغيل وضع التصحيح مفيد أثناء التطوير

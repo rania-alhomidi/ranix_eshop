@@ -32,7 +32,8 @@
     }
 
     .container {
-        background-color: white; /* خلفية بيضاء للصفحة */
+        background-color: white;
+        /* خلفية بيضاء للصفحة */
         min-height: 100vh;
     }
 
@@ -58,7 +59,7 @@
         border-radius: 8px;
         margin-bottom: 10px;
         align-items: center;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
 
     .product-info {
@@ -71,7 +72,8 @@
         height: 60px;
         border-radius: 6px;
         object-fit: cover;
-        margin-left: 10px; /* للغة العربية، هذه Margin-right */
+        margin-left: 10px;
+        /* للغة العربية، هذه Margin-right */
     }
 
     .product-details h5 {
@@ -109,7 +111,7 @@
         padding: 20px;
         margin-top: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .summary-row {
@@ -163,7 +165,7 @@
         padding: 50px 20px;
         background-color: white;
         border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .empty-cart-message h4 {
@@ -180,6 +182,7 @@
     .flashes {
         margin-bottom: 20px;
     }
+
     .alert {
         padding: 15px;
         margin-bottom: 1rem;
@@ -187,26 +190,33 @@
         border-radius: 0.25rem;
         position: relative;
     }
+
     .alert-success {
         color: #155724;
         background-color: #d4edda;
         border-color: #c3e6cb;
     }
+
     .alert-info {
         color: #0c5460;
         background-color: #d1ecf1;
         border-color: #bee5eb;
     }
+
     .alert-warning {
         color: #856404;
         background-color: #fff3cd;
         border-color: #ffeeba;
     }
-    .alert-danger, .alert-error { /* 'alert-error' for Flask flash categories */
+
+    .alert-danger,
+    .alert-error {
+        /* 'alert-error' for Flask flash categories */
         color: #721c24;
         background-color: #f8d7da;
         border-color: #f5c6cb;
     }
+
     .alert .close {
         position: absolute;
         top: 0;
@@ -220,15 +230,18 @@
         opacity: 0.5;
         cursor: pointer;
     }
+
     .alert .close:hover {
         opacity: 0.75;
     }
+
     /* end of flash message styles */
 
     /* استجابة الهاتف */
     @media (max-width: 768px) {
         .cart-header {
-            display: none; /* إخفاء رأس الجدول في الشاشات الصغيرة */
+            display: none;
+            /* إخفاء رأس الجدول في الشاشات الصغيرة */
         }
 
         .cart-item {
@@ -251,7 +264,8 @@
         }
 
         .product-image {
-            margin-left: 0; /* إزالة الهامش في الشاشات الصغيرة */
+            margin-left: 0;
+            /* إزالة الهامش في الشاشات الصغيرة */
             margin-bottom: 10px;
         }
 
@@ -260,87 +274,100 @@
             justify-content: flex-start;
             margin-bottom: 10px;
         }
+
         .product-info .product-details {
-            width: calc(100% - 70px); /* 60px للصورة + 10px هامش */
+            width: calc(100% - 70px);
+            /* 60px للصورة + 10px هامش */
         }
     }
 </style>
 
 </head>
+
 <body>
     <div class="container">
         <header class="app-header">
             <a href="{{ url_for('product.index') }}" class="back-arrow"><i class="fas fa-arrow-right"></i></a>
             <h1>عربة التسوق</h1>
-            <i class="fas fa-shopping-cart action-icon"></i> </header>
+            <i class="fas fa-shopping-cart action-icon"></i>
+        </header>
 
         <div class="main-content">
             {# هذا الجزء سيعرض رسائل الفلاش من Flask #}
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flashes">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% endwith %}
 
             {% if cart %}
-            
+
             <div class="cart-items">
                 {% for item in cart %}
                 <div class="cart-item">
                     <div class="product-info">
-                        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}" class="product-image">
+                        {% if item.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}"
+                            class="product-image">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='uploads/products/default_product.jpg') }}"
+                            alt="صورة افتراضية" class="product-image">
+                        {% endif %}
                         <div class="product-details">
                             <h5>{{ item.name }}</h5>
                             <span class="mobile-label d-md-none">السعر: {{ item.price }} ريال</span>
                         </div>
                     </div>
-                    
+
                     <div class="price d-none d-md-block">
                         {{ item.price }} ريال
                     </div>
-                    
+
                     <div class="quantity-controls">
                         <span class="mobile-label d-md-none">الكمية:</span>
-                        <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}"
+                            class="d-inline">
                             <input type="hidden" name="action" value="decrease">
                             <button type="submit" class="quantity-btn">-</button>
                         </form>
                         <span class="quantity">{{ item.quantity }}</span>
-                        <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}"
+                            class="d-inline">
                             <input type="hidden" name="action" value="increase">
                             <button type="submit" class="quantity-btn">+</button>
                         </form>
-                        <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('cart.update_cart', product_id=item.product_id) }}"
+                            class="d-inline">
                             <input type="hidden" name="action" value="remove">
                             <button type="submit" class="remove-btn">حذف</button>
                         </form>
                     </div>
-                    
+
                     <div class="price">
                         {{ (item.price * item.quantity) | round(2) }} ريال
                     </div>
                 </div>
                 {% endfor %}
             </div>
-            
+
             <div class="cart-summary">
-                {# ملاحظة: subtotal هنا يتم حسابه كتحقق، ولكن total_price و total_items_count 
-                   يجب أن يأتيان من Flask (كما تم تعديل cart_routes.py) #}
+                {# ملاحظة: subtotal هنا يتم حسابه كتحقق، ولكن total_price و total_items_count
+                يجب أن يأتيان من Flask (كما تم تعديل cart_routes.py) #}
                 {% set subtotal_check = 0 %}
                 {% for item in cart %}
-                    {% set subtotal_check = subtotal_check + (item.price * item.quantity) %}
+                {% set subtotal_check = subtotal_check + (item.price * item.quantity) %}
                 {% endfor %}
 
-           
+
                 <div class="summary-row">
                     <span>إجمالي عدد المنتجات:</span>
                     <span>{{ total_items_count }}</span> {# هذا المتغير يأتي من Flask #}
@@ -349,23 +376,25 @@
                     <span>المجموع الكلي:</span>
                     <span>{{ total_price | round(2) }} ريال</span> {# هذا المتغير يأتي من Flask #}
                 </div>
-                
+
                 {% if request.cookies.get('user_auth') %}
-                    <form method="GET" action="{{ url_for('order.confirm_order_page') }}">
-                        <button type="submit" class="btn btn-primary checkout-btn">
-                            <i class="fa fa-shopping-cart"></i> إتمام الشراء
-                        </button>
-                    </form>
+                <form method="GET" action="{{ url_for('order.confirm_order_page') }}">
+                    <button type="submit" class="btn btn-primary checkout-btn">
+                        <i class="fa fa-shopping-cart"></i> إتمام الشراء
+                    </button>
+                </form>
                 {% else %}
-                    <div class="alert alert-warning mt-3">
-                        <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
-                        <a href="{{ url_for('user.login') }}?next={{ url_for('cart.view_cart') }}" class="btn btn-sm btn-primary">
-                            <i class="fa fa-sign-in"></i> تسجيل الدخول
-                        </a>
-                    </div>
+                <div class="alert alert-warning mt-3">
+                    <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
+                    <a href="{{ url_for('user.login') }}?next={{ url_for('cart.view_cart') }}"
+                        class="btn btn-sm btn-primary">
+                        <i class="fa fa-sign-in"></i> تسجيل الدخول
+                    </a>
+                </div>
                 {% endif %}
-                
-                <form method="POST" action="{{ url_for('cart.clear_cart') }}" onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
+
+                <form method="POST" action="{{ url_for('cart.clear_cart') }}"
+                    onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
                     <button type="submit" class="btn btn-outline-danger empty-cart-btn">
                         <i class="fa fa-trash"></i> تفريغ السلة
                     </button>
@@ -383,10 +412,10 @@
 
     {# JavaScript لتفعيل إغلاق رسائل الفلاش (إذا كنت لا تستخدم Bootstrap JS) #}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var closeButtons = document.querySelectorAll('.alert .close');
-            closeButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
+            closeButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
                     var alertDiv = this.closest('.alert');
                     if (alertDiv) {
                         alertDiv.style.display = 'none'; // أو alertDiv.remove();
@@ -395,8 +424,8 @@
             });
         });
     </script>
-    
 
 
-    
+
+
     {% include 'footer.html' %}

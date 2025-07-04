@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, make_response
 import sqlite3
 import os
+import uuid  # أضف هذا السطر مع باقي الاستيرادات
 from werkzeug.utils import secure_filename
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -184,7 +185,7 @@ def category_details_admin(category_id):
 @admin_bp.route('/add_product', methods=['GET', 'POST'])
 def add_product():
     conn = get_db_connection()
-    categories = conn.execute('SELECT id, name, parent_id FROM category WHERE parent_id IS NOT NULL').fetchall() # Only subcategories
+    categories = conn.execute('SELECT id, name, parent_id FROM category WHERE parent_id IS NOT NULL').fetchall()
     sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
     conn.close()
 
@@ -196,26 +197,23 @@ def add_product():
         quantity = request.form['quantity']
         category_id = request.form['category']
         seller_id = request.form['seller']
-        image = request.files.get('image')
+        images = request.files.getlist('images')
 
         upload_folder = os.path.join(UPLOAD_FOLDER, 'products')
         os.makedirs(upload_folder, exist_ok=True)
-        image_path = 'static/uploads/products/default_seller.jpg' # Default image path
-        if image and image.filename:
-            filename = secure_filename(image.filename)
-            filepath = os.path.join(upload_folder, filename)
-            image.save(filepath)
-            image_path = f'static/uploads/products/{filename}'
+        main_image_path = 'static/uploads/products/default_product.jpg'
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
         try:
+            # التحقق من عدم تكرار اسم المنتج
             cursor.execute('SELECT id FROM product WHERE name = ?', (name,))
             if cursor.fetchone():
                 flash("المنتج موجود بالفعل!", "danger")
                 return redirect(url_for('admin.add_product'))
 
+            # إدراج المنتج الأساسي
             cursor.execute('''
                 INSERT INTO product (
                     name, description, category_id,
@@ -224,36 +222,67 @@ def add_product():
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 name, description, category_id,
-                seller_id, image_path,
+                seller_id, main_image_path,
                 0, None, None
             ))
             product_id = cursor.lastrowid
 
+            # إدراج الأسعار
             cursor.execute('''
                 INSERT INTO prices (product_id, original_price, profit_price)
                 VALUES (?, ?, ?)
             ''', (product_id, original_price, profit_price))
             price_id = cursor.lastrowid
 
+            # إدراج المخزون
             cursor.execute('''
                 INSERT INTO stock (product_id, quantity)
                 VALUES (?, ?)
             ''', (product_id, quantity))
             stock_id = cursor.lastrowid
 
+            # تحديث المنتج بمعرفات الأسعار والمخزون
             cursor.execute('''
                 UPDATE product
                 SET price_id = ?, stock_id = ?
                 WHERE id = ?
             ''', (price_id, stock_id, product_id))
 
+            # معالجة الصور المرفوعة
+            if images and images[0].filename:
+                for idx, image in enumerate(images):
+                    if image and image.filename:
+                        filename = secure_filename(image.filename)
+                        unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                        filepath = os.path.join(upload_folder, unique_filename)
+                        image.save(filepath)
+                        image_path = f'static/uploads/products/{unique_filename}'
+
+                        is_main = (idx == 0)
+                        cursor.execute('''
+                            INSERT INTO product_image (product_id, image_path, is_main)
+                            VALUES (?, ?, ?)
+                        ''', (product_id, image_path, is_main))
+
+                        if is_main:
+                            cursor.execute('''
+                                UPDATE product SET image = ? WHERE id = ?
+                            ''', (image_path, product_id))
+            else:
+                # إدراج الصورة الافتراضية إذا لم يتم رفع أي صور
+                cursor.execute('''
+                    INSERT INTO product_image (product_id, image_path, is_main)
+                    VALUES (?, ?, ?)
+                ''', (product_id, main_image_path, True))
+
             conn.commit()
             flash("تمت إضافة المنتج بنجاح!", "success")
 
         except Exception as e:
             conn.rollback()
-            flash(f"حدث خطأ: {str(e)}", "danger")
+            flash(f"حدث خطأ أثناء إضافة المنتج: {str(e)}", "danger")
             print(f"Error: {str(e)}")
+            return redirect(url_for('admin.add_product'))
 
         finally:
             conn.close()
@@ -263,11 +292,6 @@ def add_product():
     return render_template('admin/add_product.html',
                          categories=categories,
                          sellers=sellers)
-
-
-
-
-
 
 @admin_bp.route('/product_details_admin/<int:product_id>')
 def product_details_admin(product_id):

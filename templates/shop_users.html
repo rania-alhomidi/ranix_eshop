@@ -19,8 +19,13 @@
                         {% endif %}
 
                         <div class="modern-img-container">
+                            {% if product.image %}
                             <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
                                 alt="{{ product.name }}" class="modern-img">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='uploads/products/default_product.jpg') }}"
+                                alt="{{ product.name }}" class="modern-img">
+                            {% endif %}
                         </div>
 
                         <div class="modern-card-body">
@@ -56,7 +61,8 @@
                             </div>
                         </div>
                 </div>
-            </a></div>
+                </a>
+            </div>
             {% endif %}
             {% endfor %}
         </div>

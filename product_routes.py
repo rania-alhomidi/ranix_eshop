@@ -71,14 +71,38 @@ def show_subcategories(category_id):
                          categories=categories)
 
 
+
+@product_bp.route('/category/<int:category_id>')
+def show_products_by_category(category_id):
+    conn = get_db_connection()
+# في الدالة التي تجلب المنتجات (مثلاً show_products_by_category)
+    products = conn.execute('''
+        SELECT 
+            p.id,
+            p.name,
+            COALESCE(p.image, 'static/uploads/products/default_product.jpg') AS image,
+            p.description,
+            pr.profit_price,
+            p.featured
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        WHERE p.category_id = ?
+    ''', (category_id,)).fetchall()
+
+    conn.close()
+    return render_template('shop_users.html', products=products)
+
+
 @product_bp.route('/product/<int:product_id>', methods=['GET'])
 def product_details(product_id):
     conn = get_db_connection()
+    
+    # جلب بيانات المنتج الأساسية مع ضمان وجود مسار صورة افتراضي
     product = conn.execute('''
         SELECT
             p.id,
             p.name,
-            p.image,
+            COALESCE(p.image, 'static/uploads/products/default_product.jpg') AS image,
             p.description,
             pr.original_price,
             pr.profit_price,
@@ -99,8 +123,14 @@ def product_details(product_id):
     if product is None:
         return "المنتج غير موجود", 404
 
+    # جلب جميع صور المنتج
+    product_images = conn.execute('''
+        SELECT * FROM product_image WHERE product_id = ? ORDER BY is_main DESC
+    ''', (product_id,)).fetchall()
+
+    # جلب المنتجات ذات الصلة
     related_products = conn.execute('''
-        SELECT p.id, p.name, p.image, pr.profit_price
+        SELECT p.id, p.name, COALESCE(p.image, 'static/uploads/products/default_product.jpg') AS image, pr.profit_price
         FROM product p
         LEFT JOIN prices pr ON p.price_id = pr.id
         WHERE p.category_id = (SELECT category_id FROM product WHERE id = ?) AND p.id != ?
@@ -112,39 +142,11 @@ def product_details(product_id):
     return render_template(
         'shop-details.html',
         product=product,
+        product_images=product_images,
         related_products=list(related_products),
-        quantity=product['quantity']  # تمرير الكمية إلى القالب
+        quantity=product['quantity']
     )
 
-
-@product_bp.route('/category/<int:category_id>')
-def show_products_by_category(category_id):
-    conn = get_db_connection()
-    # استعلام لجلب المنتجات التابعة للقسم المحدد
-    products = conn.execute('''
-        SELECT
-            p.id,
-            p.name,
-            p.image,
-            p.description,
-            pr.original_price,
-            pr.profit_price,
-            s.quantity,
-            c.name AS category,
-            sllr.name AS seller,
-            sa.address AS address,
-            p.featured
-        FROM product p
-        LEFT JOIN prices pr ON p.price_id = pr.id
-        LEFT JOIN stock s ON p.stock_id = s.id
-        LEFT JOIN category c ON p.category_id = c.id
-        LEFT JOIN sellers sllr ON p.seller_id = sllr.id
-        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
-        WHERE p.category_id = ?
-    ''', (category_id,)).fetchall()
-
-    conn.close()
-    return render_template('shop_users.html', products=products)
 
 
 @product_bp.route('/show_product1', methods=['GET'])

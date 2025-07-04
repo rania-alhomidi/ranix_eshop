@@ -28,26 +28,34 @@ cursor = conn.cursor()
 #     FOREIGN KEY (parent_id) REFERENCES category(id) ON DELETE SET NULL
 # )''')
 
-# إنشاء جدول المنتجات
-cursor.execute('''CREATE TABLE IF NOT EXISTS product (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(255) NULL,
-    image VARCHAR(500),
-    description TEXT,
-    category_id INTEGER NOT NULL,  -- القسم الفرعي
-    seller_id INTEGER NOT NULL,  -- صاحب المنتج
-    address_id INTEGER NULL,  -- عنوان صاحب المنتج
-    price_id INTEGER,
-    stock_id INTEGER,
-    featured BOOLEAN DEFAULT 1,
-    FOREIGN KEY (category_id) REFERENCES category(id),
-    FOREIGN KEY (seller_id) REFERENCES sellers(id),
-    FOREIGN KEY (address_id) REFERENCES seller_address(id),
-    FOREIGN KEY (price_id) REFERENCES prices(id),
-    FOREIGN KEY (stock_id) REFERENCES stock(id)
-)''')
+# # إنشاء جدول المنتجات
+# cursor.execute('''CREATE TABLE IF NOT EXISTS product (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name VARCHAR(255) NULL,
+#     -- تم إزالة عمود 'image' هنا
+#     description TEXT,
+#     category_id INTEGER NOT NULL,
+#     seller_id INTEGER NOT NULL,
+#     address_id INTEGER NULL,
+#     price_id INTEGER,
+#     stock_id INTEGER,
+#     featured BOOLEAN DEFAULT 1,
+#     FOREIGN KEY (category_id) REFERENCES category(id),
+#     FOREIGN KEY (seller_id) REFERENCES sellers(id),
+#     FOREIGN KEY (address_id) REFERENCES seller_address(id),
+#     FOREIGN KEY (price_id) REFERENCES prices(id),
+#     FOREIGN KEY (stock_id) REFERENCES stock(id)
+# );''')
 
-
+# cursor.execute('''
+# CREATE TABLE IF NOT EXISTS product_image (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     product_id INTEGER NOT NULL,               -- المفتاح الخارجي الذي يربط الصورة بالمنتج
+#     image_path VARCHAR(255) NOT NULL,         -- مسار الصورة (مثل: 'uploads/products/image1.jpg')
+#     is_main BOOLEAN DEFAULT FALSE,             -- (اختياري) لتحديد ما إذا كانت هذه هي الصورة الرئيسية للمنتج
+#     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+#     -- ON DELETE CASCADE: يعني إذا تم حذف المنتج، فسيتم حذف جميع صوره المرتبطة به تلقائيًا.
+# );''')
 # cursor.execute('''
 # CREATE TABLE IF NOT EXISTS stock (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -295,7 +303,14 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS product (
 #     -- ON DELETE CASCADE يعني إذا تم حذف المستخدم، تُحذف جميع عناوينه تلقائياً.
 # );''')
 
-conn.commit()
+
+# cursor.execute('''CREATE TABLE product_images (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     product_id INTEGER NOT NULL,
+#     image_path TEXT NOT NULL,
+#     FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE
+# );''')
+# conn.commit()
 
 
 
@@ -310,7 +325,7 @@ conn.commit()
 #     print(row)
 
 
-# cursor.execute("SELECT * FROM cust_addresses ")  # استعلام عن كل البيانات
+# cursor.execute("SELECT * FROM product_images ")  # استعلام عن كل البيانات
 # rows = cursor.fetchall()  # جلب جميع الصفوف
 # print("البيانات الموجودة في قاعدة البيانات:", rows)
 
@@ -322,7 +337,7 @@ conn.commit()
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS product')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS product_images')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
 cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')

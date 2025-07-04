@@ -1,388 +1,193 @@
 {% include 'header.html' %}
 
 <style>
-    /* تعريف المتغيرات اللونية والظلال والانتقالات - تم التعديل للألوان الزهرية */
-
-
-
-* {
-    /* margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Tajawal', sans-serif; تأكد من تضمين هذا الخط في رأس الصفحة */
-}
-
-    /* قسم تفاصيل المنتج العام */
     .product-details-section {
-        padding: 5rem 0;
-        /* background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); */
+        padding: 3rem 0;
     }
-
-    /* بطاقة المنتج */
     .product-card {
-        border-radius: var(--border-radius);
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: var(--box-shadow);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         background: white;
-        transition: var(--transition);
-        height: 100%;
+        transition: all 0.3s ease;
     }
-
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    .product-gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
-
-    /* حاوية صورة المنتج */
-    .product-image-container {
-        position: relative;
+    .main-image-container {
+        border-radius: 10px;
         overflow: hidden;
-        border-radius: var(--border-radius) var(--border-radius) 0 0;
-        background: #fff;
-        padding: 0; /* إزالة الحشو لكي تملأ الصورة الحاوية تمامًا */
+        background: #f8f9fa;
+        height: 400px;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 400px; /* لضمان حجم كافٍ للحاوية */
+        position: relative;
     }
-
-    /* صورة المنتج - لجعلها تملأ الحاوية مع الحفاظ على نسبة العرض إلى الارتفاع */
-    .product-image {
+    .main-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .thumbnail-gallery {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding: 10px 0;
+    }
+    .thumbnail-container {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    .thumbnail-container.active {
+        border-color: #e83e8c;
+    }
+    .thumbnail {
         width: 100%;
         height: 100%;
-        object-fit: contain; /* 'contain' يحافظ على نسبة الصورة ويجعلها تتناسب داخل الحاوية. 'cover' ستقص الصورة لتملأ الحاوية. اختر الأنسب لك. */
-        transition: var(--transition);
-        mix-blend-mode: multiply; /* للحفاظ على اللون الأصلي للصورة مع دمجها بالخلفية */
+        object-fit: cover;
+    }
+    .seller-link {
+    color: #e83e8c; /* لون زهري أو مميز */
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s ease;
     }
 
-    .product-image:hover {
-        transform: scale(1.05);
+    .seller-link:hover {
+        color: #c82368; /* لون أغمق عند التحويم */
     }
 
-    /* شارة توفر المنتج */
     .product-badge {
         position: absolute;
-        top: 20px;
-        right: 20px;
-        background: var(--accent-color); /* استخدام اللون المميز */
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 600;
-        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        top: 10px;
+        left: 10px;
+        background: #28a745;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.9rem;
     }
-
-    /* معلومات المنتج */
     .product-info {
-        padding: 2.5rem;
+        padding: 2rem;
     }
-
-    /* عنوان المنتج */
     .product-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--dark-color); /* استخدام اللون الداكن */
-        margin-bottom: 1rem;
-        line-height: 1.3;
-    }
-
-    /* سعر المنتج */
-    .product-price {
         font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
+        font-weight: bold;
+        margin-bottom: 1rem;
     }
-
-    /* وصف المنتج */
+    .product-title a {
+        text-decoration: none;
+        color: #000;
+    }
+    .product-price {
+        font-size: 1.5rem;
+        color: #ff0000;
+        margin-bottom: 1rem;
+    }
     .product-description {
-        color: #666;
-        line-height: 1.8;
-        margin-bottom: 2rem;
-        font-size: 1.05rem;
-    }
-
-    /* بيانات وصفية للمنتج (الكمية، القسم، البائع، الموقع) */
-    .product-meta {
-        background: var(--light-color); /* استخدام اللون الفاتح للخلفية */
-        padding: 1.5rem;
-        border-radius: var(--border-radius);
-        margin-bottom: 2rem;
-    }
-
-    .meta-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.7rem 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .meta-item:last-child {
-        border-bottom: none;
-    }
-
-    .meta-label {
-        font-weight: 600;
-        color: var(--dark-color); /* استخدام اللون الداكن */
-    }
-
-    .meta-value {
         color: #555;
+        margin-bottom: 1.5rem;
     }
-
-    /* محدد الكمية */
+    .meta-item {
+        margin-bottom: 0.5rem;
+    }
     .quantity-selector {
         display: flex;
         align-items: center;
         margin-bottom: 1.5rem;
-        justify-content: center;
     }
-
     .quantity-btn {
-        width: 40px;
-        height: 40px;
-        border: none;
-        background: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+        background: #ba4ac2;
         color: white;
-        font-size: 1.2rem;
+        border: none;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: var(--transition);
+        font-size: 1.2rem;
     }
-
-    .quantity-btn:hover {
-        background: var(--secondary-color); /* استخدام اللون الزهري الثانوي عند التحويم */
-        transform: translateY(-2px);
-    }
-
-    .quantity-btn:disabled {
-        background: #ddd; /* لون أفتح عند التعطيل */
-        cursor: not-allowed;
-    }
-
     .quantity-input {
         width: 60px;
         text-align: center;
-        font-size: 1.2rem;
-        font-weight: 600;
-        border: none;
-        margin: 0 0.5rem;
+        font-size: 1rem;
+        margin: 0 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 5px;
     }
-
-    /* زر "أضف إلى السلة" */
     .add-to-cart-btn {
         width: 100%;
-        padding: 1rem;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); /* تدرج زهري */
+        padding: 10px;
+        background: #ba4ac2;
+        color: white;
         border: none;
-        color: white;
-        font-weight: 600;
+        border-radius: 5px;
         font-size: 1.1rem;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.8rem;
-        box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3); /* ظل زهري */
-    }
-
-    .add-to-cart-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(233, 30, 99, 0.4); /* ظل زهري عند التحويم */
-        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color)); /* عكس تدرج الزهري عند التحويم */
-    }
-
-    /* أيقونات المشاركة الاجتماعية */
-    .social-share {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .social-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        transition: var(--transition);
-    }
-
-    .social-icon:hover {
-        transform: translateY(-3px);
-    }
-
-    /* ألوان أيقونات التواصل الاجتماعي (لم يتم تغييرها بناءً على طلبك) */
-    .facebook {
-        background: #3b5998;
-    }
-
-    .twitter {
-        background: #1da1f2;
-    }
-
-    .instagram {
-        background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
-    }
-
-    .whatsapp {
-        background: #25d366;
-    }
-
-    /* تأثيرات الحركة */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .animated {
-        animation: fadeIn 0.6s ease forwards;
-    }
-
-    /* التعديلات المتجاوبة */
-    @media (max-width: 992px) {
-        .product-image-container {
-            min-height: 350px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .product-title {
-            font-size: 1.7rem;
-        }
-
-        .product-price {
-            font-size: 1.5rem;
-        }
-
-        .product-info {
-            padding: 1.5rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .product-details-section {
-            padding: 3rem 0;
-        }
-
-        .product-image-container {
-            min-height: 300px;
-            padding: 1.5rem;
-        }
+        font-weight: bold;
     }
 </style>
 
 <section class="product-details-section">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="product-card animated">
-                    <div class="row g-0">
-                        <div class="col-md-6">
-                            <div class="product-image-container">
-                                <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
-                                    alt="{{ product.name }}" class="product-image img-fluid">
-                                {% if product.quantity > 0 %}
-                                <span class="product-badge">متوفر</span>
-                                {% else %}
-                                <span class="product-badge" style="background: #6c757d;">غير متوفر</span>
-                                {% endif %}
+        <div class="product-card">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="product-gallery">
+                        <div class="main-image-container">
+                            <img id="main-product-image" class="main-image" src="{{ url_for('static', filename=product.image.replace('static/', '') if product.image else 'uploads/products/default_product.jpg') }}">
+                            <span class="product-badge">{{ 'متوفر' if product.quantity > 0 else 'غير متوفر' }}</span>
+                        </div>
+                        <div class="thumbnail-gallery">
+                            {% for img in product_images %}
+                            <div class="thumbnail-container {% if loop.first %}active{% endif %}" onclick="changeMainImage('{{ url_for('static', filename=img.image_path.replace('static/', '')) }}', this)">
+                                <img class="thumbnail" src="{{ url_for('static', filename=img.image_path.replace('static/', '')) }}">
                             </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="product-info">
+                        <h2 class="product-title">
+                            <a href="{{ url_for('product.product_details', product_id=product.id) }}">{{ product.name }}</a>
+                        </h2>
+                        <div class="product-price">
+                            {{ product.profit_price }} ر.ي
+                        </div>
+                        <div class="product-description">
+                            {{ product.description }}
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="product-info">
-                                <h1 class="product-title">{{ product.name }}</h1>
-                                <div class="product-price">
-                                    {{ product.profit_price }} ر.ي
-                                    {% if product.original_price and product.original_price > product.profit_price %}
-                                    <small class="text-muted text-decoration-line-through ms-2">
-                                        {{ product.original_price }} ر.ي
-                                    </small>
-                                    {% endif %}
-                                </div>
-
-                                <p class="product-description">{{ product.description }}</p>
-
-                                <div class="product-meta">
-                                    <div class="meta-item">
-                                        <span class="meta-label">الكمية المتوفرة:</span>
-                                        <span class="meta-value">{{ product.quantity }}</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">القسم:</span>
-                                        <span class="meta-value">{{ product.category }}</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">البائع:</span>
-                                        <a href="{{ url_for('seller.seller_products', seller_id=product.seller_id) }}"
-                                           class="meta-value ">
-                                            {{ product.seller }}
-                                        </a>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">الموقع:</span>
-                                        <span class="meta-value">{{ product.address }}</span>
-                                    </div>
-                                </div>
-
-                                <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}"
-                                    class="add-to-cart-form mb-4">
-                                    <input type="hidden" name="name" value="{{ product.name }}">
-                                    <input type="hidden" name="price" value="{{ product.profit_price }}">
-                                    <input type="hidden" name="image" value="{{ product.image }}">
-                                    <input type="hidden" name="description" value="{{ product.description }}">
-                                    <input type="hidden" name="seller" value="{{ product.seller }}">
-
-                                    <div class="quantity-selector">
-                                        <button type="button" class="quantity-btn" onclick="decreaseQuantity()" {% if
-                                            product.quantity <=0 %}disabled{% endif %}>-</button>
-                                        <input type="text" id="quantity" name="quantity" value="1"
-                                            class="quantity-input" readonly>
-                                        <button type="button" class="quantity-btn" onclick="increaseQuantity()" {% if
-                                            product.quantity <=0 %}disabled{% endif %}>+</button>
-                                    </div>
-
-                                    <button type="submit" class="add-to-cart-btn" {% if product.quantity <=0
-                                        %}disabled{% endif %}>
-                                        <i class="fas fa-shopping-cart"></i>
-                                        أضف إلى السلة
-                                    </button>
-                                </form>
-
-                                <div class="social-share">
-                                    <a href="#" class="social-icon facebook">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a href="#" class="social-icon twitter">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                    <a href="#" class="social-icon instagram">
-                                        <i class="fab fa-instagram"></i>
-                                    </a>
-                                    <a href="#" class="social-icon whatsapp">
-                                        <i class="fab fa-whatsapp"></i>
-                                    </a>
-                                </div>
-                            </div>
+                        <div class="meta-item"><strong>الكمية المتوفرة:</strong> {{ product.quantity }}</div>
+                        <div class="meta-item"><strong>القسم:</strong> {{ product.category }}</div>
+                        <div class="meta-item">
+                            <strong>البائع:</strong>
+<a href="{{ url_for('seller.seller_products', seller_id=product.seller_id) }}"
+   class="meta-value seller-link">
+   {{ product.seller }} <i class="fas fa-link"></i>
+</a>
                         </div>
+                        <div class="meta-item"><strong>الموقع:</strong> {{ product.address }}</div>
+
+                        <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="add-to-cart-form">
+                            <input type="hidden" name="name" value="{{ product.name }}">
+                            <input type="hidden" name="price" value="{{ product.profit_price }}">
+                            <input type="hidden" name="image" value="{{ product.image }}">
+                            <input type="hidden" name="description" value="{{ product.description }}">
+                            <input type="hidden" name="seller" value="{{ product.seller }}">
+                            <div class="quantity-selector">
+                                <button type="button" class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                                <input type="text" id="quantity" name="quantity" value="1" class="quantity-input" readonly>
+                                <button type="button" class="quantity-btn" onclick="increaseQuantity({{ product.quantity }})">+</button>
+                            </div>
+                            <button type="submit" class="add-to-cart-btn">أضف إلى السلة</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -390,80 +195,42 @@
     </div>
 </section>
 
-<!-- تضمين SweetAlert2 لتنبيهات أفضل -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function increaseQuantity() {
-        let qtyInput = document.getElementById('quantity');
-        let currentQty = parseInt(qtyInput.value);
-        let maxQty = parseInt("{{ product.quantity | default(0) }}"); 
-
-        if (currentQty < maxQty) {
-            qtyInput.value = currentQty + 1;
-        } else {
-            Swal.fire({
-                icon: 'info',
-                title: 'الكمية غير متوفرة',
-                text: 'لقد وصلت إلى الحد الأقصى للكمية المتاحة',
-                confirmButtonText: 'حسناً'
-            });
-        }
+    function changeMainImage(src, element) {
+        document.getElementById('main-product-image').src = src;
+        document.querySelectorAll('.thumbnail-container').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
     }
-
+    function increaseQuantity(maxQty) {
+        const input = document.getElementById('quantity');
+        let val = parseInt(input.value);
+        if (val < maxQty) input.value = val + 1;
+    }
     function decreaseQuantity() {
-        let qtyInput = document.getElementById('quantity');
-        let currentQty = parseInt(qtyInput.value);
-
-        if (currentQty > 1) {
-            qtyInput.value = currentQty - 1;
-        }
+        const input = document.getElementById('quantity');
+        let val = parseInt(input.value);
+        if (val > 1) input.value = val - 1;
     }
-
     document.addEventListener('DOMContentLoaded', function () {
-        const addToCartForm = document.querySelector('.add-to-cart-form');
-
-        if (addToCartForm) {
-            addToCartForm.addEventListener('submit', async function (event) {
-                event.preventDefault(); // منع إرسال النموذج الافتراضي
-
-                const form = this;
-                const formData = new FormData(form);
-                const actionUrl = form.action;
-
-                try {
-                    const response = await fetch(actionUrl, {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'include' // مهم لإرسال ملفات تعريف الارتباط (Cookies)
-                    });
-
-                    const data = await response.json(); // تحليل استجابة JSON من الخادم
-
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'تمت الإضافة!',
-                            text: data.message,
-                            icon: 'success',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-
-                        // تحديث عدد عناصر السلة في الرأس (إذا كان لديك عنصر بـ ID 'cart-items-count')
-                        const cartCountElement = document.getElementById('cart-items-count');
-                        if (cartCountElement && data.total_items_count !== undefined) {
-                            cartCountElement.textContent = data.total_items_count;
-                        }
-
-                    } else {
-                        Swal.fire('خطأ', data.message || 'حدث خطأ أثناء إضافة المنتج إلى السلة.', 'error');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    Swal.fire('خطأ', 'حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى.', 'error');
-                }
+        const form = document.querySelector('.add-to-cart-form');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const res = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
             });
-        }
+            const data = await res.json();
+            if (data.success) {
+                Swal.fire({ title: 'تمت الإضافة!', text: data.message, icon: 'success', timer: 1500, showConfirmButton: false });
+            } else {
+                Swal.fire('خطأ', data.message || 'حدث خطأ.', 'error');
+            }
+        });
     });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {% include 'footer.html' %}
