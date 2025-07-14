@@ -77,14 +77,36 @@
             <input type="number" name="quantity" class="form-control" value="{{ product.quantity }}" required>
         </div>
         
-        <div class="mb-3">
-            <label for="image" class="form-label">الصورة الحالية:</label>
-            {% if product.image %}
-    {% set product_image_path_no_static = product.image.replace('static/', '', 1) %}
-    <img src="{{ url_for('static', filename=product_image_path_no_static) }}" alt="صورة المنتج" class="img-fluid mb-2" width="150">
-{% endif %}
-            <input type="file" name="image" class="form-control">
+
+
+  <div class="mb-3">
+    <label for="images" class="form-label">صور المنتج (يمكنك رفع صور متعددة):</label>
+    <input type="file" class="form-control" id="images" name="images" multiple accept="image/*">
+    <small class="form-text text-muted">اختر صورًا جديدة لإضافتها. إذا قمت برفع صور جديدة، ستضاف إلى الصور الحالية.</small>
+
+    {# عرض الصور الحالية للسماح بحذفها أو رؤيتها #}
+    <div class="mt-3">
+        <h6>الصور الحالية:</h6>
+        <div class="row">
+            {% if current_images %}
+                {% for img in current_images %}
+                    <div class="col-md-3 col-sm-4 col-6 mb-3 image-preview-container">
+                        {% set img_path_no_static = img.image_path.replace('static/', '', 1) %}
+                        <img src="{{ url_for('static', filename=img_path_no_static) }}" class="img-thumbnail" alt="صورة منتج" style="width: 100%; height: 150px; object-fit: cover;">
+                        <div class="form-check mt-1">
+                            <input class="form-check-input" type="checkbox" name="existing_images" value="{{ img.id }}" id="image-{{ img.id }}" checked>
+                            <label class="form-check-label" for="image-{{ img.id }}">
+                                الاحتفاظ بالصورة {% if img.is_main %} (رئيسية){% endif %}
+                            </label>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">لا توجد صور حاليًا لهذا المنتج. قم بتحميل صور جديدة.</p>
+            {% endif %}
         </div>
+    </div>
+</div>
 
 
         

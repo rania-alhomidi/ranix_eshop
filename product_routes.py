@@ -11,7 +11,7 @@ def get_db_connection():
 @product_bp.route('/')
 def index():
     conn = get_db_connection()
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row # التأكد من أن row_factory مضبوط لسهولة الوصول للبيانات بالأسماء
 
     # جلب التصنيفات الرئيسية النشطة فقط (is_active = 1)
     main_categories = conn.execute("""
@@ -20,12 +20,12 @@ def index():
         ORDER BY name
     """).fetchall()
 
-    # جلب المنتجات
+    # جلب المنتجات (تأكد أنك بحاجة لجلب كل المنتجات هنا إذا كانت الصفحة الرئيسية بها عرض للمنتجات)
     products = conn.execute("SELECT * FROM product").fetchall()
 
     # جلب معرف المستخدم
     user_id = request.cookies.get('user_auth')
-    user_name = request.cookies.get('user_name')  # ✅ إضافة هذا السطر
+    user_name = request.cookies.get('user_name')
 
     # جلب المنتجات التي أعجب بها المستخدم
     if user_id:
@@ -34,6 +34,17 @@ def index():
     else:
         liked_products = []
 
+    # 📊 جلب عدد العملاء الكلي من جدول 'user' 🆕
+    cursor = conn.cursor() # يمكنك استخدام نفس الـ conn لكن قد تحتاج لمؤشر جديد أحياناً أو تكتفي بـ conn.execute مباشرة
+    cursor.execute("SELECT COUNT(id) AS total_customers FROM user")
+    total_customers_data = cursor.fetchone()
+    total_customers = total_customers_data['total_customers'] if total_customers_data else 0
+
+    # 📦 جلب عدد المنتجات الكلي من جدول 'product' 🆕
+    cursor.execute("SELECT COUNT(id) AS total_products FROM product")
+    total_products_data = cursor.fetchone()
+    total_products = total_products_data['total_products'] if total_products_data else 0
+
     conn.close()
 
     return render_template(
@@ -41,7 +52,9 @@ def index():
         main_categories=main_categories,
         products=products,
         liked_products=liked_products,
-        user_name=user_name  # ✅ تمرير المتغير للقالب
+        user_name=user_name,
+        total_customers=total_customers, # 🆕 تمرير عدد العملاء
+        total_products=total_products    # 🆕 تمرير عدد المنتجات
     )
 
 

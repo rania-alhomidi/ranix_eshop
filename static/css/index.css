@@ -465,7 +465,7 @@ h6 {
 .card-header,
 .card-footer {
   border-color: #ebeef4;
-  background-color: #fff;
+  background-color: #ffffff;
   color: #798eb3;
   padding: 15px;
 }
@@ -1040,15 +1040,69 @@ h6 {
   padding: 8px 15px;
 }
 
-/* Info Cards */
+/* admin-Card */
 .dashboard .info-card {
   padding-bottom: 10px;
   padding-top: 10px;
-  background-color: #ffffff;
+  background-color: #ade4b4;
   border-radius: 20px;
 }
 
+.dashboard .info-card1 {
+  padding-bottom: 10px;
+  padding-top: 10px;
+  background-color: #ffbbef;
+  border-radius: 20px;
+}
+.dashboard .info-card2 {
+  padding-bottom: 10px;
+  padding-top: 10px;
+  background-color: #e5abfa;
+  border-radius: 20px;
+}
+.dashboard .info-card3 {
+  padding-bottom: 10px;
+  padding-top: 10px;
+  background-color: #fff9b1;
+  border-radius: 20px;
+}
+.dashboard .info-card4 {
+  padding-bottom: 10px;
+  padding-top: 10px;
+  background-color: #abc3ff;
+  border-radius: 20px;
+}
 .dashboard .info-card h6 {
+  font-size: 28px;
+  color: #44474c;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+
+}.dashboard .info-card1 h6 {
+  font-size: 28px;
+  color: #44474c;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+
+}.dashboard .info-card2 h6 {
+  font-size: 28px;
+  color: #44474c;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard .info-card3 h6 {
+  font-size: 28px;
+  color: #44474c;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard .info-card4 h6 {
   font-size: 28px;
   color: #44474c;
   font-weight: 700;
@@ -1065,8 +1119,9 @@ h6 {
   flex-shrink: 0;
   margin: 2px 5px 0 10px;
   border-radius: 10px;
+  
 }
-
+/* admin-card */
 .dashboard .card-iconnum {
   font-size: 32px;
   margin: 0 5px 0 10px;
@@ -1085,7 +1140,7 @@ h6 {
 }
 
 .dashboard .customers-card .card-icon {
-  background-color: #9adfff;
+  background-color: #ffffff;
   padding: 0 50px;
 }
 

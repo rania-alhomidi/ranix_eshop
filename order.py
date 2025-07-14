@@ -94,23 +94,19 @@ def set_default_address_in_db(user_id, address_id):
         conn.close()
 
 # --- مسارات (Routes) للطلبات ---
-
 @order_bp.route('/confirm_order_page')
 def confirm_order_page():
     user_id_cookie = request.cookies.get('user_auth') 
-    if not user_id_cookie: # يجب التحقق من تسجيل الدخول بشكل صحيح
+    if not user_id_cookie:  # التحقق من تسجيل الدخول
         flash("يجب تسجيل الدخول أولاً.", "error")
         return redirect(url_for('user.login'))
     
-    user_key = get_current_user_key() # جلب مفتاح سلة المستخدم الحالي
+    user_key = get_current_user_key()  # مفتاح سلة المستخدم الحالي
     
-    # *** التعديل هنا: قراءة الكوكي 'all_user_carts' ***
     all_carts_cookie = request.cookies.get('all_user_carts')
     all_user_carts = json.loads(all_carts_cookie) if all_carts_cookie else {}
     
-    # جلب سلة التسوق الخاصة بالمستخدم الحالي
     cart_items_raw = all_user_carts.get(user_key, [])
-
     if not cart_items_raw:
         flash("عربة التسوق فارغة، يرجى إضافة منتجات قبل إتمام الشراء.", "info")
         return redirect(url_for('product.index')) 
@@ -118,15 +114,24 @@ def confirm_order_page():
     processed_order_items = []
     total_items_price = 0.0
 
+    conn = get_db_connection()
+
     for item in cart_items_raw:
-        # تأكد من أن 'price' و 'quantity' موجودين كأرقام
-        item_price = float(item.get('price', 0.0))
+        product_id = item.get('product_id')
+
+        # جلب سعر الربح (profit_price) من جدول prices
+        price_row = conn.execute(
+            "SELECT profit_price FROM prices WHERE product_id = ? ORDER BY id DESC LIMIT 1",
+            (product_id,)
+        ).fetchone()
+
+        item_price = float(price_row['profit_price']) if price_row else float(item.get('price', 0.0))
         item_quantity = int(item.get('quantity', 0))
         item_total_price = item_price * item_quantity
         total_items_price += item_total_price
 
         processed_order_items.append({
-            'product_id': item.get('product_id'),
+            'product_id': product_id,
             'name': item.get('name'),
             'price': item_price,
             'quantity': item_quantity,
@@ -137,9 +142,10 @@ def confirm_order_page():
     delivery_cost = 1500.0 
     total_order_price = total_items_price + delivery_cost
     
-    # استخدام user_id_cookie (المفترض أنه معرف المستخدم الفعلي) لجلب البيانات من DB
-    recipient_address_obj, all_addresses = get_user_addresses_and_default(int(user_id_cookie)) 
+    recipient_address_obj, all_addresses = get_user_addresses_and_default(int(user_id_cookie))
     user_balance_display = get_user_balance_from_db(int(user_id_cookie))
+
+    conn.close()
 
     return render_template(
         'confirm_order.html',
@@ -151,6 +157,7 @@ def confirm_order_page():
         delivery_cost=delivery_cost,
         total_items_price=total_items_price 
     )
+
 
 @order_bp.route('/set_default_address/<int:address_id>')
 def set_default_address(address_id):

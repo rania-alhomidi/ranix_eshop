@@ -16,8 +16,38 @@ def get_db_connection():
 
 @admin_bp.route('/')
 def home():
-    return render_template('admin/index.html')
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
+    # جلب عدد العملاء الكلي
+    cursor.execute("SELECT COUNT(id) AS total_customers FROM user")
+    total_customers_data = cursor.fetchone()
+    total_customers = total_customers_data['total_customers'] if total_customers_data else 0
+
+    # جلب عدد المنتجات الكلي
+    cursor.execute("SELECT COUNT(id) AS total_products FROM product")
+    total_products_data = cursor.fetchone()
+    total_products = total_products_data['total_products'] if total_products_data else 0
+
+    # 📁🆕 جلب عدد الأقسام الفرعية فقط (التي لها parent_id)
+    cursor.execute("SELECT COUNT(id) AS total_subcategories FROM category WHERE parent_id IS NOT NULL")
+    total_subcategories_data = cursor.fetchone()
+    total_subcategories = total_subcategories_data['total_subcategories'] if total_subcategories_data else 0
+
+# 📁🆕 جلب عدد الأقسام الرئيسية فقط (التي ليس لها parent_id)
+    cursor.execute("SELECT COUNT(id) AS total_main_categories FROM category WHERE parent_id IS NULL")
+    total_main_categories_data = cursor.fetchone()
+    total_main_categories = total_main_categories_data['total_main_categories'] if total_main_categories_data else 0
+
+    conn.close()
+
+    # تمرير جميع الإحصائيات إلى القالب
+    return render_template('admin/index.html',
+                           total_customers=total_customers,
+                           total_products=total_products,
+                           total_subcategories=total_subcategories, # 🆕 تمرير عدد الأقسام الفرعية
+                            total_main_categories=total_main_categories # 🆕 تمرير عدد الأقسام الرئيسية
+                          )
 @admin_bp.route('/profile')
 def profile():
     return render_template('admin/profile.html')
@@ -75,7 +105,9 @@ def toggle_category(category_id, status):
         conn.close()
     return redirect(url_for('admin.categories'))
 
-@admin_bp.route('/showcate')
+# ... (بقية الاستيرادات والدوال) ...
+
+@admin_bp.route('/showcate') # تأكد أن هذا هو المسار لصفحة عرض الأقسام
 def categories():
     filter_type = request.args.get('filter', 'all')
     try:
@@ -88,15 +120,20 @@ def categories():
             FROM category c1
             LEFT JOIN category c2 ON c1.parent_id = c2.id
         """
+        params = []
 
         if filter_type == 'active':
             query += " WHERE c1.is_active = 1"
         elif filter_type == 'inactive':
             query += " WHERE c1.is_active = 0"
+        elif filter_type == 'main': # 🆕 فلترة الأقسام الرئيسية
+            query += " WHERE c1.parent_id IS NULL"
+        elif filter_type == 'sub':  # 🆕 فلترة الأقسام الفرعية
+            query += " WHERE c1.parent_id IS NOT NULL"
 
         query += " ORDER BY c1.is_active DESC, c1.name"
 
-        categories = conn.execute(query).fetchall()
+        categories = conn.execute(query, params).fetchall() # تمرير params حتى لو كانت فارغة
         return render_template('admin/show_cate.html', categories=categories)
 
     except Exception as e:
@@ -105,6 +142,7 @@ def categories():
     finally:
         conn.close()
 
+# ... (بقية الدوال) ...
 @admin_bp.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
 def edit_category(category_id):
     conn = get_db_connection()
@@ -410,16 +448,17 @@ def delete_product(product_id):
 @admin_bp.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(product_id):
     conn = get_db_connection()
+    cursor = conn.cursor()
 
+    # جلب تفاصيل المنتج الأساسية
     product = conn.execute('''
         SELECT
             p.id,
             p.name,
             p.description,
-            p.image,
             p.category_id,
             p.seller_id,
-            sa.address AS address,
+            sllr.SAddress_id, -- نحتاج address_id من جدول البائع للوصول إلى العنوان
             pr.original_price,
             pr.profit_price,
             s.quantity
@@ -427,15 +466,36 @@ def edit_product(product_id):
         LEFT JOIN prices pr ON p.price_id = pr.id
         LEFT JOIN stock s ON p.stock_id = s.id
         LEFT JOIN sellers sllr ON p.seller_id = sllr.id
-        LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
-    WHERE p.id = ?
+        WHERE p.id = ?
     ''', (product_id,)).fetchone()
+
+    if not product:
+        conn.close()
+        flash("المنتج غير موجود!", "danger")
+        return redirect(url_for('admin.show_product'))
+
+    # جلب عنوان البائع
+    seller_address = conn.execute('SELECT address FROM seller_address WHERE id = ?', (product['SAddress_id'],)).fetchone()
+    if seller_address:
+        product = dict(product) # تحويل Row إلى dict لتعديله
+        product['address'] = seller_address['address']
+    else:
+        product = dict(product)
+        product['address'] = None
+
+
+    # جلب صور المنتج الحالية
+    current_images = conn.execute('SELECT id, image_path, is_main FROM product_image WHERE product_id = ? ORDER BY is_main DESC, id ASC', (product_id,)).fetchall()
 
     categories = conn.execute('SELECT id, name FROM category WHERE parent_id IS NOT NULL').fetchall() # Only subcategories
     sellers = conn.execute('SELECT id, name FROM sellers').fetchall()
-    conn.close()
+    
+    conn.close() # أغلق الاتصال هنا بعد جلب البيانات لـ GET
 
     if request.method == 'POST':
+        conn = get_db_connection() # أعد فتح الاتصال للتعامل مع POST
+        cursor = conn.cursor()
+
         name = request.form['name']
         description = request.form['description']
         original_price = request.form['original_price']
@@ -443,45 +503,106 @@ def edit_product(product_id):
         quantity = request.form['quantity']
         category_id = request.form['category']
         seller_id = request.form['seller']
-        address = request.form['address'] # Assuming address is now passed from form
-        image = request.files.get('image')
+        address = request.form['address']
+        new_images = request.files.getlist('images') # الصور الجديدة المرفوعة
+        existing_image_ids_to_keep = request.form.getlist('existing_images') # IDs للصور الموجودة التي يجب الاحتفاظ بها
 
-        image_path = product['image']
-        if image and image.filename:
-            filename = secure_filename(image.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            image.save(filepath)
-            image_path = f'static/uploads/{filename}'
+        try:
+            # 1. تحديث بيانات المنتج الأساسية
+            # البحث عن SAddress_id للبائع الحالي
+            cursor.execute("SELECT SAddress_id FROM sellers WHERE id = ?", (seller_id,))
+            current_seller_address_id = cursor.fetchone()
+            if current_seller_address_id:
+                current_seller_address_id = current_seller_address_id['SAddress_id']
+            else:
+                current_seller_address_id = None # أو التعامل مع حالة البائع بدون عنوان
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+            # تحديث عنوان البائع المرتبط بالمنتج (إذا كان هناك تغيير)
+            # بما أن العنوان مرتبط بالبائع، يجب تحديث جدول seller_address باستخدام SAddress_id للبائع
+            # أو إذا كان لكل منتج عنوانه الخاص، يجب أن يكون هناك عمود address_id في جدول product
+            # بناءً على الكود الذي قدمته، العنوان موجود في seller_address ويرتبط بالبائع.
+            # لذا سنقوم بتحديث العنوان المرتبط بالبائع.
+            if current_seller_address_id:
+                cursor.execute('UPDATE seller_address SET address = ? WHERE id = ?', (address, current_seller_address_id))
 
-        cursor.execute('''
-            UPDATE product
-            SET name = ?, description = ?, category_id = ?,
-                seller_id = ?, address_id = ?, image = ?
-            WHERE id = ?
-        ''', (name, description, category_id, seller_id, address, image_path, product_id)) # address passed directly
+            cursor.execute('''
+                UPDATE product
+                SET name = ?, description = ?, category_id = ?, seller_id = ?
+                WHERE id = ?
+            ''', (name, description, category_id, seller_id, product_id))
 
-        cursor.execute('''
-            UPDATE prices
-            SET original_price = ?, profit_price = ?
-            WHERE product_id = ?
-        ''', (original_price, profit_price, product_id))
+            # 2. تحديث الأسعار
+            cursor.execute('''
+                UPDATE prices
+                SET original_price = ?, profit_price = ?
+                WHERE product_id = ?
+            ''', (original_price, profit_price, product_id))
 
-        cursor.execute('''
-            UPDATE stock
-            SET quantity = ?
-            WHERE product_id = ?
-        ''', (quantity, product_id))
+            # 3. تحديث المخزون
+            cursor.execute('''
+                UPDATE stock
+                SET quantity = ?
+                WHERE product_id = ?
+            ''', (quantity, product_id))
 
-        conn.commit()
-        conn.close()
-        flash("تم تحديث المنتج بنجاح!", "success")
-        return redirect(url_for('admin.show_product'))
+            # 4. تحديث الصور المتعددة
+            uploaded_product_folder = os.path.join(UPLOAD_FOLDER, 'products')
+            os.makedirs(uploaded_product_folder, exist_ok=True)
 
-    return render_template('admin/edit_product.html', product=product, categories=categories, sellers=sellers)
+            # حذف الصور القديمة التي لم يتم الاحتفاظ بها
+            for img in current_images:
+                if str(img['id']) not in existing_image_ids_to_keep:
+                    # احذف الملف من الخادم
+                    if img['image_path'] and os.path.exists(os.path.join(uploaded_product_folder, os.path.basename(img['image_path']))):
+                        os.remove(os.path.join(uploaded_product_folder, os.path.basename(img['image_path'])))
+                    # احذف السجل من قاعدة البيانات
+                    cursor.execute('DELETE FROM product_image WHERE id = ?', (img['id'],))
 
+            # إضافة الصور الجديدة
+            if new_images and new_images[0].filename:
+                for idx, image_file in enumerate(new_images):
+                    if image_file and allowed_file(image_file.filename):
+                        filename = secure_filename(image_file.filename)
+                        unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                        filepath = os.path.join(uploaded_product_folder, unique_filename)
+                        image_file.save(filepath)
+                        image_path_db = f'static/uploads/products/{unique_filename}'
+
+                        # إضافة الصورة الجديدة إلى جدول product_image
+                        cursor.execute('''
+                            INSERT INTO product_image (product_id, image_path, is_main)
+                            VALUES (?, ?, ?)
+                        ''', (product_id, image_path_db, (idx == 0 and not existing_image_ids_to_keep)))
+                        # إذا لم تكن هناك صور قديمة تم الاحتفاظ بها وكانت هذه أول صورة جديدة، اجعلها رئيسية.
+
+            # تحديث الصورة الرئيسية في جدول product
+            # إذا لم تعد هناك صور، أو إذا تم حذف الصورة الرئيسية القديمة، عين أول صورة متبقية كصورة رئيسية
+            # أو استخدم صورة افتراضية.
+            updated_main_image = 'static/uploads/products/default_product.jpg' # الصورة الافتراضية
+            # جلب أول صورة (التي قد تكون رئيسية) بعد التحديثات
+            first_image_record = cursor.execute('SELECT image_path FROM product_image WHERE product_id = ? ORDER BY is_main DESC, id ASC LIMIT 1', (product_id,)).fetchone()
+            if first_image_record:
+                updated_main_image = first_image_record['image_path']
+
+            cursor.execute('UPDATE product SET image = ? WHERE id = ?', (updated_main_image, product_id))
+
+            conn.commit()
+            flash("تم تحديث المنتج بنجاح!", "success")
+            return redirect(url_for('admin.show_product'))
+
+        except Exception as e:
+            conn.rollback()
+            flash(f"حدث خطأ أثناء تحديث المنتج: {str(e)}", "danger")
+            print(f"Error updating product: {str(e)}") # لغرض التصحيح
+            return redirect(url_for('admin.edit_product', product_id=product_id))
+        finally:
+            conn.close()
+
+    return render_template('admin/edit_product.html',
+                           product=product,
+                           categories=categories,
+                           sellers=sellers,
+                           current_images=current_images) # تمرير الصور الحالية للقالب
 
 @admin_bp.route('/add_address', methods=['GET', 'POST'])
 def add_address():

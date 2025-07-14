@@ -26,28 +26,50 @@ def get_current_user_key():
 @cart_bp.route('/view_cart')
 def view_cart():
     user_key = get_current_user_key()
-
     all_carts_cookie = request.cookies.get('all_user_carts')
     all_user_carts = json.loads(all_carts_cookie) if all_carts_cookie else {}
-
     cart_items = all_user_carts.get(user_key, [])
 
     total_price = 0.0
-    total_items_count = 0 
+    total_items_count = 0
 
+    updated_cart_items = []
+
+    conn = get_db_connection()
     for item in cart_items:
-        item_price = float(item.get('price', 0))
-        item_quantity = int(item.get('quantity', 0))
-        
-        total_price += item_price * item_quantity
-        total_items_count += item_quantity 
+        product_id = item['product_id']
+        quantity = item.get('quantity', 0)
 
-    return render_template('cart.html', 
-                           cart=cart_items, 
+        updated_product = conn.execute("""
+            SELECT p.name, pr.profit_price as price, p.image
+            FROM product p
+            JOIN prices pr ON p.price_id = pr.id
+            WHERE p.id = ?
+        """, (product_id,)).fetchone()
+
+        if updated_product:
+            updated_item = {
+                'product_id': product_id,
+                'name': updated_product['name'],
+                'price': float(updated_product['price']),
+                'quantity': quantity,
+                'image': updated_product['image']
+            }
+
+            total_price += updated_item['price'] * quantity
+            total_items_count += quantity
+
+            updated_cart_items.append(updated_item)
+
+    conn.close()
+
+    return render_template('cart.html',
+                           cart=updated_cart_items,
                            total_price=total_price,
                            total_items_count=total_items_count)
 
-@cart_bp.route('/add_to_cart/<int:product_id>', methods=['POST'])
+
+@cart_bp.route('/add_to_cart/<int:product_id>', methods=['POST','GET'])
 def add_to_cart(product_id):
     user_key = get_current_user_key() 
 
@@ -57,7 +79,7 @@ def add_to_cart(product_id):
             """
             SELECT 
                 p.name, 
-                pr.original_price as price, 
+                pr.profit_price as price, 
                 p.image 
             FROM 
                 product p

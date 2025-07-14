@@ -150,7 +150,17 @@ body {
     margin: 8px 0;
     font-weight: 600;
 }
-
+.btn-name-cate{
+    font-size: 1.1rem;
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+}
 /* تنسيق الزر "تصفح المنتجات" - تم تعديل لونه وشكله */
 .sc-category-link {
     display: inline-block;
@@ -158,7 +168,7 @@ body {
     padding: 8px 20px;
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* تدرج زهري */
     color: white;
-    border-radius: 25px; /* شكل زر حبوب منع الحمل */
+    border-radius: 25px; /*ل */
     text-decoration: none;
     font-weight: 500;
     transition: var(--transition);
@@ -206,6 +216,10 @@ body {
     background: #1a252f;
 }
 
+
+.card1 {
+    background-color: #1a252f;
+}
 /* التنسيق للجوال */
 @media (max-width: 768px) {
     .sc-grid {
@@ -229,6 +243,9 @@ body {
         height: 120px;
     }
 }
+
+
+
     /* تنسيق عام جديد */
     .modern-products {
         padding: 30px 0;
