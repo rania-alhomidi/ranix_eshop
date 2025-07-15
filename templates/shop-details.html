@@ -1,6 +1,8 @@
 {% include 'header.html' %}
+<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery-bundle.min.css" />
 
 <style>
+    /* ... احتفظ بجميع قواعد الـ CSS الخاصة بك كما هي، بما في ذلك قواعد الزووم بالتحويم ... */
     .product-details-section {
         padding: 3rem 0;
     }
@@ -25,11 +27,17 @@
         align-items: center;
         justify-content: center;
         position: relative;
+        cursor: zoom-in; /* لتكبير الكمبيوتر */
     }
     .main-image {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+        transition: transform 0.3s ease-out;
+        transform-origin: center center;
+    }
+    .main-image-container:hover .main-image { /* زووم الكمبيوتر */
+        transform: scale(1.5);
     }
     .thumbnail-gallery {
         display: flex;
@@ -54,14 +62,14 @@
         object-fit: cover;
     }
     .seller-link {
-    color: #e83e8c; /* لون زهري أو مميز */
+    color: #e83e8c;
     text-decoration: underline;
     cursor: pointer;
     transition: color 0.3s ease;
     }
 
     .seller-link:hover {
-        color: #c82368; /* لون أغمق عند التحويم */
+        color: #c82368;
     }
 
     .product-badge {
@@ -168,10 +176,10 @@
                         <div class="meta-item"><strong>القسم:</strong> {{ product.category }}</div>
                         <div class="meta-item">
                             <strong>البائع:</strong>
-<a href="{{ url_for('seller.seller_products', seller_id=product.seller_id) }}"
-   class="meta-value seller-link">
-   {{ product.seller }} <i class="fas fa-link"></i>
-</a>
+                            <a href="{{ url_for('seller.seller_products', seller_id=product.seller_id) }}"
+                               class="meta-value seller-link">
+                                {{ product.seller }} <i class="fas fa-link"></i>
+                            </a>
                         </div>
                         <div class="meta-item"><strong>الموقع:</strong> {{ product.address }}</div>
 
@@ -195,23 +203,72 @@
     </div>
 </section>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/zoom/lg-zoom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    function changeMainImage(src, element) {
-        document.getElementById('main-product-image').src = src;
-        document.querySelectorAll('.thumbnail-container').forEach(el => el.classList.remove('active'));
-        element.classList.add('active');
-    }
-    function increaseQuantity(maxQty) {
-        const input = document.getElementById('quantity');
-        let val = parseInt(input.value);
-        if (val < maxQty) input.value = val + 1;
-    }
-    function decreaseQuantity() {
-        const input = document.getElementById('quantity');
-        let val = parseInt(input.value);
-        if (val > 1) input.value = val - 1;
-    }
     document.addEventListener('DOMContentLoaded', function () {
+        // --- وظائف عامة (كمية المنتج) ---
+        window.increaseQuantity = function(maxQty) {
+            const input = document.getElementById('quantity');
+            let val = parseInt(input.value);
+            if (val < maxQty) input.value = val + 1;
+        };
+
+        window.decreaseQuantity = function() {
+            const input = document.getElementById('quantity');
+            let val = parseInt(input.value);
+            if (val > 1) input.value = val - 1;
+        };
+
+        // --- وظيفة تغيير الصورة الرئيسية في المعرض ---
+        window.changeMainImage = function(src, element) {
+            document.getElementById('main-product-image').src = src;
+            document.querySelectorAll('.thumbnail-container').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        };
+
+        // --- تهيئة LightGallery لزووم الموبايل (والكمبيوتر بالنقر) ---
+        const mainImageContainer = document.querySelector('.main-image-container');
+        const mainProductImage = document.getElementById('main-product-image');
+        const thumbnailGallery = document.querySelector('.thumbnail-gallery');
+
+        let galleryItems = [];
+        // إضافة الصورة الرئيسية كعنصر في المعرض
+        galleryItems.push({
+            src: mainProductImage.src,
+            thumb: mainProductImage.src
+        });
+
+        // إضافة الصور المصغرة كعناصر في المعرض
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            galleryItems.push({
+                src: thumb.src,
+                thumb: thumb.src
+            });
+        });
+
+        // عند النقر على حاوية الصورة الرئيسية، افتح LightGallery
+        mainImageContainer.addEventListener('click', () => {
+            const currentImageSrc = mainProductImage.src;
+            const startIndex = galleryItems.findIndex(item => item.src === currentImageSrc);
+
+            lightGallery(mainImageContainer, {
+                dynamic: true,
+                dynamicEl: galleryItems,
+                index: startIndex !== -1 ? startIndex : 0,
+                plugins: [lgZoom, lgThumbnail], // تأكد من إزالة التعليق هنا
+                closable: true,
+                controls: true,
+                loop: true,
+                speed: 500,
+            });
+        });
+
+        // --- وظيفة إضافة المنتج إلى السلة (SweetAlert) ---
         const form = document.querySelector('.add-to-cart-form');
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -230,7 +287,5 @@
         });
     });
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {% include 'footer.html' %}
