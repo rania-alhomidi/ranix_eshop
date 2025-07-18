@@ -1,5 +1,8 @@
+# product_routys.py
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, make_response
 import sqlite3
+from datetime import datetime, timedelta
 
 product_bp = Blueprint('product', __name__) # لا بادئة هنا، مسارات المنتج في الجذر
 
@@ -11,19 +14,19 @@ def get_db_connection():
 @product_bp.route('/')
 def index():
     conn = get_db_connection()
-    conn.row_factory = sqlite3.Row # التأكد من أن row_factory مضبوط لسهولة الوصول للبيانات بالأسماء
+    # conn.row_factory = sqlite3.Row # هذا يتم عادةً ضبطه داخل get_db_connection()
 
-    # جلب التصنيفات الرئيسية النشطة فقط (is_active = 1)
+    # جلب التصنيفات الرئيسية النشطة فقط
     main_categories = conn.execute("""
         SELECT * FROM category
         WHERE parent_id IS NULL AND is_active = 1
         ORDER BY name
     """).fetchall()
 
-    # جلب المنتجات (تأكد أنك بحاجة لجلب كل المنتجات هنا إذا كانت الصفحة الرئيسية بها عرض للمنتجات)
+    # جلب المنتجات
     products = conn.execute("SELECT * FROM product").fetchall()
 
-    # جلب معرف المستخدم
+    # جلب معرف واسم المستخدم من الكوكيز
     user_id = request.cookies.get('user_auth')
     user_name = request.cookies.get('user_name')
 
@@ -34,27 +37,51 @@ def index():
     else:
         liked_products = []
 
-    # 📊 جلب عدد العملاء الكلي من جدول 'user' 🆕
-    cursor = conn.cursor() # يمكنك استخدام نفس الـ conn لكن قد تحتاج لمؤشر جديد أحياناً أو تكتفي بـ conn.execute مباشرة
-    cursor.execute("SELECT COUNT(id) AS total_customers FROM user")
-    total_customers_data = cursor.fetchone()
+    # 📊 جلب عدد العملاء الكلي
+    total_customers_data = conn.execute("SELECT COUNT(id) AS total_customers FROM user").fetchone()
     total_customers = total_customers_data['total_customers'] if total_customers_data else 0
 
-    # 📦 جلب عدد المنتجات الكلي من جدول 'product' 🆕
-    cursor.execute("SELECT COUNT(id) AS total_products FROM product")
-    total_products_data = cursor.fetchone()
+    # 📦 جلب عدد المنتجات الكلي
+    total_products_data = conn.execute("SELECT COUNT(id) AS total_products FROM product").fetchone()
     total_products = total_products_data['total_products'] if total_products_data else 0
 
-    conn.close()
 
+    ## 🚀 دمج منطق جلب الإعلانات هنا:
+
+# 🚀 جلب الإعلانات الديناميكية وتحديث مرات الظهور
+    today = datetime.now().strftime('%Y-%m-%d')
+    ads = conn.execute('''
+        SELECT 
+            a.id,                 -- 💡 التعديل هنا: تحديد أن 'id' يأتي من جدول 'ads' (الذي أعطيناه الاسم المستعار 'a')
+            a.title, 
+            a.description, 
+            a.content_type, 
+            a.content_path, 
+            a.link_url,
+            COALESCE(s.store_name, 'إعلان عام') AS store_name 
+        FROM ads a
+        LEFT JOIN sellers s ON a.seller_id = s.id 
+        WHERE a.is_active = 1
+        AND a.start_date <= ?
+        AND a.end_date >= ?
+        ORDER BY RANDOM()
+        LIMIT 5
+    ''', (today, today)).fetchall()
+    
+    for ad in ads:
+        conn.execute('UPDATE ads SET impression_count = impression_count + 1 WHERE id = ?', (ad['id'],))
+    conn.commit()
+
+    conn.close()
     return render_template(
         'index.html',
         main_categories=main_categories,
         products=products,
         liked_products=liked_products,
         user_name=user_name,
-        total_customers=total_customers, # 🆕 تمرير عدد العملاء
-        total_products=total_products    # 🆕 تمرير عدد المنتجات
+        total_customers=total_customers,
+        total_products=total_products,
+        ads=ads # 🌟 تأكد من تمرير متغير الإعلانات
     )
 
 

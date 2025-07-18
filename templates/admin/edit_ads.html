@@ -1,0 +1,89 @@
+{% include 'admin/header.html' %} {# تأكد أن هذا يشير إلى قالب لوحة التحكم الرئيسي #}
+
+
+<div class="pagetitle">
+    <h1>تعديل إعلان</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.home') }}">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('ads.ads_management') }}">إدارة الإعلانات</a></li>
+            <li class="breadcrumb-item active">تعديل إعلان</li>
+        </ol>
+    </nav>
+</div><section class="section">
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">نموذج تعديل الإعلان</h5>
+
+                    <form action="{{ url_for('ads.edit_ad', ad_id=ad.id) }}" method="POST" enctype="multipart/form-data">
+                        <div class="row mb-3">
+                            <label for="title" class="col-md-4 col-lg-3 col-form-label">عنوان الإعلان</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="title" type="text" class="form-control" id="title" value="{{ ad.title }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="description" class="col-md-4 col-lg-3 col-form-label">الوصف</label>
+                            <div class="col-md-8 col-lg-9">
+                                <textarea name="description" class="form-control" id="description" rows="3">{{ ad.description }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="link_url" class="col-md-4 col-lg-3 col-form-label">رابط الإعلان (URL)</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="link_url" type="url" class="form-control" id="link_url" value="{{ ad.link_url }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="content_type" class="col-md-4 col-lg-3 col-form-label">نوع المحتوى</label>
+                            <div class="col-md-8 col-lg-9">
+                                <select name="content_type" id="content_type" class="form-select" required>
+                                    <option value="image" {% if ad.content_type == 'image' %}selected{% endif %}>صورة</option>
+                                    <option value="video" {% if ad.content_type == 'video' %}selected{% endif %}>فيديو</option>
+                                    <option value="text" {% if ad.content_type == 'text' %}selected{% endif %}>نص فقط</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="content_file" class="col-md-4 col-lg-3 col-form-label">رفع محتوى جديد (صورة/فيديو)</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="content_file" type="file" class="form-control" id="content_file" accept="image/*,video/*">
+                                {% if ad.content_path %}
+                                    <small class="form-text text-muted">المحتوى الحالي: <a href="{{ ad.content_path }}" target="_blank">عرض</a></small>
+                                {% else %}
+                                    <small class="form-text text-muted">لا يوجد محتوى حالي مرفق.</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="start_date" class="col-md-4 col-lg-3 col-form-label">تاريخ البدء</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="start_date" type="date" class="form-control" id="start_date" value="{{ ad.start_date }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="end_date" class="col-md-4 col-lg-3 col-form-label">تاريخ الانتهاء</label>
+                            <div class="col-md-8 col-lg-9">
+                                <input name="end_date" type="date" class="form-control" id="end_date" value="{{ ad.end_date }}" required>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+                            <a href="{{ url_for('ads.ads_management') }}" class="btn btn-secondary">إلغاء</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include 'admin/footer.html' %}

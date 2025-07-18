@@ -17,23 +17,35 @@ from cart_routes import cart_bp
 from seller_routes import seller_bp
 from general_routes import general_bp
 from order import order_bp # تأكد أن هذا الاستيراد صحيح
+from ads_routes import ads_bp # تأكد أن هذا الاستيراد صحيح
 
 app = Flask(__name__)
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 
-# إعداد مسار رفع الصور
+# 🟢 التعديل 1: تعريف مجلد رفع عام ومجلد رفع خاص بالإعلانات
+# مجلد الرفع العام للملفات الأخرى (مثل صور المنتجات إذا كانت تستخدمه)
 UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # هذا للملفات العامة
 
+# مجلد الرفع الخاص بالإعلانات
+app.config['UPLOAD_FOLDER_ADS'] = 'static/uploads/ads' # مسار مخصص لصور وفيديوهات الإعلانات
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf','mp4', 'avi', 'mov'} # أنواع الملفات المسموح بها
+
+# تأكد من إنشاء المجلدات إذا لم تكن موجودة
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(app.config['UPLOAD_FOLDER_ADS']): # إنشاء مجلد الإعلانات
+    os.makedirs(app.config['UPLOAD_FOLDER_ADS'])
+
 
 # 🟢 تصحيح: تعيين المفتاح السري مرة واحدة وبشكل صحيح
 app.config['SECRET_KEY'] = 'f2d9e8a0b7c6d1e6f3a8c4b8d9e2f6a4_very_long_and_secret_key' # اجعل المفتاح أطول وأكثر تعقيدًا في الإنتاج
 
+
+# 🟢 ملاحظة: يفضل وضع مسار قاعدة البيانات في app.config أيضاً
+# app.config['DATABASE'] = 'database/Eshop.db'
 def get_db_connection():
-    conn = sqlite3.connect('database/Eshop.db')
+    conn = sqlite3.connect('database/Eshop.db') # أو sqlite3.connect(app.config['DATABASE'])
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -45,6 +57,12 @@ app.register_blueprint(cart_bp)
 app.register_blueprint(seller_bp)
 app.register_blueprint(general_bp)
 app.register_blueprint(order_bp) # تسجيل الـ Blueprint الخاص بالطلبات
+
+# 🟢 التعديل 2: تسجيل Blueprint الإعلانات مع بادئة URL
+# هذا ضروري لكي يعمل مسار تتبع النقرات في JavaScript (fetch('/ads/track_click/...'))
+# وهذا يعني أن جميع مسارات ads_bp ستكون تحت /ads/ (مثال: /ads/management, /ads/add)
+app.register_blueprint(ads_bp, url_prefix='/ads')
+
 
 @app.context_processor
 def inject_categories():
@@ -76,22 +94,6 @@ def inject_sellers():
     conn.close()
     return dict(sellers=sellers)
 
-# 🟢 تصحيح: إضافة context processor لجلب user_id من الكوكي بشكل عام للقوالب
-# @app.context_processor
-# def inject_user_info():
-#     user_id = request.cookies.get('user_auth')
-#     user_name = request.cookies.get('user_name') # إذا كنت تخزن الاسم في كوكي منفصل
-
-#     # يمكنك هنا جلب المزيد من بيانات المستخدم إذا احتجت إليها في جميع القوالب
-#     # user_data = None
-#     # if user_id:
-#     #     conn = get_db_connection()
-#     #     user_data = conn.execute("SELECT name, email FROM user WHERE id = ?", (user_id,)).fetchone()
-#     #     conn.close()
-
-#     return dict(current_user_id=user_id, current_user_name=user_name) # قم بتمرير هذه المتغيرات للقوالب
-
-
 # *** Context Processor الرئيسي لضمان اتساق حالة تسجيل الدخول وعدد المنتجات في السلة ***
 @app.context_processor
 def inject_user_data_and_cart_count():
@@ -105,19 +107,8 @@ def inject_user_data_and_cart_count():
 
     if user_id:
         try:
-            # الخيار المفضل: جلب اسم المستخدم من كوكي 'user_name'
-            # تأكد أنك تقوم بإنشاء هذا الكوكي في دالة 'login' في user_routes.py
             current_user_name = request.cookies.get('user_name') 
             
-            # إذا لم تكن تخزن اسم المستخدم في كوكي، يمكنك جلبه من قاعدة البيانات
-            # قم بإلغاء التعليق عن هذا الجزء إذا كنت تفضل جلب الاسم من DB
-            # conn = get_db_connection() 
-            # user_data = conn.execute("SELECT username FROM users WHERE id = ?", (user_id,)).fetchone()
-            # conn.close()
-            # if user_data:
-            #     current_user_name = user_data['username']
-
-            # جلب عدد المنتجات في سلة التسوق للمستخدم المسجل
             conn = get_db_connection()
             cart_item_count_row = conn.execute(
                 "SELECT SUM(quantity) AS total FROM cart_items WHERE user_id = ?",
@@ -128,22 +119,17 @@ def inject_user_data_and_cart_count():
             if cart_item_count_row and cart_item_count_row['total']:
                 total_items_in_cart = int(cart_item_count_row['total'])
 
-            # *** أضف هذا السطر للتصحيح ***
-            # print(f"DEBUG: In context processor. user_id={user_id}, user_name={current_user_name}, total_items_count={total_items_in_cart}")
-
         except Exception as e:
             print(f"Error in inject_user_data_and_cart_count context processor: {e}")
             current_user_name = None 
             total_items_in_cart = 0
-    # else:
-        # print("DEBUG: In context processor. User not logged in.")
     
-    # إرجاع القاموس الذي يحتوي على المتغيرات المتاحة للقوالب
     return dict(
         user_name=current_user_name, # اسم المستخدم (أو None)
         logged_in=bool(user_id), # True إذا كان user_id موجوداً (أي مسجل دخول)
         total_items_count=total_items_in_cart # العدد الكلي للمنتجات في السلة
     )
+
 # *** التعامل مع الأخطاء (مثال: صفحة 404 غير موجودة) ***
 @app.errorhandler(404)
 def page_not_found(e):

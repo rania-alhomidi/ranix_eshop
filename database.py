@@ -310,6 +310,35 @@ cursor = conn.cursor()
 #     image_path TEXT NOT NULL,
 #     FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE
 # );''')
+
+
+
+
+
+
+
+# اعلانات
+# cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS ads (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         seller_id INTEGER NOT NULL,
+#         title TEXT NOT NULL,
+#         description TEXT,
+#         content_type TEXT NOT NULL,  -- 'image', 'video', 'text'
+#         content_path TEXT,           -- مسار الملف أو النص
+#         link_url TEXT NOT NULL,
+#         start_date TEXT NOT NULL,    -- 'YYYY-MM-DD'
+#         end_date TEXT NOT NULL,
+#         is_active INTEGER DEFAULT 1, -- 1/0
+#         order_index INTEGER DEFAULT 0,
+#         click_count INTEGER DEFAULT 0, -- إضافة عداد النقرات
+#         impression_count INTEGER DEFAULT 0, -- عداد المشاهدات
+#         priority INTEGER DEFAULT 1,   -- أولوية العرض (1-10)
+#         target_audience TEXT,        -- جمهور مستهدف (اختياري)
+#         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#         FOREIGN KEY (seller_id) REFERENCES sellers(id) ON DELETE CASCADE
+#     );
+# ''')
 # conn.commit()
 
 
@@ -317,12 +346,12 @@ cursor = conn.cursor()
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
 # cursor.execute("UPDATE product SET featured = 0 WHERE featured IS NULL;")  
-# cursor.execute("SELECT * FROM sellers ")  # استعلام عن كل البيانات
-# rows = cursor.fetchall()  # جلب جميع الصفوف
-# print("البيانات الموجودة في قاعدة البيانات:", rows)
+cursor.execute("SELECT * FROM ads ")  # استعلام عن كل البيانات
+rows = cursor.fetchall()  # جلب جميع الصفوف
+print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-# for row in rows:
-#     print(row)
+for row in rows:
+    print(row)
 
 
 # cursor.execute("SELECT * FROM product_images ")  # استعلام عن كل البيانات
@@ -337,15 +366,15 @@ cursor = conn.cursor()
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS product_images')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS ads')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-tables = cursor.fetchall()  # جلب النتائج
-# print("الجداول الموجودة في قاعدة البيانات:", tables)
+# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+# tables = cursor.fetchall()  # جلب النتائج
+# # print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
-print(newdata)
+# newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
+# print(newdata)
 
 
 # cursor.execute("PRAGMA table_info(product);")

@@ -1,0 +1,129 @@
+<!-- admin_ads_stats.html -->
+{% include 'admin/header.html' %}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">إحصائيات الإعلانات</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- بطاقة الإعلانات -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                إجمالي الإعلانات</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_ads }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ad fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بطاقة النقرات -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                إجمالي النقرات</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_clicks }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mouse-pointer fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بطاقة المشاهدات -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                إجمالي المشاهدات</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_impressions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-eye fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بطاقة نسبة النقر -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                نسبة النقر (CTR)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if stats.total_impressions > 0 %}
+                                {{ ((stats.total_clicks / stats.total_impressions) * 100)|round(2) }}%
+                                {% else %}0%{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percent fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">أفضل الإعلانات أداءً</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>العنوان</th>
+                                    <th>البائع</th>
+                                    <th>النقرات</th>
+                                    <th>معدل النقر</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ad in top_ads %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ ad.title }}</td>
+                                    <td>{{ ad.store_name }}</td>
+                                    <td>{{ ad.click_count }}</td>
+                                    <td>
+                                        {% if ad.impression_count > 0 %}
+                                        {{ ((ad.click_count / ad.impression_count) * 100)|round(2) }}%
+                                        {% else %}0%{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'admin/footer.html' %}

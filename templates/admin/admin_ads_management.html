@@ -1,0 +1,176 @@
+{% include 'admin/header.html' %}
+<main id="main" class="main">
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="h3 mb-0">إدارة الإعلانات</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">قائمة الإعلانات</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="adsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>الصورة</th>
+                                        <th>العنوان</th>
+                                        <th>البائع</th>
+                                        <th>الفترة</th>
+                                        <th>النقرات</th>
+                                        <th>الحالة</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ad in ads %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>
+                                            {% if ad.content_type == 'image' %}
+                                            <img src="{{ ad.content_path }}" width="50" class="img-thumbnail">
+                                            {% elif ad.content_type == 'video' %}
+                                            <i class="fas fa-video text-primary"></i>
+                                            {% else %}
+                                            <i class="fas fa-font text-secondary"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ ad.title }}</td>
+                                        <td>{{ ad.store_name }}</td>
+                                        <td>
+                                            {{ ad.start_date }}<br>
+                                            إلى {{ ad.end_date }}
+                                        </td>
+                                        <td>{{ ad.click_count }}</td>
+                                        <td>
+                                            {% if ad.is_active %}
+                                            <span class="badge badge-success">نشط</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">غير نشط</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('ads.toggle_ad', ad_id=ad.id) }}"
+                                                    class="btn btn-sm {{ 'btn-warning' if ad.is_active else 'btn-success' }}">
+                                                    {{ 'تعطيل' if ad.is_active else 'تفعيل' }}
+                                                </a>
+                                                {# زر التعديل #}
+                                                <a href="{{ url_for('ads.edit_ad', ad_id=ad.id) }}"
+                                                    class="btn btn-info btn-sm" title="تعديل الإعلان">
+                                                    <i class="bi bi-pencil"></i> {# استخدم أيقونة قلم من Bootstrap Icons
+                                                    #}
+                                                </a>
+                                                <a href="{{ url_for('ads.delete_ad', ad_id=ad.id) }}"
+                                                    class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('هل أنت متأكد من حذف هذا الإعلان؟')">
+                                                    حذف
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">إضافة إعلان جديد</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('ads.add_ad') }}" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label>البائع</label>
+                                <select name="seller_id" class="form-control" required>
+                                    <option value="">-- اختر البائع --</option>
+                                    {% for seller in sellers %}
+                                    <option value="{{ seller.id }}">{{ seller.store_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>عنوان الإعلان</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>وصف الإعلان (اختياري)</label>
+                                <textarea name="description" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>نوع المحتوى</label>
+                                <select name="content_type" class="form-control" id="contentType" required>
+                                    <option value="image">صورة</option>
+                                    <option value="video">فيديو</option>
+                                    <option value="text">نص</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="fileInputGroup">
+                                <label>ملف الإعلان</label>
+                                <div class="custom-file">
+                                    <input type="file" name="content_file" class="custom-file-input" id="adFile">
+                                    <label class="custom-file-label" for="adFile">اختر ملف...</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>رابط المنتج</label>
+                                <input type="url" name="link_url" class="form-control" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>تاريخ البدء</label>
+                                        <input type="date" name="start_date" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>تاريخ الانتهاء</label>
+                                        <input type="date" name="end_date" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">حفظ الإعلان</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // إظهار/إخفاء حقل رفع الملف حسب نوع المحتوى
+    document.getElementById('contentType').addEventListener('change', function () {
+        const fileInputGroup = document.getElementById('fileInputGroup');
+        if (this.value === 'text') {
+            fileInputGroup.style.display = 'none';
+        } else {
+            fileInputGroup.style.display = 'block';
+        }
+    });
+
+    // إظهار اسم الملف المختار
+    document.getElementById('adFile').addEventListener('change', function (e) {
+        const fileName = e.target.files[0].name;
+        const nextSibling = e.target.nextElementSibling;
+        nextSibling.innerText = fileName;
+    });
+</script>
+{% include 'admin/footer.html' %}
