@@ -34,7 +34,7 @@
 
                     <div class="col-md-6">
                         <a class="nav-link collapsed" href="{{url_for('admin.users')}}">
-                        <div class="card info-card customers-card">
+                            <div class="card info-card customers-card">
                                 <div class="card-body">
                                     <h5 class="card-title">العملاء <span>| اليوم</span></h5>
                                     <div class="d-flex align-items-center">
@@ -52,38 +52,64 @@
                                             <span class="text-muted small pt-2 ps-1">زيادة</span>
                                         </div>
                                     </div>
-                                </a>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
 
-        <div class="col-md-6">
-            <a class="nav-link collapsed" href="{{url_for('admin.show_product')}}">
-            <div class="card info-card1 customers-card card1">
-                    <div class="card-body">
-                        <h5 class="card-title">المنتجات <span>| الإجمالي</span></h5> {# يمكنك تغيير النص حسب الحاجة #}
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-
-                                <i class="bi bi-box-seam"></i> {# 📦 أيقونة المنتجات #}
-                            </div>
-                            <div class="ps-3">
-                                <h6>{{ total_products }}</h6>
-                                <span class="text-muted small pt-2 ps-1">منتج متوفر</span> {# نص وصفي #}
-
-                                <span class="text-success small pt-1 fw-bold"></span>
-                                <span class="text-muted small pt-2 ps-1">زيادة</span>
+            <div class="col-md-6">
+                <div class="card info-card5 customers-card"> {# يمكنك اختيار نوع/لون بطاقة مختلف إذا كان متاحًا في القالب
+                    الخاص بك #}
+                    <a class="nav-link collapsed" href="{{url_for('admin.show_seller')}}"> {# رابط لصفحة البائعين الخاصة
+                        بك #}
+                        <div class="card-body">
+                            <h5 class="card-title">البائعون <span>| الإجمالي</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-shop"></i> {# استخدام أيقونة متجر للبائعين، يمكنك اختيار أخرى إذا
+                                    كنت تفضل #}
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ total_sellers }}</h6> {# عرض العدد الإجمالي للبائعين هنا #}
+                                    {# يمكنك إضافة نسبة التغيير المئوية إذا قمت بحسابها في Flask #}
+                                    {# <span class="text-success small pt-1 fw-bold">XX%</span>
+                                    <span class="text-muted small pt-2 ps-1">زيادة</span> #}
+                                </div>
                             </div>
                         </div>
                     </a>
-        </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <a class="nav-link collapsed" href="{{url_for('admin.show_product')}}">
+                    <div class="card info-card1 customers-card card1">
+                        <div class="card-body">
+                            <h5 class="card-title">المنتجات <span>| الإجمالي</span></h5> {# يمكنك تغيير النص حسب الحاجة
+                            #}
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+
+                                    <i class="bi bi-box-seam"></i> {# 📦 أيقونة المنتجات #}
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ total_products }}</h6>
+                                    <span class="text-muted small pt-2 ps-1">منتج متوفر</span> {# نص وصفي #}
+
+                                    <span class="text-success small pt-1 fw-bold"></span>
+                                    <span class="text-muted small pt-2 ps-1">زيادة</span>
+                                </div>
+                            </div>
+                </a>
+            </div>
         </div>
         </div>
 
         <div class="col-md-6">
-            <a class="nav-link collapsed" href="{{url_for('admin.categories', filter='sub')}}"> {# 🆕 رابط لفلترة الأقسام الفرعية #}
-            <div class="card info-card2 customers-card">
+            <a class="nav-link collapsed" href="{{url_for('admin.categories', filter='sub')}}"> {# 🆕 رابط لفلترة
+                الأقسام الفرعية #}
+                <div class="card info-card2 customers-card">
                     <div class="card-body">
                         <h5 class="card-title">الأقسام الفرعية <span>| الإجمالي</span></h5> {# 🆕 تغيير النص #}
                         <div class="d-flex align-items-center">
@@ -100,29 +126,31 @@
                             <!-- <span class="text-muted small pt-2 ps-1">زيادة</span> -->
                         </div>
                     </div>
-                </a>
+            </a>
         </div>
         </div>
 
 
         <div class="col-md-6">
-            <a class="nav-link collapsed" href="{{url_for('admin.categories', filter='main')}}"> {# 🆕 رابط لفلترة الأقسام الرئيسية #}
-            <div class="card info-card3 customers-card">
+            <a class="nav-link collapsed" href="{{url_for('admin.categories', filter='main')}}"> {# 🆕 رابط لفلترة
+                الأقسام الرئيسية #}
+                <div class="card info-card3 customers-card">
                     <div class="card-body">
                         <h5 class="card-title">الأقسام الرئيسية <span>| الإجمالي</span></h5> {# 🆕 تغيير النص #}
 
-                <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="bi bi-folder-fill"></i> {# 📁🆕 أيقونة مقترحة للأقسام الرئيسية أو ابقَ على bi-grid #}
-                    </div>
-                    <div class="ps-3">
-                        <h6>{{ total_main_categories }}</h6> {# 📁🆕 عرض عدد الأقسام الرئيسية هنا #}
-                        <span class="text-muted small pt-2 ps-1">قسم رئيسي متاح</span>
-                    </div>
+                        <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-folder-fill"></i> {# 📁🆕 أيقونة مقترحة للأقسام الرئيسية أو ابقَ على
+                                bi-grid #}
+                            </div>
+                            <div class="ps-3">
+                                <h6>{{ total_main_categories }}</h6> {# 📁🆕 عرض عدد الأقسام الرئيسية هنا #}
+                                <span class="text-muted small pt-2 ps-1">قسم رئيسي متاح</span>
+                            </div>
                             <span class="text-success small pt-1 fw-bold"></span>
                             <!-- <span class="text-muted small pt-2 ps-1">زيادة</span> -->
                         </div>
-                    </a>
+            </a>
         </div>
         </div>
         </div>

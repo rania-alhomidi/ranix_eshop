@@ -39,6 +39,13 @@ def home():
     total_main_categories_data = cursor.fetchone()
     total_main_categories = total_main_categories_data['total_main_categories'] if total_main_categories_data else 0
 
+
+    # 🆕 جلب عدد البائعين الكلي
+    cursor.execute("SELECT COUNT(id) AS total_sellers FROM sellers") # بافتراض أن جدول البائعين اسمه 'sellers'
+    total_sellers_data = cursor.fetchone()
+    total_sellers = total_sellers_data['total_sellers'] if total_sellers_data else 0
+
+
     conn.close()
 
     # تمرير جميع الإحصائيات إلى القالب
@@ -46,7 +53,8 @@ def home():
                            total_customers=total_customers,
                            total_products=total_products,
                            total_subcategories=total_subcategories, # 🆕 تمرير عدد الأقسام الفرعية
-                            total_main_categories=total_main_categories # 🆕 تمرير عدد الأقسام الرئيسية
+                           total_main_categories=total_main_categories, # 🆕 تمرير عدد الأقسام الرئيسية
+                           total_sellers=total_sellers 
                           )
 @admin_bp.route('/profile')
 def profile():
