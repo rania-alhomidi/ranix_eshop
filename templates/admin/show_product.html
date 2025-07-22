@@ -70,10 +70,10 @@
                                 <td>
                                     {% if product.featured %}
                                         <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> مُعرض</span>
-                                        <a href="{{ url_for('admin.toggle_featured', product_id=product.id, status=0) }}" class="btn btn-outline-secondary btn-sm">إخفاء</a>
+                                        <a href="{{ url_for('admin.toggle_featured', product_id=product.id, status=0) }}" class="btn btn-secondary btn-sm">إخفاء</a>
                                     {% else %}
                                         <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i> مخفي</span>
-                                        <a href="{{ url_for('admin.toggle_featured', product_id=product.id, status=1) }}" class="btn btn-outline-info btn-sm">إظهار</a>
+                                        <a href="{{ url_for('admin.toggle_featured', product_id=product.id, status=1) }}" class="btn btn-info btn-sm">إظهار</a>
                                     {% endif %}
                                 </td>
                                 

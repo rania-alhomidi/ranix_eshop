@@ -1,0 +1,247 @@
+{% include 'header.html' %}
+
+
+<div class="modern-products">
+    <div class="container">
+        <h1 class="modern-title">
+            {% if search_query %}
+                نتائج البحث عن "{{ search_query }}"
+            {% else %}
+                جميع المنتجات
+            {% endif %}
+            
+            {% if products|length > 0 %}
+                <small class="text-muted">({{ products|length }} منتج)</small>
+            {% endif %}
+        </h1>
+
+        <!-- فلترة البحث (اختياري) -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form action="{{ url_for('search_bp.search_products') }}" method="GET" class="form-inline">
+                    <div class="input-group w-100">
+                        <input type="text" name="q" class="form-control" placeholder="ابحث مجدداً..." value="{{ search_query or '' }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 text-left">
+                <select class="form-control sort-select" onchange="window.location.href=this.value">
+                    <option value="{{ url_for('search_bp.search_products', q=search_query, sort_by='name_asc') }}"
+                            {% if sort_by == 'name_asc' %}selected{% endif %}>
+                        الترتيب بالأسم (أ-ي)
+                    </option>
+                    <option value="{{ url_for('search_bp.search_products', q=search_query, sort_by='name_desc') }}"
+                            {% if sort_by == 'name_desc' %}selected{% endif %}>
+                        الترتيب بالأسم (ي-أ)
+                    </option>
+                    <option value="{{ url_for('search_bp.search_products', q=search_query, sort_by='price_asc') }}"
+                            {% if sort_by == 'price_asc' %}selected{% endif %}>
+                        السعر (من الأقل للأعلى)
+                    </option>
+                    <option value="{{ url_for('search_bp.search_products', q=search_query, sort_by='price_desc') }}"
+                            {% if sort_by == 'price_desc' %}selected{% endif %}>
+                        السعر (من الأعلى للأقل)
+                    </option>
+                    <option value="{{ url_for('search_bp.search_products', q=search_query, sort_by='newest') }}"
+                            {% if sort_by == 'newest' %}selected{% endif %}>
+                        الأحدث أولاً
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            {% if products %}
+                {% for product in products %}
+                <div class="col-6 col-lg-3 mb-4">
+                    <div class="modern-card">
+                        <a href="{{ url_for('product.product_details', product_id=product.id) }}" class="modern-card-link">
+
+                            {% if product.featured %}
+                            <div class="featured-badge">جديد</div>
+                            {% endif %}
+
+                            <div class="modern-img-container">
+                                <img src="{{ url_for('static', filename=product.image.replace('static/', '')) if product.image else url_for('static', filename='uploads/products/default_product.jpg') }}"
+                                    alt="{{ product.name }}" class="modern-img">
+                            </div>
+
+                            <div class="modern-card-body">
+                                <h5 class="modern-product-title">{{ product.name }}</h5>
+
+                                <button class="like-btn {% if product.id in liked_products %}liked{% endif %}"
+                                    data-product-id="{{ product.id }}">
+                                    <i class="fa fa-heart"></i>
+                                </button>
+
+                                <p class="modern-product-price">
+                                    ر.س {{ product.price or product.profit_price }}
+                                </p>
+                                <p class="modern-product-desc">{{ product.description|truncate(100) }}</p>
+
+                                <div class="modern-btn-group">
+                                    <form class="add-to-cart-form d-inline" method="POST"
+                                        action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                                        <input type="hidden" name="name" value="{{ product.name }}">
+                                        <input type="hidden" name="price" value="{{ product.price or product.profit_price }}">
+                                        <input type="hidden" name="image_url" value="{{ product.image }}">
+                                        <input type="hidden" name="description" value="{{ product.description }}">
+                                        <input type="hidden" name="seller" value="{{ product.seller_name }}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="modern-btn modern-btn-primary">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </button>
+                                    </form>
+                                    <a href="{{ url_for('product.product_details', product_id=product.id) }}"
+                                        class="modern-btn modern-btn-secondary">
+                                        <i class="fa fa-info-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <div class="empty-search">
+                        <i class="fa fa-search fa-3x mb-3"></i>
+                        <h4>لا توجد نتائج مطابقة لبحثك</h4>
+                        <p class="text-muted">حاول استخدام كلمات بحث مختلفة أو تصفح متجرنا</p>
+                        <a href="{{ url_for('product.index') }}" class="btn btn-primary">
+                            العودة للمتجر
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- نفس سكريبتات shop_users.html -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // JavaScript for Like button
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async function (e) {
+                e.preventDefault();
+                const productId = this.dataset.productId;
+
+                try {
+                    const response = await fetch(`/toggle_like/${productId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success && !data.is_authenticated) {
+                        Swal.fire({
+                            title: 'تحذير',
+                            text: data.message,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'تسجيل الدخول',
+                            cancelButtonText: 'إلغاء'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/login';
+                            }
+                        });
+                        return;
+                    }
+
+                    if (data.success) {
+                        this.classList.toggle('liked');
+                        Swal.fire({
+                            position: 'top-start',
+                            icon: 'success',
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('خطأ', 'حدث خطأ أثناء معالجة طلبك.', 'error');
+                }
+            });
+        });
+
+        // JavaScript for Add to Cart forms
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const form = this;
+                const formData = new FormData(form);
+                const actionUrl = form.action;
+
+                try {
+                    const response = await fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'تمت الإضافة!',
+                            text: data.message,
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                        // تحديث عداد السلة إذا كان موجوداً
+                        const cartCount = document.getElementById('cart-count');
+                        if (cartCount) {
+                            const currentCount = parseInt(cartCount.textContent) || 0;
+                            cartCount.textContent = currentCount + 1;
+                        }
+                    } else {
+                        Swal.fire('خطأ', data.message || 'حدث خطأ أثناء إضافة المنتج إلى السلة.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('خطأ', 'حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى.', 'error');
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .empty-search {
+        background: #f9f9f9;
+        padding: 40px;
+        border-radius: 10px;
+        border: 1px dashed #ddd;
+    }
+    
+    .sort-select {
+        max-width: 250px;
+        cursor: pointer;
+    }
+    
+    @media (max-width: 767px) {
+        .sort-select {
+            margin-top: 10px;
+            max-width: 100%;
+        }
+    }
+</style>
+
+
+{% include 'footer.html' %}

@@ -18,6 +18,7 @@ from seller_routes import seller_bp
 from general_routes import general_bp
 from order import order_bp # تأكد أن هذا الاستيراد صحيح
 from ads_routes import ads_bp # تأكد أن هذا الاستيراد صحيح
+from search_routes import search_bp
 
 app = Flask(__name__)
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
@@ -57,6 +58,7 @@ app.register_blueprint(cart_bp)
 app.register_blueprint(seller_bp)
 app.register_blueprint(general_bp)
 app.register_blueprint(order_bp) # تسجيل الـ Blueprint الخاص بالطلبات
+app.register_blueprint(search_bp) # تسجيل الـ Blueprint الخاص بالطلبات
 
 # 🟢 التعديل 2: تسجيل Blueprint الإعلانات مع بادئة URL
 # هذا ضروري لكي يعمل مسار تتبع النقرات في JavaScript (fetch('/ads/track_click/...'))

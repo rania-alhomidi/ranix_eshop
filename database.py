@@ -304,13 +304,6 @@ cursor = conn.cursor()
 # );''')
 
 
-# cursor.execute('''CREATE TABLE product_images (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     product_id INTEGER NOT NULL,
-#     image_path TEXT NOT NULL,
-#     FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE
-# );''')
-
 
 
 
@@ -346,15 +339,15 @@ cursor = conn.cursor()
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
 
 # cursor.execute("UPDATE product SET featured = 0 WHERE featured IS NULL;")  
-cursor.execute("SELECT * FROM sellers")  # استعلام عن كل البيانات
-rows = cursor.fetchall()  # جلب جميع الصفوف
-# print("البيانات الموجودة في قاعدة البيانات:", rows)
+# cursor.execute("SELECT * FROM sellers")  # استعلام عن كل البيانات
+# rows = cursor.fetchall()  # جلب جميع الصفوف
+# # print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-# for row in rows:
-#     print(row)
+# # for row in rows:
+# #     print(row)
 
-newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
-print(newdata)
+# newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
+# print(newdata)
 
 # cursor.execute("SELECT * FROM product_images ")  # استعلام عن كل البيانات
 # rows = cursor.fetchall()  # جلب جميع الصفوف
@@ -379,11 +372,11 @@ print(newdata)
 # print(newdata)
 
 
-# cursor.execute("PRAGMA table_info(product);")
-# columns = cursor.fetchall()
+cursor.execute("PRAGMA table_info(product);")
+columns = cursor.fetchall()
 
-# for col in columns:
-#     print(col[1])  # col[1] يحتوي على اسم العمود
+for col in columns:
+    print(col[1])  # col[1] يحتوي على اسم العمود
 
 # إغلاق الاتصال
 conn.commit()

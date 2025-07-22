@@ -38,14 +38,81 @@
                 <span class="bar"></span>
             </div>
         </button>
-        <div class="search-bar">
-            <form class="search-form">
-                <input type="text" class="search-input" placeholder="ابحث عن منتجات، أقسام، عروض...">
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-        </div>
+
+
+       <div class="search-bar">
+    <form class="search-form" action="{{ url_for('search_bp.search_products') }}" method="GET">
+        <input type="text" 
+               class="search-input" 
+               placeholder="ابحث عن منتجات، أقسام، عروض..."
+               name="q"
+               id="search-input"
+               autocomplete="off">
+        <button type="submit" class="search-button">
+            <i class="fas fa-search"></i>
+        </button>
+        <div id="search-suggestions" class="search-suggestions"></div>
+    </form>
+</div>
+<style>
+    .search-suggestions {
+    display: none;
+    position: absolute;
+    background: white;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:hover {
+    background-color: #f5f5f5;
+}
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const suggestionsDiv = document.getElementById('search-suggestions');
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if(query.length > 2) {
+            fetch(`/suggestions?term=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(suggestions => {
+                    if(suggestions.length > 0) {
+                        suggestionsDiv.innerHTML = suggestions.map(s => 
+                            `<div class="suggestion-item">${s}</div>`
+                        ).join('');
+                        suggestionsDiv.style.display = 'block';
+                    } else {
+                        suggestionsDiv.style.display = 'none';
+                    }
+                });
+        } else {
+            suggestionsDiv.style.display = 'none';
+        }
+    });
+
+    // عند النقر على اقتراح
+    suggestionsDiv.addEventListener('click', function(e) {
+        if(e.target.classList.contains('suggestion-item')) {
+            searchInput.value = e.target.textContent;
+            suggestionsDiv.style.display = 'none';
+            document.querySelector('.search-form').submit();
+        }
+    });
+});
+</script>
         
         <div class="nav-tools">
             {# يمكنك إضافة أيقونات أخرى هنا إذا أردت، مثل أيقونة سلة التسوق أو المفضلة #}
