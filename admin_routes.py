@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, make_response
 import sqlite3
 import os
+import traceback
 import uuid  # أضف هذا السطر مع باقي الاستيرادات
 from werkzeug.utils import secure_filename
 
@@ -647,31 +648,43 @@ def add_seller():
             id_image = request.files.get('id_image')
             documents = request.files.get('documents')
 
-            upload_base_folder = UPLOAD_FOLDER
-            store_image_folder = os.path.join(upload_base_folder, "store_images")
-            id_image_folder = os.path.join(upload_base_folder, "id_images")
-            documents_folder = os.path.join(upload_base_folder, "documents")
+            upload_base_folder = UPLOAD_FOLDER # C:\Users\PC\Desktop\project\static\uploads
+            store_image_folder = os.path.join(upload_base_folder, "store_images") # C:\Users\PC\Desktop\project\static\uploads\store_images
+            id_image_folder = os.path.join(upload_base_folder, "id_images")     # C:\Users\PC\Desktop\project\static\uploads\id_images
+            documents_folder = os.path.join(upload_base_folder, "documents")       # C:\Users\PC\Desktop\project\static\uploads\documents
 
             os.makedirs(store_image_folder, exist_ok=True)
             os.makedirs(id_image_folder, exist_ok=True)
             os.makedirs(documents_folder, exist_ok=True)
 
-            store_image_path = id_image_path = documents_path = ""
+            store_image_db_path = ""
+            id_image_db_path = ""
+            documents_db_path = ""
 
+            # معالجة وحفظ صورة المتجر
             if store_image and allowed_file(store_image.filename):
                 store_image_filename = secure_filename(store_image.filename)
-                store_image_path = os.path.join(store_image_folder, store_image_filename)
-                store_image.save(store_image_path)
+                store_image_full_fs_path = os.path.join(store_image_folder, store_image_filename)
+                store_image.save(store_image_full_fs_path)
+                # المسار الذي سيُحفظ في قاعدة البيانات: static/uploads/store_images/filename.ext
+                store_image_db_path = os.path.join("static", "uploads", "store_images", store_image_filename).replace('\\', '/')
 
+            # معالجة وحفظ صورة الهوية
             if id_image and allowed_file(id_image.filename):
                 id_image_filename = secure_filename(id_image.filename)
-                id_image_path = os.path.join(id_image_folder, id_image_filename)
-                id_image.save(id_image_path)
+                id_image_full_fs_path = os.path.join(id_image_folder, id_image_filename)
+                id_image.save(id_image_full_fs_path)
+                # المسار الذي سيُحفظ في قاعدة البيانات: static/uploads/id_images/filename.ext
+                id_image_db_path = os.path.join("static", "uploads", "id_images", id_image_filename).replace('\\', '/')
 
+            # معالجة وحفظ المستندات
             if documents and allowed_file(documents.filename):
                 documents_filename = secure_filename(documents.filename)
-                documents_path = os.path.join(documents_folder, documents_filename)
-                documents.save(documents_path)
+                documents_full_fs_path = os.path.join(documents_folder, documents_filename)
+                documents.save(documents_full_fs_path)
+                # المسار الذي سيُحفظ في قاعدة البيانات: static/uploads/documents/filename.ext
+                documents_db_path = os.path.join("static", "uploads", "documents", documents_filename).replace('\\', '/')
+
 
             conn = get_db_connection()
             cursor = conn.cursor()
@@ -688,12 +701,24 @@ def add_seller():
             )
             num_id = cursor.lastrowid
 
+            # التأكد من ترتيب الأعمدة وقيمها عند الإدخال
+            # تأكد أن 'address' هو العمود الرابع (seller[4])
+            # وأن 'id_image' هو العمود السادس (seller[6])
+            # وأن 'documents' هو العمود السابع (seller[7])
             cursor.execute('''
                 INSERT INTO sellers
-                (name, store_name, store_image, commercial_record, id_image, documents, SAddress_id, num_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (name, store_name, store_image, address, commercial_record, id_image, documents, SAddress_id, num_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
-                name, store_name, store_image_path, commercial_record, id_image_path, documents_path, address_id, num_id
+                name,
+                store_name,
+                store_image_db_path,   # القيمة لـ seller[3]
+                street_address,        # القيمة لـ seller[4]
+                commercial_record,     # القيمة لـ seller[5]
+                id_image_db_path,      # القيمة لـ seller[6]
+                documents_db_path,     # القيمة لـ seller[7]
+                address_id,
+                num_id
             ))
 
             conn.commit()
@@ -703,9 +728,10 @@ def add_seller():
             return redirect(url_for('admin.add_seller'))
 
         except Exception as e:
+            print(f"حدث خطأ: {e}")
+            traceback.print_exc()
             flash(f"حدث خطأ: {str(e)}", "danger")
             return redirect(url_for('admin.add_seller'))
-
 
 @admin_bp.route('/show_seller', methods=['POST', 'GET'])
 def show_seller():
@@ -729,8 +755,11 @@ def show_seller():
     return render_template('admin/show_seller.html', sellers=sellers)
 
 
+
+
 @admin_bp.route('/edit_seller/<int:seller_id>', methods=['GET', 'POST'])
 def edit_seller(seller_id):
+    conn = None # تعريف conn خارج try ليكون متاحاً في finally
     try:
         conn = sqlite3.connect("database/Eshop.db")
         conn.row_factory = sqlite3.Row
@@ -750,6 +779,10 @@ def edit_seller(seller_id):
             flash("صاحب المتجر غير موجود!", "danger")
             return redirect(url_for('admin.show_seller'))
 
+        # استخراج المعرفات لتحديث الجداول المرتبطة
+        s_address_id = seller['SAddress_id']
+        num_id = seller['num_id']
+
         if request.method == 'POST':
             name = request.form['name']
             store_name = request.form['store_name']
@@ -757,42 +790,56 @@ def edit_seller(seller_id):
 
             latitude = request.form.get('latitude')
             longitude = request.form.get('longitude')
-            street_address = request.form.get('addressDisplay')
+            street_address = request.form.get('addressDisplay') # اسم الحقل في الفورم
 
             number1 = request.form.get('number1')
             number2 = request.form.get('number2')
 
-            store_image = seller['store_image']
-            id_image = seller['id_image']
-            documents = seller['documents']
+            # احتفظ بالمسارات القديمة كافتراض، هذه هي المسارات المخزنة في قاعدة البيانات
+            store_image_db_path = seller['store_image']
+            id_image_db_path = seller['id_image']
+            documents_db_path = seller['documents']
 
+            # مجلدات التحميل الفعلية على نظام الملفات (يجب أن تكون UPLOAD_FOLDER معرفة)
+            store_image_folder = os.path.join(UPLOAD_FOLDER, 'store_images')
+            id_image_folder = os.path.join(UPLOAD_FOLDER, 'id_images')
+            documents_folder = os.path.join(UPLOAD_FOLDER, 'documents')
+
+            # تأكد من إنشاء المجلدات إذا لم تكن موجودة
+            os.makedirs(store_image_folder, exist_ok=True)
+            os.makedirs(id_image_folder, exist_ok=True)
+            os.makedirs(documents_folder, exist_ok=True)
+
+            # معالجة رفع صورة المتجر الجديدة
             if 'store_image' in request.files:
                 file = request.files['store_image']
-                if file.filename != '':
+                if file.filename != '' and allowed_file(file.filename): # أضف allowed_file للتحقق من النوع
                     filename = secure_filename(file.filename)
-                    path = os.path.join(UPLOAD_FOLDER, 'store_images', filename)
-                    os.makedirs(os.path.dirname(path), exist_ok=True)
-                    file.save(path)
-                    store_image = path
+                    full_fs_path = os.path.join(store_image_folder, filename)
+                    file.save(full_fs_path)
+                    # هذا هو التعديل الأساسي: تحويل المسار للتخزين في قاعدة البيانات
+                    # يجب أن يبدأ المسار بـ 'static/' لكي يعمل url_for('static', filename=...)
+                    store_image_db_path = os.path.join("static", "uploads", "store_images", filename).replace('\\', '/')
 
+            # معالجة رفع صورة الهوية الجديدة
             if 'id_image' in request.files:
                 file = request.files['id_image']
-                if file.filename != '':
+                if file.filename != '' and allowed_file(file.filename): # أضف allowed_file
                     filename = secure_filename(file.filename)
-                    path = os.path.join(UPLOAD_FOLDER, 'id_images', filename)
-                    os.makedirs(os.path.dirname(path), exist_ok=True)
-                    file.save(path)
-                    id_image = path
+                    full_fs_path = os.path.join(id_image_folder, filename)
+                    file.save(full_fs_path)
+                    id_image_db_path = os.path.join("static", "uploads", "id_images", filename).replace('\\', '/')
 
+            # معالجة رفع المستندات الجديدة
             if 'documents' in request.files:
                 file = request.files['documents']
-                if file.filename != '':
+                if file.filename != '' and allowed_file(file.filename): # أضف allowed_file
                     filename = secure_filename(file.filename)
-                    path = os.path.join(UPLOAD_FOLDER, 'documents', filename)
-                    os.makedirs(os.path.dirname(path), exist_ok=True)
-                    file.save(path)
-                    documents = path
+                    full_fs_path = os.path.join(documents_folder, filename)
+                    file.save(full_fs_path)
+                    documents_db_path = os.path.join("static", "uploads", "documents", filename).replace('\\', '/')
 
+            # تحديث جدول sellers
             cursor.execute("""
                 UPDATE sellers SET
                     name = ?,
@@ -802,38 +849,54 @@ def edit_seller(seller_id):
                     id_image = ?,
                     documents = ?
                 WHERE id = ?
-            """, (name, store_name, commercial_record, store_image, id_image, documents, seller_id))
+            """, (name, store_name, commercial_record, store_image_db_path, id_image_db_path, documents_db_path, seller_id))
 
+            # تحديث جدول seller_address
             cursor.execute("""
                 UPDATE seller_address SET
                     latitude = ?,
                     longitude = ?,
                     address = ?
                 WHERE id = ?
-            """, (latitude, longitude, street_address, seller['SAddress_id']))
+            """, (latitude, longitude, street_address, s_address_id))
 
+            # تحديث جدول numbers
             cursor.execute("""
                 UPDATE numbers SET
                     number1 = ?,
                     number2 = ?
                 WHERE id = ?
-            """, (number1, number2, seller['num_id']))
+            """, (number1, number2, num_id))
 
             conn.commit()
             flash("تم تعديل بيانات البائع بنجاح!", "success")
             return redirect(url_for('admin.show_seller'))
 
-
-        seller_dict = dict(seller)
+        # إذا كانت طريقة الطلب GET (لأول مرة يتم عرض النموذج)
+        seller_dict = dict(seller) # تحويل Row إلى Dict للوصول السهل للمفاتيح
         seller_dict['has_location'] = bool(seller['latitude'] and seller['longitude'])
+
+        # تهيئة القيم للحقول في القالب (خاصة حقول الخريطة)
+        seller_dict['addressDisplay'] = seller['full_address'] if seller['full_address'] else ''
+        seller_dict['latitude'] = seller['latitude'] if seller['latitude'] else ''
+        seller_dict['longitude'] = seller['longitude'] if seller['longitude'] else ''
+
+        # تمرير المسارات الحالية لكي يعرضها القالب بجانب حقول الرفع
+        seller_dict['current_store_image'] = seller['store_image']
+        seller_dict['current_id_image'] = seller['id_image']
+        seller_dict['current_documents'] = seller['documents']
+
 
         return render_template('admin/edit_seller.html', seller=seller_dict)
 
     except Exception as e:
+        print(f"حدث خطأ في edit_seller: {e}") # طباعة الخطأ في الكونسول لتتبع أفضل
+        traceback.print_exc() # طباعة تتبع الخطأ الكامل
         flash(f"حدث خطأ: {str(e)}", "danger")
         return redirect(url_for('admin.show_seller'))
     finally:
-        conn.close()
+        if conn: # أغلق الاتصال فقط إذا كان مفتوحاً
+            conn.close()
 
 @admin_bp.route('/delete_category/<int:category_id>')
 def delete_category(category_id):

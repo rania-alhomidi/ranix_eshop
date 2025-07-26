@@ -2,147 +2,150 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Dashboard - NiceAdmin Bootstrap Template</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
+    <title>تعديل بيانات البائع</title> {# تحديث العنوان #}
+    <meta content="" name="description">
+    <meta content="" name="keywords">
 
-  <!-- Favicons -->
-  <link href="static/img/favicon.png" rel="icon">
-  <link href="static/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="{{ url_for('static', filename='img/favicon.png') }}" rel="icon">
+    <link href="{{ url_for('static', filename='img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Vendor CSS Files -->
-  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <link href="static/vendor/quill/quill.snow.css" rel="stylesheet">
-  <link href="static/vendor/quill/quill.bubble.css" rel="stylesheet">
-  <link href="static/vendor/remixicon/remixicon.css" rel="stylesheet">
-  <link href="static/vendor/simple-datatables/style.css" rel="stylesheet">
-  <link rel="stylesheet" href="static/css/fontawesome.min.css"> 
-  <link rel="stylesheet" href="static/css/fontawesome.css">
-  <link rel="stylesheet" href="static/css/all.min.css"> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/quill/quill.snow.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/quill/quill.bubble.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/remixicon/remixicon.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/simple-datatables/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.min.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}"> 
 
-  <!-- Template Main CSS File -->
-  <link href="static/css/index.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 </head>
 
 <body>
 
-        <main id="main" class="main">
-            <div class="container mt-5">
-                <h2 class="mb-4 text-center">تعديل بيانات البائع</h2>
-    
-                <form method="POST" action="{{ url_for('admin.edit_seller', seller_id=seller.seller_id) }}" enctype="multipart/form-data" class="p-4 border rounded bg-light shadow">
-                    <!-- المعلومات الأساسية -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="name" class="form-label">الاسم</label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ seller['name'] }}" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="store_name" class="form-label">اسم المتجر</label>
-                            <input type="text" class="form-control" id="store_name" name="store_name" value="{{ seller['store_name'] }}" required>
-                        </div>
+    <main id="main" class="main">
+        <div class="container mt-5">
+            <h2 class="mb-4 text-center">تعديل بيانات البائع</h2>
+        
+            <form method="POST" action="{{ url_for('admin.edit_seller', seller_id=seller.id) }}" enctype="multipart/form-data" class="p-4 border rounded bg-light shadow">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">الاسم</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ seller['name'] }}" required>
                     </div>
-    
-                    <!-- خريطة الموقع -->
-                    <div class="mb-3">
-                        <label class="form-label">موقع المتجر</label>
-                        <div id="map" style="height: 400px;"></div>
-                        <button type="button" id="getLocationButton" class="btn btn-info mt-2">
-                            
-                            <i class="bi bi-geo-alt"></i> استخدام الموقع الحالي
-                        </button>
-                        <p id="locationStatus" class="mb-0 mt-2 text-muted small"></p>
-                        <div class="form-group mt-3">
-                            <label for="addressDisplay" class="form-label">العنوان</label>
-                            <input type="text" class="form-control" id="addressDisplay" name="addressDisplay" 
-                                   value="{{ seller['full_address'] if seller['full_address'] else '' }}" required>
-                        </div>
-                        <input type="hidden" id="latitude" name="latitude" 
-                               value="{{ seller['latitude'] if seller['latitude'] else '' }}">
-                        <input type="hidden" id="longitude" name="longitude" 
-                               value="{{ seller['longitude'] if seller['longitude'] else '' }}">
+                    <div class="col-md-6">
+                        <label for="store_name" class="form-label">اسم المتجر</label>
+                        <input type="text" class="form-control" id="store_name" name="store_name" value="{{ seller['store_name'] }}" required>
                     </div>
-    
-                    <!-- أرقام الهاتف -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="number1" class="form-label">رقم الهاتف الأساسي</label>
-                            <input type="text" class="form-control" id="number1" name="number1" 
-                                   value="{{ seller['number1'] }}" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="number2" class="form-label">رقم الهاتف الثانوي</label>
-                            <input type="text" class="form-control" id="number2" name="number2" 
-                                   value="{{ seller['number2'] if seller['number2'] else '' }}">
-                        </div>
+                </div>
+        
+                <div class="mb-3">
+                    <label class="form-label">موقع المتجر</label>
+                    <div id="map" style="height: 400px;"></div>
+                    <button type="button" id="getLocationButton" class="btn btn-info mt-2">
+                        <i class="bi bi-geo-alt"></i> استخدام الموقع الحالي
+                    </button>
+                    <p id="locationStatus" class="mb-0 mt-2 text-muted small"></p>
+                    <div class="form-group mt-3">
+                        <label for="addressDisplay" class="form-label">العنوان</label>
+                        <input type="text" class="form-control" id="addressDisplay" name="addressDisplay" 
+                               value="{{ seller['addressDisplay'] }}" required> {# استخدام seller['addressDisplay'] #}
                     </div>
-    
-                    <!-- السجل التجاري -->
-                    <div class="mb-3">
-                        <label for="commercial_record" class="form-label">السجل التجاري</label>
-                        <input type="text" class="form-control" id="commercial_record" name="commercial_record" 
-                               value="{{ seller['commercial_record'] if seller['commercial_record'] else '' }}">
+                    <input type="hidden" id="latitude" name="latitude" 
+                               value="{{ seller['latitude'] }}"> {# استخدام seller['latitude'] #}
+                    <input type="hidden" id="longitude" name="longitude" 
+                               value="{{ seller['longitude'] }}"> {# استخدام seller['longitude'] #}
+                </div>
+        
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="number1" class="form-label">رقم الهاتف الأساسي</label>
+                        <input type="text" class="form-control" id="number1" name="number1" 
+                               value="{{ seller['number1'] }}" required>
                     </div>
-    
-                    <!-- ملفات البائع -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="store_image" class="form-label">صورة المتجر</label>
-                            <input class="form-control" type="file" id="store_image" name="store_image">
-                            {% if seller['store_image'] %}
-                                <img src="{{ url_for('static', filename=seller['store_image'].replace('static/','')) }}" 
-                                     class="img-thumbnail mt-2" style="max-height: 150px;">
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="id_image" class="form-label">صورة الهوية</label>
-                            <input class="form-control" type="file" id="id_image" name="id_image">
-                            {% if seller['id_image'] %}
-                                <img src="{{ url_for('static', filename=seller['id_image'].replace('static/','')) }}" 
-                                     class="img-thumbnail mt-2" style="max-height: 150px;">
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="documents" class="form-label">المستندات</label>
-                            <input class="form-control" type="file" id="documents" name="documents">
-                            {% if seller['documents'] %}
-                                <a href="{{ url_for('static', filename=seller['documents'].replace('static/','')) }}" 
-                                   target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-                                    <i class="bi bi-file-earmark-text"></i> عرض المستند
-                                </a>
-                            {% endif %}
-                        </div>
+                    <div class="col-md-6">
+                        <label for="number2" class="form-label">رقم الهاتف الثانوي</label>
+                        <input type="text" class="form-control" id="number2" name="number2" 
+                               value="{{ seller['number2'] }}"> {# لا داعي للتحقق من if else هنا لأن Flask يمرر قيمة فارغة #}
                     </div>
-    
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-save"></i> حفظ التعديلات
-                        </button>
-                        <a href="/show_seller" class="btn btn-secondary px-4">
-                            <i class="bi bi-arrow-left"></i> رجوع
-                        </a>
+                </div>
+        
+                <div class="mb-3">
+                    <label for="commercial_record" class="form-label">السجل التجاري</label>
+                    <input type="text" class="form-control" id="commercial_record" name="commercial_record" 
+                               value="{{ seller['commercial_record'] }}"> {# لا داعي للتحقق من if else #}
+                </div>
+        
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="store_image" class="form-label">صورة المتجر</label>
+                        <input class="form-control" type="file" id="store_image" name="store_image" accept="image/*">
+                        {% if seller.current_store_image %}
+                            <small class="form-text text-muted">الصورة الحالية: <a href="{{ url_for('static', filename=seller.current_store_image.replace('static/','',1)) }}" target="_blank">عرض</a></small>
+                            <img src="{{ url_for('static', filename=seller.current_store_image.replace('static/','',1)) }}" 
+                                 class="img-thumbnail mt-2" style="max-height: 150px;">
+                        {% else %}
+                            <small class="form-text text-muted">لا توجد صورة حالية.</small>
+                        {% endif %}
                     </div>
-                </form>
-            </div>
-        </main>
-    
-<!-- Leaflet CSS and JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                    <div class="col-md-4">
+                        <label for="id_image" class="form-label">صورة الهوية</label>
+                        <input class="form-control" type="file" id="id_image" name="id_image" accept="image/*">
+                        {% if seller.current_id_image %}
+                            <small class="form-text text-muted">الصورة الحالية: <a href="{{ url_for('static', filename=seller.current_id_image.replace('static/','',1)) }}" target="_blank">عرض</a></small>
+                            <img src="{{ url_for('static', filename=seller.current_id_image.replace('static/','',1)) }}" 
+                                 class="img-thumbnail mt-2" style="max-height: 150px;">
+                        {% else %}
+                            <small class="form-text text-muted">لا توجد صورة حالية.</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="documents" class="form-label">المستندات</label>
+                        <input class="form-control" type="file" id="documents" name="documents" accept=".pdf,.doc,.docx,.jpg,.png"> {# يمكنك تحديد الأنواع المسموح بها #}
+                        {% if seller.current_documents %}
+                            <small class="form-text text-muted">المستند الحالي: <a href="{{ url_for('static', filename=seller.current_documents.replace('static/','',1)) }}" target="_blank">عرض</a></small>
+                            <a href="{{ url_for('static', filename=seller.current_documents.replace('static/','',1)) }}" 
+                               target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="bi bi-file-earmark-text"></i> عرض المستند
+                            </a>
+                        {% else %}
+                            <small class="form-text text-muted">لا يوجد مستند حالي.</small>
+                        {% endif %}
+                    </div>
+                </div>
+        
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-save"></i> حفظ التعديلات
+                    </button>
+                    <a href="{{ url_for('admin.show_seller') }}" class="btn btn-secondary px-4"> {# استخدام url_for هنا #}
+                        <i class="bi bi-arrow-left"></i> رجوع
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+        
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const map = L.map('map').setView([21.4225, 39.8262], 12);
+    // تهيئة الخريطة ببيانات البائع الحالية أو افتراضية
+    const initialLat = parseFloat('{{ seller.latitude | default("21.4225") }}');
+    const initialLng = parseFloat('{{ seller.longitude | default("39.8262") }}');
+
+    const map = L.map('map').setView([initialLat, initialLng], 12);
     let marker = null;
     const getLocationButton = document.getElementById('getLocationButton');
     const locationStatus = document.getElementById('locationStatus');
@@ -154,6 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+
+        // إضافة Marker إذا كانت هناك إحداثيات حالية
+        if (initialLat && initialLng && !isNaN(initialLat) && !isNaN(initialLng)) {
+            updateLocation(initialLat, initialLng);
+        }
         map.on('click', onMapClick);
     }
 
@@ -211,9 +219,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     getLocationButton.addEventListener('click', onGetLocationClick);
-    initMap();
+    initMap(); // Call initMap to set up the map and initial marker
 });
 </script>
 
 {% include 'admin/footer.html' %}
 
+</body>
+</html>

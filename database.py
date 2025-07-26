@@ -349,12 +349,12 @@ cursor = conn.cursor()
 # newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
 # print(newdata)
 
-# cursor.execute("SELECT * FROM product_images ")  # استعلام عن كل البيانات
-# rows = cursor.fetchall()  # جلب جميع الصفوف
-# print("البيانات الموجودة في قاعدة البيانات:", rows)
+cursor.execute("SELECT * FROM sellers ")  # استعلام عن كل البيانات
+rows = cursor.fetchall()  # جلب جميع الصفوف
+print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-# for row in rows:
-#     print(row)
+for row in rows:
+    print(row)
 
 # cursor.execute('''ALTER TABLE category ADD COLUMN is_active INTEGER DEFAULT 0;''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_new BOOLEAN DEFAULT TRUE;''')
@@ -372,11 +372,11 @@ cursor = conn.cursor()
 # print(newdata)
 
 
-cursor.execute("PRAGMA table_info(product);")
-columns = cursor.fetchall()
+# cursor.execute("PRAGMA table_info(sellers);")
+# columns = cursor.fetchall()
 
-for col in columns:
-    print(col[1])  # col[1] يحتوي على اسم العمود
+# for col in columns:
+#     print(col[1])  # col[1] يحتوي على اسم العمود
 
 # إغلاق الاتصال
 conn.commit()
