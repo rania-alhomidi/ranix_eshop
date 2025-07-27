@@ -6,13 +6,14 @@ from werkzeug.utils import secure_filename
 
 ads_bp = Blueprint('ads', __name__)
 
-UPLOAD_FOLDER = 'static/uploads/ads'
-# Ensure the upload folder exists
+UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'uploads', 'ads')
+
+# الامتدادات المسموح بها للملفات
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webp'} # أضف 'webp' أو أي امتدادات أخرى تحتاجها
+
+# تأكد من إنشاء مجلد الرفع إذا لم يكن موجودًا
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'}
-
 
 def get_db_connection():
     conn = sqlite3.connect('database/Eshop.db')
@@ -181,46 +182,64 @@ def ads_stats():
 
 # ... (الجزء العلوي من ملف ads_bp.py)
 
+from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
+
 @ads_bp.route('/edit/<int:ad_id>', methods=['GET', 'POST'])
 def edit_ad(ad_id):
     conn = get_db_connection()
     ad = conn.execute('SELECT * FROM ads WHERE id = ?', (ad_id,)).fetchone()
-    
+
     if ad is None:
         flash('Ad not found.', 'danger')
         conn.close()
         return redirect(url_for('ads.ads_management'))
 
+    ad_data = dict(ad) # تحويل Row object إلى قاموس للوصولة المرنة
+
+    # لا تزال هذه الأجزاء مهمة لتنسيق التاريخ للعرض الأولي، كما ناقشنا سابقًا
+    try:
+        if ad_data['start_date']:
+            ad_data['start_date'] = ad_data['start_date']
+        if ad_data['end_date']:
+            ad_data['end_date'] = ad_data['end_date']
+    except Exception as e:
+        print(f"Error parsing date from DB for display: {e}")
+        ad_data['start_date'] = ''
+        ad_data['end_date'] = ''
+
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description', '')
         link_url = request.form.get('link_url')
-        start_date = request.form.get('start_date')
-        end_date = request.form.get('end_date')
-        content_type = request.form.get('content_type') # Get content type from form
+        start_date_str = request.form.get('start_date')
+        end_date_str = request.form.get('end_date')
+        content_type = request.form.get('content_type')
+        # *** الجديد: جلب seller_id من النموذج ***
+        seller_id = request.form.get('seller_id')
 
-        # Check if a new file was uploaded
-        new_content_path = ad['content_path'] # Default to existing path
-        if 'content_file' in request.files:
+        new_content_path = ad_data['content_path']
+        # ... (بقية كود معالجة الملفات كما هو، لم يتغير هذا الجزء) ...
+        if 'content_file' in request.files and request.files['content_file'].filename != '':
             file = request.files['content_file']
-            if file.filename != '' and '.' in file.filename and \
-               file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
-                
-                # Delete old file if it exists
-                if ad['content_path']:
-                    old_filename = os.path.basename(ad['content_path'])
-                    old_file_path = os.path.join(UPLOAD_FOLDER, old_filename)
-                    if os.path.exists(old_file_path):
-                        os.remove(old_file_path)
+            file_extension = file.filename.rsplit('.', 1)[1].lower()
 
-                # Save new file
+            if file_extension in ALLOWED_EXTENSIONS:
+                if ad_data['content_path']:
+                    old_filename = os.path.basename(ad_data['content_path'])
+                    old_file_full_path = os.path.join(UPLOAD_FOLDER, old_filename)
+                    if os.path.exists(old_file_full_path):
+                        os.remove(old_file_full_path)
+
                 filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{secure_filename(file.filename)}"
-                file.save(os.path.join(UPLOAD_FOLDER, filename))
+                save_path = os.path.join(UPLOAD_FOLDER, filename)
+                file.save(save_path)
                 new_content_path = f"/static/uploads/ads/{filename}"
             else:
-                flash('Invalid file type for the new content. Ad not updated.', 'danger')
+                flash('نوع ملف غير صالح. لم يتم تحديث الإعلان.', 'danger')
                 conn.close()
-                return redirect(url_for('ads.ads_management')) # Or render edit page again with error
+                return redirect(url_for('ads.ads_management'))
 
         try:
             conn.execute('''
@@ -231,9 +250,11 @@ def edit_ad(ad_id):
                     content_path = ?,
                     link_url = ?,
                     start_date = ?,
-                    end_date = ?
+                    end_date = ?,
+                    seller_id = ?  -- *** الجديد: تحديث حقل seller_id ***
                 WHERE id = ?
-            ''', (title, description, content_type, new_content_path, link_url, start_date, end_date, ad_id))
+            ''', (title, description, content_type, new_content_path, link_url,
+                  start_date_str, end_date_str, seller_id, ad_id)) # *** الجديد: تمرير seller_id هنا ***
             conn.commit()
             flash('تم تحديث الإعلان بنجاح!', 'success')
             return redirect(url_for('ads.ads_management'))
@@ -242,10 +263,8 @@ def edit_ad(ad_id):
             flash(f'حدث خطأ أثناء تحديث الإعلان: {str(e)}', 'danger')
         finally:
             conn.close()
-    
-    # If GET request, render the form with existing ad data
+
+    # إذا كان طلب GET، اعرض النموذج (لا تنسَ أنك قمت بإنشاء ad_data بالفعل)
     sellers = conn.execute('SELECT id, store_name FROM sellers').fetchall()
     conn.close()
-    return render_template('admin/edit_ads.html', ad=ad, sellers=sellers)
-
-# ... (بقية الكود الموجود في ads_bp.py)
+    return render_template('admin/edit_ads.html', ad=ad_data, sellers=sellers)

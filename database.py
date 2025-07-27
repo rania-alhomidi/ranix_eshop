@@ -56,6 +56,7 @@ cursor = conn.cursor()
 #     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 #     -- ON DELETE CASCADE: يعني إذا تم حذف المنتج، فسيتم حذف جميع صوره المرتبطة به تلقائيًا.
 # );''')
+
 # cursor.execute('''
 # CREATE TABLE IF NOT EXISTS stock (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -349,7 +350,7 @@ cursor = conn.cursor()
 # newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
 # print(newdata)
 
-cursor.execute("SELECT * FROM sellers ")  # استعلام عن كل البيانات
+cursor.execute("SELECT * FROM product_image ")  # استعلام عن كل البيانات
 rows = cursor.fetchall()  # جلب جميع الصفوف
 print("البيانات الموجودة في قاعدة البيانات:", rows)
 

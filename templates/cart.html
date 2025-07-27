@@ -7,7 +7,7 @@
     /* تصميم الهيدر */
     .app-header {
         /* background-color: #c63683; زهري هادئ */
-        color: white;
+        color: rgb(255, 255, 255);
         padding: 15px 20px;
         display: flex;
         align-items: center;
@@ -15,6 +15,7 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
+        background-color: #ba4ac2;
     }
 
     .app-header h1 {
@@ -27,19 +28,19 @@
 
     .app-header .back-arrow,
     .app-header .action-icon {
-        color: white;
+        color: rgb(0, 0, 0);
         font-size: 1.4em;
     }
 
     .container {
-        background-color: white;
+        /* background-color: white; */
         /* خلفية بيضاء للصفحة */
-        min-height: 100vh;
+        /* min-height: 100vh; */
     }
 
     .main-content {
-        padding: 20px 15px;
-        background-color: white;
+        /* padding: 20px 15px; */
+        /* background-color: white; */
     }
 
     .cart-title {
@@ -316,11 +317,15 @@
                 <div class="cart-item">
                     <div class="product-info">
                         {% if item.image %}
-                        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}"
-                            class="product-image">
+{% if item.image and item.image != '' %}
+    <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" class="product-image">
+{% else %}
+    <img src="{{ url_for('static', filename='uploads/products/default_product.jpg') }}"
+        alt="صورة افتراضية" class="product-image">
+{% endif %}
                         {% else %}
-                        <img src="{{ url_for('static', filename='uploads/products/default_product.jpg') }}"
-                            alt="صورة افتراضية" class="product-image">
+                        <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}"
+                            class="product-image">
                         {% endif %}
                         <div class="product-details">
                             <h5>{{ item.name }}</h5>

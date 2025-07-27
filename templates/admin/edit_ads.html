@@ -10,32 +10,48 @@
             <li class="breadcrumb-item active">تعديل إعلان</li>
         </ol>
     </nav>
-</div><section class="section">
+</div>
+<section class="section">
     <div class="row">
         <div class="col-lg-10">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">نموذج تعديل الإعلان</h5>
 
-                    <form action="{{ url_for('ads.edit_ad', ad_id=ad.id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url_for('ads.edit_ad', ad_id=ad.id) }}" method="POST"
+                        enctype="multipart/form-data">
                         <div class="row mb-3">
                             <label for="title" class="col-md-4 col-lg-3 col-form-label">عنوان الإعلان</label>
                             <div class="col-md-8 col-lg-9">
-                                <input name="title" type="text" class="form-control" id="title" value="{{ ad.title }}" required>
+                                <input name="title" type="text" class="form-control" id="title" value="{{ ad.title }}"
+                                    required>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label for="description" class="col-md-4 col-lg-3 col-form-label">الوصف</label>
                             <div class="col-md-8 col-lg-9">
-                                <textarea name="description" class="form-control" id="description" rows="3">{{ ad.description }}</textarea>
+                                <textarea name="description" class="form-control" id="description"
+                                    rows="3">{{ ad.description }}</textarea>
                             </div>
                         </div>
-
+                        <div class="row mb-3">
+                            <label for="seller_id" class="col-md-4 col-lg-3 col-form-label">البائع</label>
+                            <div class="col-md-8 col-lg-9">
+                                <select name="seller_id" id="seller_id" class="form-select" required>
+                                    {% for seller in sellers %}
+                                    <option value="{{ seller.id }}" {% if ad.seller_id==seller.id %}selected{% endif %}>
+                                        {{ seller.store_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         <div class="row mb-3">
                             <label for="link_url" class="col-md-4 col-lg-3 col-form-label">رابط الإعلان (URL)</label>
                             <div class="col-md-8 col-lg-9">
-                                <input name="link_url" type="url" class="form-control" id="link_url" value="{{ ad.link_url }}" required>
+                                <input name="link_url" type="url" class="form-control" id="link_url"
+                                    value="{{ ad.link_url }}" required>
                             </div>
                         </div>
 
@@ -43,21 +59,27 @@
                             <label for="content_type" class="col-md-4 col-lg-3 col-form-label">نوع المحتوى</label>
                             <div class="col-md-8 col-lg-9">
                                 <select name="content_type" id="content_type" class="form-select" required>
-                                    <option value="image" {% if ad.content_type == 'image' %}selected{% endif %}>صورة</option>
-                                    <option value="video" {% if ad.content_type == 'video' %}selected{% endif %}>فيديو</option>
-                                    <option value="text" {% if ad.content_type == 'text' %}selected{% endif %}>نص فقط</option>
+                                    <option value="image" {% if ad.content_type=='image' %}selected{% endif %}>صورة
+                                    </option>
+                                    <option value="video" {% if ad.content_type=='video' %}selected{% endif %}>فيديو
+                                    </option>
+                                    <option value="text" {% if ad.content_type=='text' %}selected{% endif %}>نص فقط
+                                    </option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <label for="content_file" class="col-md-4 col-lg-3 col-form-label">رفع محتوى جديد (صورة/فيديو)</label>
+                            <label for="content_file" class="col-md-4 col-lg-3 col-form-label">رفع محتوى جديد
+                                (صورة/فيديو)</label>
                             <div class="col-md-8 col-lg-9">
-                                <input name="content_file" type="file" class="form-control" id="content_file" accept="image/*,video/*">
+                                <input name="content_file" type="file" class="form-control" id="content_file"
+                                    accept="image/*,video/*">
                                 {% if ad.content_path %}
-                                    <small class="form-text text-muted">المحتوى الحالي: <a href="{{ ad.content_path }}" target="_blank">عرض</a></small>
+                                <small class="form-text text-muted">المحتوى الحالي: <a href="{{ ad.content_path }}"
+                                        target="_blank">عرض</a></small>
                                 {% else %}
-                                    <small class="form-text text-muted">لا يوجد محتوى حالي مرفق.</small>
+                                <small class="form-text text-muted">لا يوجد محتوى حالي مرفق.</small>
                                 {% endif %}
                             </div>
                         </div>
@@ -65,14 +87,16 @@
                         <div class="row mb-3">
                             <label for="start_date" class="col-md-4 col-lg-3 col-form-label">تاريخ البدء</label>
                             <div class="col-md-8 col-lg-9">
-                                <input name="start_date" type="date" class="form-control" id="start_date" value="{{ ad.start_date }}" required>
+                                <input name="start_date" type="date" class="form-control" id="start_date"
+                                    value="{{ ad.start_date }}" required>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label for="end_date" class="col-md-4 col-lg-3 col-form-label">تاريخ الانتهاء</label>
                             <div class="col-md-8 col-lg-9">
-                                <input name="end_date" type="date" class="form-control" id="end_date" value="{{ ad.end_date }}" required>
+                                <input name="end_date" type="date" class="form-control" id="end_date"
+                                    value="{{ ad.end_date }}" required>
                             </div>
                         </div>
 

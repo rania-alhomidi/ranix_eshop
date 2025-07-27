@@ -57,6 +57,8 @@ def home():
                            total_main_categories=total_main_categories, # 🆕 تمرير عدد الأقسام الرئيسية
                            total_sellers=total_sellers 
                           )
+
+
 @admin_bp.route('/profile')
 def profile():
     return render_template('admin/profile.html')
