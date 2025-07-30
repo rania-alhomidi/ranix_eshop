@@ -350,15 +350,16 @@ cursor = conn.cursor()
 # newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
 # print(newdata)
 
-cursor.execute("SELECT * FROM product_image ")  # استعلام عن كل البيانات
-rows = cursor.fetchall()  # جلب جميع الصفوف
-print("البيانات الموجودة في قاعدة البيانات:", rows)
+# cursor.execute("SELECT * FROM product_image ")  # استعلام عن كل البيانات
+# rows = cursor.fetchall()  # جلب جميع الصفوف
+# print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-for row in rows:
-    print(row)
+# for row in rows:
+#     print(row)
 
 # cursor.execute('''ALTER TABLE category ADD COLUMN is_active INTEGER DEFAULT 0;''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_new BOOLEAN DEFAULT TRUE;''')
+# cursor.execute('''ALTER TABLE category ADD COLUMN view_count INTEGER DEFAULT 0;''')
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
@@ -373,11 +374,11 @@ for row in rows:
 # print(newdata)
 
 
-# cursor.execute("PRAGMA table_info(sellers);")
-# columns = cursor.fetchall()
+cursor.execute("PRAGMA table_info(category);")
+columns = cursor.fetchall()
 
-# for col in columns:
-#     print(col[1])  # col[1] يحتوي على اسم العمود
+for col in columns:
+    print(col[1])  # col[1] يحتوي على اسم العمود
 
 # إغلاق الاتصال
 conn.commit()

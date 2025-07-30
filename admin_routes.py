@@ -15,6 +15,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+
 @admin_bp.route('/')
 def home():
     conn = get_db_connection()
@@ -199,12 +200,7 @@ def edit_category(category_id):
                          category=category,
                          categories=categories)
                          
-                         
-                         
-                         
-                         
-                         
-                         
+                                     
 
 
 @admin_bp.route('/category_details_admin/<int:category_id>')
@@ -225,8 +221,6 @@ def category_details_admin(category_id):
 
     return render_template('admin/category_details_admin.html', category=category)
 
-                         
-                         
                          
                          
                          

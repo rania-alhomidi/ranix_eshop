@@ -270,3 +270,35 @@ def wishlist():
     conn.close()
 
     return render_template('wishlist.html', products=liked_products)
+
+# @user_bp.route('/category/<int:category_id>') # أو @app.route إذا لم يكن لديك Blueprint
+# def view_category(category_id):
+#     conn = get_db_connection()
+#     category = None
+#     try:
+#         # جلب تفاصيل القسم
+#         category = conn.execute('''
+#             SELECT c1.*, c2.name as parent_name,
+#                    (SELECT COUNT(p.id) FROM product p WHERE p.category_id = c1.id) as product_count
+#             FROM category c1
+#             LEFT JOIN category c2 ON c1.parent_id = c2.id
+#             WHERE c1.id = ?
+#         ''', (category_id,)).fetchone()
+
+#         if not category:
+#             flash("القسم غير موجود!", "danger")
+#             return redirect(url_for('product.index')) # أو المسار الرئيسي لموقعك
+
+#         # **زيادة عداد الزيارات**
+#         conn.execute('UPDATE category SET view_count = view_count + 1 WHERE id = ?', (category_id,))
+#         conn.commit()
+
+#         # جلب المنتجات المرتبطة بهذا القسم (مثال)
+#         products = conn.execute('SELECT * FROM product WHERE category_id = ?', (category_id,)).fetchall()
+
+#         return render_template('user/category_details.html', category=category, products=products)
+#     except Exception as e:
+#         flash(f"حدث خطأ أثناء جلب تفاصيل القسم: {str(e)}", "danger")
+#         return redirect(url_for('product.index')) # أو المسار الرئيسي لموقعك
+#     finally:
+#         conn.close()

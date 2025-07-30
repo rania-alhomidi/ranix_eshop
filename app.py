@@ -89,6 +89,14 @@ def inject_categories():
     finally:
         conn.close()
 
+# ضع هذه الدالة في ملف الـ Blueprint الخاص بالمستخدمين أو في app.py
+# def get_main_categories():
+#     conn = get_db_connection()
+#     # جلب الأقسام الرئيسية (التي ليس لها parent_id)
+#     categories = conn.execute("SELECT id, name FROM category WHERE parent_id IS NULL ORDER BY name ASC").fetchall()
+#     conn.close()
+#     return categories
+
 @app.context_processor
 def inject_sellers():
     conn = get_db_connection()

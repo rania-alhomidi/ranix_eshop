@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.name }} - تفاصيل القسم</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {# يمكنك إضافة روابط لملفات CSS إضافية هنا #}
+    <style>
+        /* أنماط أساسية لتنسيق الصفحة */
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .category-header { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; margin-bottom: 30px; }
+        .category-header h1 { color: #333; font-size: 2.5em; margin-bottom: 10px; }
+        .category-header img { max-width: 150px; height: auto; border-radius: 50%; margin-bottom: 20px; border: 3px solid #007bff; padding: 5px; }
+        .category-info p { color: #666; font-size: 1.1em; line-height: 1.6; }
+        .category-info p span { font-weight: bold; color: #007bff; }
+
+        .section-title { font-size: 2em; color: #333; text-align: center; margin-bottom: 30px; position: relative; padding-bottom: 10px; }
+        .section-title::after { content: ''; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 80px; height: 3px; background-color: #007bff; border-radius: 5px; }
+
+        .products-grid, .subcategories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .product-card, .subcategory-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover, .subcategory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        .product-card a, .subcategory-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 15px;
+        }
+        .product-card img, .subcategory-card img {
+            max-width: 100%;
+            height: 180px; /* ارتفاع ثابت للصور */
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .product-card h3, .subcategory-card h3 {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .product-card p.price {
+            font-size: 1.1em;
+            color: #e67e22;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .product-card p.original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.9em;
+            margin-right: 5px;
+        }
+        .product-card .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .product-card .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
+        .no-items-message {
+            text-align: center;
+            font-size: 1.2em;
+            color: #888;
+            padding: 50px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    {# يمكنك إضافة شريط التنقل (navbar) هنا إذا كان لديك ملف include له #}
+
+    <div class="container">
+        <div class="category-header">
+            {% if category.image %}
+                <img src="{{ url_for('static', filename=category.image) }}" alt="{{ category.name }}">
+            {% else %}
+                <img src="{{ url_for('static', filename='uploads/category_img/default_category.jpg') }}" alt="{{ category.name }}">
+            {% endif %}
+            <h1>{{ category.name }}</h1>
+            <div class="category-info">
+                {% if category.parent_name %}
+                    <p>القسم الرئيسي: <span>{{ category.parent_name }}</span></p>
+                {% else %}
+                    <p>هذا قسم رئيسي.</p>
+                {% endif %}
+                <p>إجمالي المنتجات في هذا القسم: <span>{{ category.product_count }}</span></p>
+                <p>عدد الزيارات: <span>{{ category.view_count }}</span></p>
+                {# يمكنك إضافة وصف القسم هنا إذا كان لديك عمود وصف #}
+                {% if category.description %}
+                    <p>{{ category.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if sub_categories %}
+        <h2 class="section-title">الأقسام الفرعية لـ {{ category.name }}</h2>
+        <div class="subcategories-grid">
+            {% for sub_cat in sub_categories %}
+            <div class="subcategory-card">
+                <a href="{{ url_for('product.category_details_user', category_id=sub_cat.id) }}">
+                    {% if sub_cat.image %}
+                        <img src="{{ url_for('static', filename=sub_cat.image) }}" alt="{{ sub_cat.name }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/category_img/default_category.jpg') }}" alt="{{ sub_cat.name }}">
+                    {% endif %}
+                    <h3>{{ sub_cat.name }}</h3>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <h2 class="section-title">منتجات في قسم {{ category.name }}</h2>
+        {% if products_in_category %}
+        <div class="products-grid">
+            {% for product in products_in_category %}
+            <div class="product-card">
+                <a href="{{ url_for('product.product_details', product_id=product.id) }}"> {# افترض أن لديك مسار لصفحة تفاصيل المنتج #}
+                    {% if product.image %}
+                        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/products/default_product.jpg') }}" alt="{{ product.name }}">
+                    {% endif %}
+                    <h3>{{ product.name }}</h3>
+                    <p class="price">
+                        {% if product.original_price != product.profit_price %}
+                            <span class="original-price">{{ "{:,.0f}".format(product.original_price) }} ريال</span>
+                        {% endif %}
+                        {{ "{:,.0f}".format(product.profit_price) }} ريال
+                    </p>
+                    {# يمكنك إضافة زر "أضف للسلة" هنا #}
+                    <button class="add-to-cart-btn">أضف إلى السلة</button>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <div class="no-items-message">
+                <p>لا توجد منتجات في هذا القسم حالياً.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {# يمكنك إضافة تذييل الصفحة (footer) هنا #}
+</body>
+</html>

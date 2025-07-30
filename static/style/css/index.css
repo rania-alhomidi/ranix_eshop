@@ -170,14 +170,80 @@ a:hover {
     font-weight: 500;
 }
 
-/* أقسام التصنيفات (في index.html) - grid */
-.categories-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    padding: 10px;
+/* الأقسام الرئيسية (section-header) - تبقى كما هي */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 10px;
 }
 
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.view-all {
+    font-size: 14px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* العنصر الحاوي القابل للتمرير الأفقي */
+.categories-scroll-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 15px; /* لإعطاء مساحة لشريط التمرير إذا كان مرئياً أو مساحة سفلية */
+    position: relative; /* ضروري لوضع التدرجات (::before, ::after) */
+
+    /* إخفاء شريط التمرير الافتراضي للمتصفحات (اختياري، لكن يحسن المظهر) */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.categories-scroll-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* تدرجات (fades) على الأطراف لبيان أن هناك محتوى قابل للتمرير */
+.categories-scroll-wrapper::before,
+.categories-scroll-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px; /* عرض منطقة التدرج */
+    pointer-events: none; /* يسمح بالنقر على العناصر الموجودة تحت التدرج */
+    z-index: 2; /* تأكد أنه يظهر فوق المحتوى */
+}
+
+.categories-scroll-wrapper::before { /* التدرج الأيسر */
+    left: 0;
+    /* background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%); */
+    /* يمكنك جعل هذا التدرج يظهر ويختفي بناءً على موضع التمرير بالـ JS إذا أردت سلوكًا ديناميكيًا */
+}
+
+.categories-scroll-wrapper::after { /* التدرج الأيمن */
+    right: 0;
+    background: linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    /* يمكنك جعل هذا التدرج يظهر ويختفي بناءً على موضع التمرير بالـ JS إذا أردت سلوكًا ديناميكيًا */
+}
+
+
+/* الشبكة نفسها: ستكون صفين، وتتمدد أفقياً لاستيعاب كل العناصر */
+.categories-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, auto); /* صفين فقط */
+    gap: 15px; /* المسافة بين العناصر */
+    padding: 10px; /* padding داخل الشبكة */
+    width: max-content; /* يجعل عرض الشبكة كبيراً بما يكفي لاحتواء كل الأعمدة المتولدة */
+}
+
+/* العنصر الفردي داخل الشبكة */
 .category-item {
     display: flex;
     flex-direction: column;
@@ -185,7 +251,7 @@ a:hover {
     text-align: center;
     text-decoration: none;
     color: #333;
-    transition: var(--transition); /* انتقال سلس للحركات */
+    transition: var(--transition);
 }
 
 .image-container {
@@ -198,8 +264,8 @@ a:hover {
     margin-bottom: 8px;
     overflow: hidden;
     border: 2px solid #f0f0f0;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-    transition: var(--transition); /* انتقال سلس للحركات */
+    /* box-shadow: 0 3px 6px rgba(0,0,0,0.1); */
+    transition: var(--transition);
 }
 
 .category-img {
@@ -215,31 +281,31 @@ a:hover {
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    transition: var(--transition); /* انتقال سلس للحركات */
+    transition: var(--transition);
 }
 
-/* تأثيرات التحويم على بطاقات التصنيفات */
+/* تأثيرات التحويم على بطاقات التصنيفات - تبقى كما هي */
 .category-item:hover {
     transform: translateY(-5px);
 }
 
 .category-item:hover .image-container {
     transform: scale(1.1);
-    border-color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    border-color: var(--primary-color);
 }
 
 .category-item:hover .category-name {
-    color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    color: var(--primary-color);
     font-weight: bold;
 }
 
-/* تأثيرات النقر على بطاقات التصنيفات */
+/* تأثيرات النقر على بطاقات التصنيفات - تبقى كما هي */
 .category-item:active {
     transform: translateY(-2px);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* الأقسام المميزة في index.html */
+/* الأقسام المميزة في index.html - تبقى كما هي */
 .featured-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -278,7 +344,7 @@ a:hover {
 }
 
 .featured-link {
-    color: var(--primary-color); /* استخدام اللون الزهري الأساسي */
+    color: var(--primary-color);
     font-size: 13px;
     font-weight: 500;
 }
@@ -294,16 +360,38 @@ a:hover {
     .featured-grid {
         grid-template-columns: repeat(3, 1fr);
     }
-    /* الأقسام الرئيسية (categories-grid) قد تحتاج لتعديلات إضافية هنا للشاشات الأكبر */
+    /* على الشاشات الكبيرة، قد تكون 4 أعمدة مرئية بشكل طبيعي */
+    /* إذا كنت تريد 4 أعمدة ظاهرة دائمًا على الشاشات الكبيرة قبل التمرير،
+       تأكد أن عرض كل category-item + gap مناسب.
+       يمكنك استخدام حلول مثل minmax في grid-template-columns
+       إذا كنت تريد مرونة أكبر. */
+    /* مثال على التحكم في عرض العنصر لضمان رؤية 4 أعمدة على شاشات أكبر: */
+    .category-item {
+        /* min-width: 100px; /* مثال: إذا كنت تعرف أن عرض العنصر يجب أن يكون 100px */
+    }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .image-container {
         width: 70px;
         height: 70px;
     }
     .category-name {
         font-size: 12px;
+    }
+    /* هذا هو الجزء الحاسم لضمان ظهور 4 أعمدة على الجوال (أو الشاشات الصغيرة) */
+    .category-item {
+        /*
+           نحن نريد 4 أعمدة. عرض كل عمود هو (العرض الكلي المتاح - الفجوات) / 4
+           100vw = عرض نافذة العرض
+           - (4 * 15px) = 4 فجوات بين الأعمدة
+           - (2 * 10px) = 2 padding للعنصر categories-grid
+           / 4 = تقسيم على 4 أعمدة
+           هذه القيمة تجبر كل عنصر على أن يكون له عرض معين يسمح بـ 4 أعمدة في السطر الواحد.
+        */
+        min-width: calc((100vw - (4 * 15px) - (2 * 10px)) / 4);
+        /* 100vw - 60px (gaps) - 20px (padding) / 4 */
+        /* أي: calc((100vw - 80px) / 4); */
     }
 }
 /* ---------------------------------------------------- */
