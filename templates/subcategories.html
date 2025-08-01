@@ -2,24 +2,30 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <div class="sc-container">
     <div class="sc-page-header">
-        <h1 class="sc-page-title">الأقسام الفرعية لـ {{ main_category[1] }}</h1>
+        <h1 class="sc-page-title">الأقسام الفرعية لـ {{ main_category['name'] }}</h1>
         <p class="sc-page-subtitle">اكتشف مجموعة متنوعة من الأقسام الفرعية المميزة</p>
     </div>
 
     {% if subcategories %}
         <div class="sc-grid">
             {% for subcategory in subcategories %}
-                <div class="sc-category-card"> {# هذا العنصر يجب أن يكون position: relative; في CSS #}
-                    <a href="{{ url_for('product.show_products_by_category', category_id=subcategory[0]) }}" class="">
-                    <div class="sc-image-container">
-                        <img src="{{ url_for('static', filename='uploads/category_img/' + subcategory[2].split('/')[-1]) }}" 
-                             alt="{{ subcategory[1] }}" class="sc-category-image">
-                    </div>
-                    <div class="sc-category-content">
-                        <h3 class="sc-category-name">{{ subcategory[1] }}</h3>
-                           <p class="btn-name-cate"> تصفح المنتجات</p>
-                        </a>
-                    </div>
+                <div class="sc-category-card">
+                    <a href="{{ url_for('product.show_products_by_category', category_id=subcategory['id']) }}" class="">
+                        <div class="sc-image-container">
+                            {% if subcategory['image'] %}
+                            <img src="{{ url_for('static', filename='uploads/category_img/' + subcategory['image'].split('/')[-1]) }}" 
+                                 alt="{{ subcategory['name'] }}" class="sc-category-image">
+                            {% else %}
+                            <div class="sc-default-image">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="sc-category-content">
+                            <h3 class="sc-category-name">{{ subcategory['name'] }}</h3>
+                            <p class="btn-name-cate">تصفح المنتجات</p>
+                        </div>
+                    </a>
                 </div>
             {% endfor %}
         </div>

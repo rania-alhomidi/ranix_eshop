@@ -252,7 +252,7 @@ body {
         display: block;
         width: 100px;
         height: 4px;
-        background: #4c51bf;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); /* استخدام الزهري */;
         margin: 15px auto 0;
     }
 

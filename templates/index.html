@@ -1,664 +1,708 @@
-{% include 'header.html' %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
-    <link href="{{ url_for('static', filename='img/favicon.png') }}" rel="icon">
-    <link href="{{ url_for('static', filename='img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezza | متجرك المميز</title>
 
-    <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-        rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/nice-select.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/jquery-ui.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/slicknav.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
-    {# Make sure this file exists and contains general page styles #}
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/index.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/header.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/shop_u.css')}}">
+
+    <script src="{{ url_for('static', filename='style/js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='style/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='style/js/owl.carousel.min.js') }}"></script>
 
 
 
+</head>
 
-<Style>
-    /* Global styles for the body */
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f0f2f5;
-        /* A light, modern background */
-        color: #333;
-        margin: 20px;
-        padding: 0;
-    }
+<body>
 
-    /* Ad Slider Container - The main wrapper */
-    .ad-slider-container {
-        max-width: 1000px;
-        height: 480px;
-        /* الارتفاع الأصلي للشاشات الكبيرة */
-        margin: 30px auto;
-        position: relative;
-        overflow: hidden;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        background-color: #000000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
+    <header class="premium-header">
+        <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </button>
 
-    /* Individual Ad Slide - Crucial for stacking and transitions */
-    .ad-slide {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1);
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        color: #fff;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
 
-    .ad-slide.active {
-        opacity: 1;
-    }
+        <div class="search-bar">
+            <form class="search-form" action="{{ url_for('search_bp.search_products') }}" method="GET">
+                <input type="text" class="search-input" placeholder="ابحث عن منتجات، أقسام، عروض..." name="q"
+                    id="search-input" autocomplete="off">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+                <div id="search-suggestions" class="search-suggestions"></div>
+            </form>
+        </div>
+        <style>
+            .search-suggestions {
+                display: none;
+                position: absolute;
+                background: white;
+                width: 100%;
+                max-height: 300px;
+                overflow-y: auto;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+            }
 
-    /* Media content (image/video) within a slide */
-    .ad-slide img,
-    .ad-slide video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
-        display: block;
-        border-radius: 15px;
-    }
+            .suggestion-item {
+                padding: 10px;
+                cursor: pointer;
+                border-bottom: 1px solid #eee;
+            }
 
-    /* Ad Caption - Overlays media content */
-    .ad-caption {
-        position: relative;
-        z-index: 3;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-        padding: 30px;
-        color: white;
-        text-align: right;
-        width: 100%;
-        box-sizing: border-box;
-    }
+            .suggestion-item:hover {
+                background-color: #f5f5f5;
+            }
+        </style>
 
-    .ad-caption h5 {
-        font-size: 2.2em;
-        margin-bottom: 10px;
-        font-weight: 700;
-        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
-        line-height: 1.2;
-    }
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const searchInput = document.getElementById('search-input');
+                const suggestionsDiv = document.getElementById('search-suggestions');
 
-    .ad-caption p {
-        font-size: 1.2em;
-        margin-bottom: 20px;
-        opacity: 0.95;
-        line-height: 1.5;
-    }
+                searchInput.addEventListener('input', function () {
+                    const query = this.value.trim();
 
-    /* Call to action button */
-    .ad-link-btn {
-        background-color: #ff4757;
-        color: white;
-        padding: 15px 35px;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 1.1em;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 5px 18px rgba(255, 71, 87, 0.5);
-    }
+                    if (query.length > 2) {
+                        fetch(`/suggestions?term=${encodeURIComponent(query)}`)
+                            .then(response => response.json())
+                            .then(suggestions => {
+                                if (suggestions.length > 0) {
+                                    suggestionsDiv.innerHTML = suggestions.map(s =>
+                                        `<div class="suggestion-item">${s}</div>`
+                                    ).join('');
+                                    suggestionsDiv.style.display = 'block';
+                                } else {
+                                    suggestionsDiv.style.display = 'none';
+                                }
+                            });
+                    } else {
+                        suggestionsDiv.style.display = 'none';
+                    }
+                });
 
-    .ad-link-btn:hover {
-        background-color: #ff6b81;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(255, 71, 87, 0.7);
-    }
+                // عند النقر على اقتراح
+                suggestionsDiv.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('suggestion-item')) {
+                        searchInput.value = e.target.textContent;
+                        suggestionsDiv.style.display = 'none';
+                        document.querySelector('.search-form').submit();
+                    }
+                });
+            });
+        </script>
 
-    /* Text-only ad style (when no image/video is available) */
-    .ad-slide.text-only {
-        /* Changed background to black */
-        background: #000;
-        color: white;
-        /* Ensures text is white */
-        display: flex;
-        justify-content: center;
-        /* Center horizontally */
-        align-items: center;
-        /* Center vertically */
-        text-align: center;
-        /* Center text within the caption */
-        padding: 50px;
-    }
+        <div class="nav-tools">
+            {# يمكنك إضافة أيقونات أخرى هنا إذا أردت، مثل أيقونة سلة التسوق أو المفضلة #}
+            {# مثال: #}
+            <a href="{{ url_for('cart.view_cart') }}" class="nav-icon">
+                <i class="fas fa-shopping-cart"></i>
+                {% if total_items_count > 0 %}
+                <span class="cart-counter">{{ total_items_count }}</span>
+                {% endif %}
+            </a>
+            <!-- <a href="#" class="nav-icon">
+                <i class="fas fa-heart"></i>
+            </a> -->
+        </div>
+        <a href="{{ url_for('product.index') }}" class="brand">
+            <span class="brand-name">Rezza</span>
+        </a>
+    </header>
 
-    .ad-slide.text-only .ad-caption {
-        position: static;
-        background: transparent;
-        padding: 0;
-        text-shadow: none;
-        width: auto;
-        /* Allow caption to shrink to content size */
-        max-width: 80%;
-        /* Prevent text from being too wide on large screens */
-    }
+    <div class="luxury-sidebar" id="sideMenu">
+        <div class="sidebar-header">
+            <h3 class="sidebar-title">مرحباً بك في Rezza</h3>
+            <button class="close-sidebar" id="closeMenu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-    .ad-slide.text-only .ad-caption h5 {
-        font-size: 2.8em;
-        margin-bottom: 15px;
-    }
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <div class="section-heading" id="accountSection">
+                    <h4 class="section-title">حسابك</h4>
+                    <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <ul class="sidebar-list">
+                    {# استخدام 'logged_in' بدلاً من 'user_name' لتوحيد التحقق من تسجيل الدخول #}
+                    {% if logged_in %}
+                    <li>
+                        <a class="nav-link" href="{{ url_for('user.logout') }}" id="logout-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            {# عرض اسم المستخدم إذا كان متاحًا #}
+                            {% if user_name %} مرحباً {{ user_name }}، {% endif %} تسجيل الخروج
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a class="nav-link" href="{{ url_for('user.login') }}">
+                            <i class="fas fa-sign-in-alt"></i>
+                            تسجيل الدخول
+                        </a>
+                    </li>
+                    {% endif %}
 
-    .ad-slide.text-only .ad-caption p {
-        font-size: 1.4em;
-        margin-bottom: 30px;
-    }
+                    <li>
+                        <a href="{{ url_for('user.profile') }}">
+                            <i class="fas fa-user-cog"></i>
+                            إعدادات الحساب
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-box-open"></i>
+                            طلباتي
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-    /* Slider Controls (Arrows) */
-    .slider-controls {
-        position: absolute;
-        top: 50%;
-        width: 100%;
-        transform: translateY(-50%);
-        display: flex;
-        justify-content: space-between;
-        padding: 0 25px;
-        z-index: 10;
-    }
+            <div class="sidebar-section">
+                <div class="section-heading" id="categoriesSection">
+                    <h4 class="section-title">الأقسام</h4>
+                    <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <ul class="sidebar-list">
+                    {% for category in main_categories %}
+                    <li>
+                        <a href="{{ url_for('product.show_subcategories', category_id=category.id) }}"> {# تأكد أنك تمرر
+                            category.id وليس category[0] #}
+                            <i class="fas fa-tag"></i>
+                            {{ category.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
 
-    .slider-control-btn {
-        background-color: rgba(255, 255, 255, 0.25);
-        color: white;
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2em;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
+            <div class="sidebar-section">
+                <div class="section-heading" id="sellersSection">
+                    <h4 class="section-title">البائعين</h4>
+                    <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <ul class="sidebar-list">
+                    {% for seller in sellers %}
+                    <li>
+                        <a class="" href="{{ url_for('seller.seller_products', seller_id=seller.id) }}">
+                            <i class="fas fa-store-alt"></i>
+                            {{ seller.store_name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
 
-    .slider-control-btn:hover {
-        background-color: rgba(255, 255, 255, 0.5);
-        transform: scale(1.1);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
+            <div class="sidebar-section">
+                <div class="section-heading" id="helpSection">
+                    <h4 class="section-title">المساعدة</h4>
+                    <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <ul class="sidebar-list">
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-headset"></i>
+                            خدمة العملاء
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-info-circle"></i>
+                            عن المتجر
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-exchange-alt"></i>
+                            سياسة الإرجاع
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-    /* Slider Pagination Dots */
-    .slider-pagination {
-        position: absolute;
-        bottom: 25px;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        z-index: 11;
-    }
+    <div class="overlay" id="overlay"></div>
 
-    .slider-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.6);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-    }
+    <main class="main-content">
 
-    .slider-dot.active {
-        background-color: #ff4757;
-        width: 35px;
-        border-radius: 5px;
-        transform: scale(1);
-        border-color: #e60023;
-    }
+    </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const logoutLink = document.getElementById("logout-link");
 
-    .slider-dot:hover {
-        background-color: rgba(255, 255, 255, 0.9);
-        transform: scale(1.1);
-    }
+            if (logoutLink) {
+                logoutLink.addEventListener("click", function (event) {
+                    const confirmLogout = confirm("هل أنت متأكد أنك تريد تسجيل الخروج؟");
+                    if (!confirmLogout) {
+                        event.preventDefault(); // منع الانتقال للرابط
+                    }
+                });
+            }
+        });
+    </script>
 
-    /* ---------------------------------------------------------------------- */
-    /* Media Queries for Responsiveness */
-    /* ---------------------------------------------------------------------- */
 
-    /* For Tablets and larger phones (e.g., screens up to 768px wide) */
-    @media (max-width: 768px) {
-        .ad-slider-container {
-            height: 350px;
-            /* أقصر من الارتفاع الأصلي للشاشات المتوسطة */
-            margin: 20px auto;
-            border-radius: 10px;
+
+    <Style>
+        /* Global styles for the body */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            /* A light, modern background */
+            color: #333;
+            margin: 20px;
+            padding: 0;
         }
 
+        /* Ad Slider Container - The main wrapper */
+        .ad-slider-container {
+            max-width: 1000px;
+            height: 480px;
+            /* الارتفاع الأصلي للشاشات الكبيرة */
+            margin: 30px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background-color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Individual Ad Slide - Crucial for stacking and transitions */
+        .ad-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: #fff;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .ad-slide.active {
+            opacity: 1;
+        }
+
+        /* Media content (image/video) within a slide */
+        .ad-slide img,
+        .ad-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            display: block;
+            border-radius: 15px;
+        }
+
+        /* Ad Caption - Overlays media content */
         .ad-caption {
-            padding: 20px;
+            position: relative;
+            z-index: 3;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+            padding: 30px;
+            color: white;
+            text-align: right;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .ad-caption h5 {
-            font-size: 1.8em;
-            /* تصغير حجم العنوان */
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+            line-height: 1.2;
         }
 
         .ad-caption p {
-            font-size: 1em;
-            /* تصغير حجم الوصف */
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        /* Call to action button */
+        .ad-link-btn {
+            background-color: #ff4757;
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 18px rgba(255, 71, 87, 0.5);
+        }
+
+        .ad-link-btn:hover {
+            background-color: #ff6b81;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.7);
+        }
+
+        /* Text-only ad style (when no image/video is available) */
+        .ad-slide.text-only {
+            /* Changed background to black */
+            background: #000;
+            color: white;
+            /* Ensures text is white */
+            display: flex;
+            justify-content: center;
+            /* Center horizontally */
+            align-items: center;
+            /* Center vertically */
+            text-align: center;
+            /* Center text within the caption */
+            padding: 50px;
+        }
+
+        .ad-slide.text-only .ad-caption {
+            position: static;
+            background: transparent;
+            padding: 0;
+            text-shadow: none;
+            width: auto;
+            /* Allow caption to shrink to content size */
+            max-width: 80%;
+            /* Prevent text from being too wide on large screens */
+        }
+
+        .ad-slide.text-only .ad-caption h5 {
+            font-size: 2.8em;
             margin-bottom: 15px;
         }
 
-        .ad-link-btn {
-            padding: 12px 28px;
-            /* تصغير حجم الزر */
-            font-size: 1em;
-        }
-
-        .slider-control-btn {
-            width: 45px;
-            height: 45px;
-            font-size: 1.6em;
-        }
-
-        .slider-pagination {
-            bottom: 18px;
-            gap: 10px;
-        }
-
-        .slider-dot {
-            width: 9px;
-            height: 9px;
-        }
-
-        .slider-dot.active {
-            width: 28px;
-        }
-    }
-
-    /* For Mobile Phones (e.g., screens up to 480px wide) */
-    @media (max-width: 480px) {
-        .ad-slider-container {
-            height: 280px;
-            /* أقصر بكثير للهواتف */
-            margin: 15px auto;
-            border-radius: 8px;
-        }
-
-        .ad-caption {
-            padding: 15px;
-            text-align: center;
-            /* يمكن توسيط النص على الجوال */
-        }
-
-        .ad-caption h5 {
+        .ad-slide.text-only .ad-caption p {
             font-size: 1.4em;
-            /* تصغير العنوان أكثر */
-            margin-bottom: 5px;
+            margin-bottom: 30px;
         }
 
-        .ad-caption p {
-            font-size: 0.9em;
-            /* تصغير الوصف أكثر */
-            margin-bottom: 8px;
-        }
-
-        .ad-link-btn {
-            padding: 10px 22px;
-            /* تصغير الزر أكثر */
-            font-size: 0.9em;
-        }
-
+        /* Slider Controls (Arrows) */
         .slider-controls {
-            padding: 0 10px;
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 25px;
+            z-index: 10;
         }
 
         .slider-control-btn {
-            width: 38px;
-            height: 38px;
-            font-size: 1.3em;
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
+        .slider-control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Slider Pagination Dots */
         .slider-pagination {
-            bottom: 12px;
-            gap: 8px;
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            z-index: 11;
         }
 
         .slider-dot {
-            width: 7px;
-            height: 7px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .slider-dot.active {
-            width: 20px;
+            background-color: #ff4757;
+            width: 35px;
+            border-radius: 5px;
+            transform: scale(1);
+            border-color: #e60023;
         }
-    }
-</Style>
 
-<main class="main-content">
-    <div class="ad-slider-container">
-        {% if ads %}
-        {# ... الكود الحالي للإعلانات الفعلية (لا يحتاج لتغيير هنا) ... #}
-        {% for ad in ads %}
-        <div class="ad-slide {% if loop.first %}active{% endif %}" data-ad-id="{{ ad.id }}"
-            aria-label="Ad for {{ ad.title }}">
-            {# The stretched-link makes the entire slide clickable for the ad link #}
-            <a href="{{ ad.link_url }}" target="_blank" class="stretched-link ad-link" data-ad-id="{{ ad.id }}"></a>
+        .slider-dot:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.1);
+        }
 
-            {% if ad.content_type == 'image' %}
-            <img src="{{ ad.content_path }}" alt="{{ ad.title }}" class="ad-media">
-            {% elif ad.content_type == 'video' %}
-            <video class="ad-media" muted loop playsinline> {# playsinline for mobile compatibility #}
-                <source src="{{ ad.content_path }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            {% else %} {# Fallback for text-only ads #}
-            {# هذا هو المكان الذي يمكنك فيه إضافة الفئة text-only إذا كان الإعلان الفعلي هو نصي فقط #}
-            <div class="ad-text-content">
-                {# The main title and description are handled by ad-caption below,
-                but this div can contain additional text/elements if needed for text-only layout #}
+        /* ---------------------------------------------------------------------- */
+        /* Media Queries for Responsiveness */
+        /* ---------------------------------------------------------------------- */
+
+        /* For Tablets and larger phones (e.g., screens up to 768px wide) */
+        @media (max-width: 768px) {
+            .ad-slider-container {
+                height: 350px;
+                /* أقصر من الارتفاع الأصلي للشاشات المتوسطة */
+                margin: 20px auto;
+                border-radius: 10px;
+            }
+
+            .ad-caption {
+                padding: 20px;
+            }
+
+            .ad-caption h5 {
+                font-size: 1.8em;
+                /* تصغير حجم العنوان */
+            }
+
+            .ad-caption p {
+                font-size: 1em;
+                /* تصغير حجم الوصف */
+                margin-bottom: 15px;
+            }
+
+            .ad-link-btn {
+                padding: 12px 28px;
+                /* تصغير حجم الزر */
+                font-size: 1em;
+            }
+
+            .slider-control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.6em;
+            }
+
+            .slider-pagination {
+                bottom: 18px;
+                gap: 10px;
+            }
+
+            .slider-dot {
+                width: 9px;
+                height: 9px;
+            }
+
+            .slider-dot.active {
+                width: 28px;
+            }
+        }
+
+        /* For Mobile Phones (e.g., screens up to 480px wide) */
+        @media (max-width: 480px) {
+            .ad-slider-container {
+                height: 280px;
+                /* أقصر بكثير للهواتف */
+                margin: 15px auto;
+                border-radius: 8px;
+            }
+
+            .ad-caption {
+                padding: 15px;
+                text-align: center;
+                /* يمكن توسيط النص على الجوال */
+            }
+
+            .ad-caption h5 {
+                font-size: 1.4em;
+                /* تصغير العنوان أكثر */
+                margin-bottom: 5px;
+            }
+
+            .ad-caption p {
+                font-size: 0.9em;
+                /* تصغير الوصف أكثر */
+                margin-bottom: 8px;
+            }
+
+            .ad-link-btn {
+                padding: 10px 22px;
+                /* تصغير الزر أكثر */
+                font-size: 0.9em;
+            }
+
+            .slider-controls {
+                padding: 0 10px;
+            }
+
+            .slider-control-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 1.3em;
+            }
+
+            .slider-pagination {
+                bottom: 12px;
+                gap: 8px;
+            }
+
+            .slider-dot {
+                width: 7px;
+                height: 7px;
+            }
+
+            .slider-dot.active {
+                width: 20px;
+            }
+        }
+    </Style>
+
+    <main class="main-content">
+        <div class="ad-slider-container">
+            {% if ads %}
+            {# ... الكود الحالي للإعلانات الفعلية (لا يحتاج لتغيير هنا) ... #}
+            {% for ad in ads %}
+            <div class="ad-slide {% if loop.first %}active{% endif %}" data-ad-id="{{ ad.id }}"
+                aria-label="Ad for {{ ad.title }}">
+                {# The stretched-link makes the entire slide clickable for the ad link #}
+                <a href="{{ ad.link_url }}" target="_blank" class="stretched-link ad-link" data-ad-id="{{ ad.id }}"></a>
+
+                {% if ad.content_type == 'image' %}
+                <img src="{{ ad.content_path }}" alt="{{ ad.title }}" class="ad-media">
+                {% elif ad.content_type == 'video' %}
+                <video class="ad-media" muted loop playsinline> {# playsinline for mobile compatibility #}
+                    <source src="{{ ad.content_path }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% else %} {# Fallback for text-only ads #}
+                {# هذا هو المكان الذي يمكنك فيه إضافة الفئة text-only إذا كان الإعلان الفعلي هو نصي فقط #}
+                <div class="ad-text-content">
+                    {# The main title and description are handled by ad-caption below,
+                    but this div can contain additional text/elements if needed for text-only layout #}
+                </div>
+                {% endif %}
+
+                {# The caption always appears at the bottom, overlaying media #}
+                <div class="ad-caption">
+                    <h5>{{ ad.title }}</h5>
+                    <p>{{ ad.description }}</p> {# Description is now consistently within the caption #}
+                    <p class="store-name-text">{{ ad.store_name if ad.store_name else 'إعلان عام' }}</p>
+                    <!-- <a href="{{ ad.link_url }}" target="_blank" class="ad-link-btn" data-ad-id="{{ ad.id }}">شاهد الآن</a> -->
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            {# الشريحة الافتراضية إذا لم تكن هناك إعلانات متاحة #}
+            {# **هذا هو السطر الذي يجب تعديله:** أضف الفئة "text-only" هنا #}
+            <div class="ad-slide active **text-only**">
+                <div class="ad-caption">
+                    <h5>لا توجد إعلانات حالياً</h5>
+                    <p>تصفح منتجاتنا المميزة بدلاً من ذلك!</p>
+                    <a href="#" class="ad-link-btn" data-ad-id="default">استكشف المتجر</a>
+                </div>
             </div>
             {% endif %}
 
-            {# The caption always appears at the bottom, overlaying media #}
-            <div class="ad-caption">
-                <h5>{{ ad.title }}</h5>
-                <p>{{ ad.description }}</p> {# Description is now consistently within the caption #}
-                <p class="store-name-text">{{ ad.store_name if ad.store_name else 'إعلان عام' }}</p>
-                <!-- <a href="{{ ad.link_url }}" target="_blank" class="ad-link-btn" data-ad-id="{{ ad.id }}">شاهد الآن</a> -->
+            {% if ads|length > 1 %}
+            <div class="slider-controls">
+                <button class="slider-control-btn prev-slide" aria-label="Previous Ad">&#8249;</button> {# &lsaquo; #}
+                <button class="slider-control-btn next-slide" aria-label="Next Ad">&#8250;</button> {# &rsaquo; #}
             </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        {# الشريحة الافتراضية إذا لم تكن هناك إعلانات متاحة #}
-        {# **هذا هو السطر الذي يجب تعديله:** أضف الفئة "text-only" هنا #}
-        <div class="ad-slide active **text-only**">
-            <div class="ad-caption">
-                <h5>لا توجد إعلانات حالياً</h5>
-                <p>تصفح منتجاتنا المميزة بدلاً من ذلك!</p>
-                <a href="#" class="ad-link-btn" data-ad-id="default">استكشف المتجر</a>
+            <div class="slider-pagination">
+                {# Dots will be dynamically generated by JavaScript #}
             </div>
+            {% endif %}
         </div>
-        {% endif %}
-
-        {% if ads|length > 1 %}
-        <div class="slider-controls">
-            <button class="slider-control-btn prev-slide" aria-label="Previous Ad">&#8249;</button> {# &lsaquo; #}
-            <button class="slider-control-btn next-slide" aria-label="Next Ad">&#8250;</button> {# &rsaquo; #}
-        </div>
-        <div class="slider-pagination">
-            {# Dots will be dynamically generated by JavaScript #}
-        </div>
-        {% endif %}
-    </div>
-</main>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const adSlides = document.querySelectorAll('.ad-slide');
-        const paginationDotsContainer = document.querySelector('.slider-pagination');
-        const nextButton = document.querySelector('.next-slide');
-        const prevButton = document.querySelector('.prev-slide');
-
-        let currentSlideIndex = 0;
-        let slideInterval;
-
-        // Function to create and update pagination dots
-        function createPaginationDots() {
-            if (!paginationDotsContainer || adSlides.length <= 1) return; // Only create if needed
-
-            paginationDotsContainer.innerHTML = ''; // Clear existing dots
-            adSlides.forEach((_, index) => {
-                const dot = document.createElement('div'); // Changed to div for more styling flexibility
-                dot.classList.add('slider-dot');
-                if (index === currentSlideIndex) {
-                    dot.classList.add('active');
-                }
-                dot.dataset.index = index; // Store slide index
-                dot.addEventListener('click', () => {
-                    clearInterval(slideInterval); // Stop auto-slide on manual interaction
-                    showSlide(index);
-                    startAutoSlide(); // Restart auto-slide
-                });
-                paginationDotsContainer.appendChild(dot);
-            });
-        }
-
-        // Function to update the active state of pagination dots
-        function updatePaginationDots() {
-            if (!paginationDotsContainer) return;
-            document.querySelectorAll('.slider-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentSlideIndex);
-            });
-        }
-
-        // Function to display a specific slide
-        function showSlide(index) {
-            // Pause all videos and remove active class from all slides
-            adSlides.forEach((slide) => {
-                slide.classList.remove('active');
-                const video = slide.querySelector('video');
-                if (video) {
-                    video.pause();
-                    video.currentTime = 0; // Reset video to start
-                }
-            });
-
-            if (adSlides.length > 0) {
-                // Activate the new slide
-                adSlides[index].classList.add('active');
-                const video = adSlides[index].querySelector('video');
-                if (video) {
-                    video.play();
-                }
-                currentSlideIndex = index; // Update current index
-                updatePaginationDots(); // Update dot indicators
-
-                // Track impression for the active ad
-                const adId = adSlides[index].dataset.adId;
-                if (adId && adId !== "default") {
-                    trackImpression(adId);
-                }
-            }
-        }
-
-        // Navigate to the next slide
-        function nextSlide() {
-            showSlide((currentSlideIndex + 1) % adSlides.length);
-        }
-
-        // Navigate to the previous slide
-        function prevSlide() {
-            showSlide((currentSlideIndex - 1 + adSlides.length) % adSlides.length);
-        }
-
-        // Start the automatic slide transition
-        function startAutoSlide() {
-            if (adSlides.length > 1) { // Only auto-slide if more than one ad
-                slideInterval = setInterval(nextSlide, 7000); // Change every 7 seconds
-            }
-        }
-
-        // Stop the automatic slide transition
-        function stopAutoSlide() {
-            clearInterval(slideInterval);
-        }
-
-        // Initialize slider on page load
-        if (adSlides.length > 0) {
-            createPaginationDots(); // Create dots based on available slides
-            showSlide(currentSlideIndex); // Show the first slide
-            startAutoSlide(); // Start auto-sliding
-
-            // Add event listeners for arrow buttons if they exist
-            if (nextButton && prevButton) {
-                nextButton.addEventListener('click', () => {
-                    stopAutoSlide();
-                    nextSlide();
-                    startAutoSlide();
-                });
-
-                prevButton.addEventListener('click', () => {
-                    stopAutoSlide();
-                    prevSlide();
-                    startAutoSlide();
-                });
-            }
-
-            // Pause auto-slide on hover, resume on mouse leave
-            const sliderContainer = document.querySelector('.ad-slider-container');
-            if (sliderContainer) {
-                sliderContainer.addEventListener('mouseenter', stopAutoSlide);
-                sliderContainer.addEventListener('mouseleave', startAutoSlide);
-            }
-        }
-
-        // Tracking clicks on ads
-        document.querySelectorAll('.ad-link-btn, .ad-link').forEach(link => {
-            link.addEventListener('click', function (e) {
-                const adId = this.dataset.adId;
-                if (adId && adId !== "default") {
-                    e.preventDefault(); // Prevent immediate navigation
-                    fetch(`/ads/track_click/${adId}`, { method: 'POST' })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Click tracked:', data);
-                            window.location.href = this.href; // Navigate after tracking
-                        })
-                        .catch(error => {
-                            console.error('Error tracking click:', error);
-                            window.location.href = this.href; // Navigate even on error
-                        });
-                }
-            });
-        });
-
-        // Track impressions function
-        function trackImpression(adId) {
-            if (adId && adId !== "default") {
-                fetch(`/ads/track_impression/${adId}`, { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => console.log('Impression tracked:', data))
-                    .catch(error => console.error('Error tracking impression:', error));
-            }
-        }
-
-        // Initial impression tracking for the first ad shown
-        if (adSlides.length > 0) {
-            const initialAdId = adSlides[currentSlideIndex].dataset.adId;
-            if (initialAdId && initialAdId !== "default") {
-                trackImpression(initialAdId);
-            }
-        }
-
-        // Dropdown management (Your existing code, unchanged)
-        const toggleDropdown = (dropdownId) => {
-            document.querySelectorAll('.dropdown').forEach(dropdown => {
-                if (dropdown.id === dropdownId) {
-                    dropdown.classList.toggle('active');
-                } else {
-                    dropdown.classList.remove('active');
-                }
-            });
-        };
-
-        document.getElementById('categoriesBtn')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleDropdown('categoriesDropdown');
-        });
-
-        document.getElementById('sellersBtn')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleDropdown('sellersDropdown');
-        });
-
-        document.getElementById('cartBtn')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleDropdown('cartDropdown');
-        });
-
-        document.getElementById('closeCategories')?.addEventListener('click', () => {
-            document.getElementById('categoriesDropdown').classList.remove('active');
-        });
-
-        document.getElementById('closeSellers')?.addEventListener('click', () => {
-            document.getElementById('sellersDropdown').classList.remove('active');
-        });
-
-        document.getElementById('closeCart')?.addEventListener('click', () => {
-            document.getElementById('cartDropdown').classList.remove('active');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.header-actions') && !e.target.closest('.dropdown')) {
-                document.querySelectorAll('.dropdown').forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                });
-            }
-        });
-    });
-</script>
+    </main>
 
 
-<!-- الأقسام الرئيسية -->
-<div class="section-header">
-    <h2 class="section-title">الأقسام الرئيسية</h2>
-<a href="#" class="view-all scroll-indicator">
-    مرر للمزيد <i class="fas fa-arrow-left"></i>
-</a></div>
 
-<div class="categories-scroll-wrapper">
-    <div class="categories-grid">
-        {% for category in main_categories %}
-        <a href="{{ url_for('product.show_subcategories', category_id=category.id) }}" class="category-item">
-            <div class="image-container">
-                <img src="{{ category['image'] }}" alt="{{ category.name }}" class="category-img">
-            </div>
-            <div class="category-name">{{ category.name }}</div>
+    <!-- الأقسام الرئيسية -->
+    <div class="section-header">
+        <h2 class="section-title">الأقسام الرئيسية</h2>
+        <a href="#" class="view-all scroll-indicator">
+            مرر للمزيد <i class="fas fa-arrow-left"></i>
         </a>
-        {% endfor %}
     </div>
-</div>
 
-
-<section class="trending-categories-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">الأقسام الأكثر زيارة</h2>
-            <!-- <p class="section-subtitle">اكتشف الأقسام الرائجة بين عملائنا</p> -->
+    <div class="categories-scroll-wrapper">
+        <div class="categories-grid">
+            {% for category in main_categories %}
+            <a href="{{ url_for('product.show_subcategories', category_id=category.id) }}" class="category-item">
+                <div class="image-container">
+                    <img src="{{ category['image'] }}" alt="{{ category.name }}" class="category-img">
+                </div>
+                <div class="category-name">{{ category.name }}</div>
+            </a>
+            {% endfor %}
         </div>
-        
-        <div class="trending-categories-grid">
-            {% if most_visited_categories %}
+    </div>
+
+
+    <section class="trending-categories-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">الأقسام الأكثر زيارة</h2>
+                <!-- <p class="section-subtitle">اكتشف الأقسام الرائجة بين عملائنا</p> -->
+            </div>
+
+            <div class="trending-categories-grid">
+                {% if most_visited_categories %}
                 {% for category in most_visited_categories %}
                 <div class="trending-category-card">
-                    <a href="{{ url_for('product.show_products_by_category', category_id=category.id) }}" class="category-link">
+                    <a href="{{ url_for('product.show_products_by_category', category_id=category.id) }}"
+                        class="category-link">
                         <div class="trending-badge">رائج</div>
                         <div class="category-image-wrapper">
-    {% if category.image %}
-        {# هذا السطر يقوم بإزالة "static/" من بداية مسار الصورة إذا كانت موجودة #}
-        <img src="{{ url_for('static', filename=category.image.replace('static/', '')) }}" alt="{{ category.name }}" class="category-image">
-    {% else %}
-        {# مسار الصورة الافتراضية يجب أن يكون صحيحًا دائمًا #}
-        <img src="{{ url_for('static', filename='uploads/category_img/default_category.jpg') }}" alt="{{ category.name }}" class="category-image">
-    {% endif %}
-</div>
+                            {% if category.image %}
+                            {# هذا السطر يقوم بإزالة "static/" من بداية مسار الصورة إذا كانت موجودة #}
+                            <img src="{{ url_for('static', filename=category.image.replace('static/', '')) }}"
+                                alt="{{ category.name }}" class="category-image">
+                            {% else %}
+                            {# مسار الصورة الافتراضية يجب أن يكون صحيحًا دائمًا #}
+                            <img src="{{ url_for('static', filename='uploads/category_img/default_category.jpg') }}"
+                                alt="{{ category.name }}" class="category-image">
+                            {% endif %}
+                        </div>
                         <div class="category-details">
                             <h3 class="category-name">{{ category.name }}</h3>
                             <div class="view-products">
@@ -669,444 +713,556 @@
                     </a>
                 </div>
                 {% endfor %}
-            {% else %}
+                {% else %}
                 <div class="empty-state">
                     <i class="far fa-folder-open"></i>
                     <p>لا توجد أقسام رائجة حالياً</p>
                 </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<style>
-    /* أنماط عامة */
-    :root {
-        /* --primary-color: #4361ee;
+    <style>
+        /* أنماط عامة */
+        :root {
+            /* --primary-color: #4361ee;
         --secondary-color: #3a0ca3;
         --accent-color: #f72585;
         --text-color: #2b2d42;
         --light-bg: #f8f9fa;
         --white: #ffffff; */
-    }
-    
-    /* قسم الأقسام الرائجة */
-    .trending-categories-section {
-        padding: 40px 0;
-        background-color: var(--light-bg);
-        margin-top: 50px;
-        position: relative;
-    }
-    
-    .trending-categories-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        /* background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); */
-    }
-    
-    .section-header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-    
-    .section-title {
-        font-size: 1.8rem;
-        color: var(--text-color);
-        margin-bottom: 5px;
-        position: relative;
-        display: inline-block;
-    }
-    
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background: var(--primary-color);
-        border-radius: 3px;
-    }
-    
-    .section-subtitle {
-        color: #6c757d;
-        font-size: 0.95rem;
-        margin-top: 10px;
-    }
-    
-    /* شبكة الأقسام */
-    .trending-categories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
-    
-    /* بطاقة القسم */
-    .trending-category-card {
-        background: var(--white);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    .trending-category-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    }
-    
-    .category-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        height: 100%;
-    }
-    
-    /* علامة رائج */
-    .trending-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background-color: var(--accent-color);
-        color: white;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: bold;
-        z-index: 2;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    /* صورة القسم */
-    .category-image-wrapper {
-        height: 120px;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .category-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-    
-    .trending-category-card:hover .category-image {
-        transform: scale(1.05);
-    }
-    
-    /* تفاصيل القسم */
-    .category-details {
-        padding: 15px;
-        text-align: center;
-    }
-    
-    .category-name {
-        font-size: 1rem;
-        color: var(--text-color);
-        margin: 0 0 10px;
-        font-weight: 600;
-    }
-    
-    .view-products {
-        display: inline-flex;
-        align-items: center;
-        color: var(--primary-color);
-        font-size: 0.85rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .view-products i {
-        margin-right: 5px;
-        font-size: 0.8rem;
-        transition: all 0.3s ease;
-    }
-    
-    .trending-category-card:hover .view-products {
-        color: var(--secondary-color);
-    }
-    
-    .trending-category-card:hover .view-products i {
-        transform: translateX(-3px);
-    }
-    
-    /* حالة عدم وجود أقسام */
-    .empty-state {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 40px 0;
-    }
-    
-    .empty-state i {
-        font-size: 2.5rem;
-        color: #adb5bd;
-        margin-bottom: 15px;
-    }
-    
-    .empty-state p {
-        color: #6c757d;
-        font-size: 1rem;
-    }
-    
-    /* التكيف مع الهواتف */
-    @media (max-width: 768px) {
-        .trending-categories-grid {
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
         }
-        
+
+        /* قسم الأقسام الرائجة */
+        .trending-categories-section {
+            padding: 40px 0;
+            background-color: var(--light-bg);
+            margin-top: 50px;
+            position: relative;
+        }
+
+        .trending-categories-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            /* background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); */
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
         .section-title {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 5px;
+            position: relative;
+            display: inline-block;
         }
-        
-        .category-image-wrapper {
-            height: 100px;
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
         }
-        
-        .category-name {
-            font-size: 0.9rem;
+
+        .section-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-top: 10px;
         }
-    }
-    
-    @media (max-width: 480px) {
+
+        /* شبكة الأقسام */
         .trending-categories-grid {
-            grid-template-columns: repeat(2, 1fr);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
         }
-    }
-</style>
 
-<!-- رابط أيقونات Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        /* بطاقة القسم */
+        .trending-category-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
 
+        .trending-category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
 
+        .category-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
 
-<!-- <section class="most-visited-categories-section">
-    <div class="container">
-        <h2>الأقسام الأكثر زيارة</h2>
-        <div class="category-list-grid">
-            {% if most_visited_categories %}
-                {% for category in most_visited_categories %}
-                <div class="category-item1">
-                    {# **التعديل هنا:** توجيه الرابط إلى show_products_by_category #}
-                    <a href="{{ url_for('product.show_products_by_category', category_id=category.id) }}">
-                        {% if category.image %}
-                            <img src="{{ url_for('static', filename=category.image) }}" alt="{{ category.name }}">
-                        {% else %}
-                            <img src="{{ url_for('static', filename='uploads/category_img/default_category.jpg') }}" alt="{{ category.name }}">
-                        {% endif %}
-                        <h3>{{ category.name }}</h3> -->
-                        <!-- <p>زيارات: {{ category.view_count }}</p> -->
-                    <!-- </a>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p>لا توجد أقسام أكثر زيارة حالياً.</p>
-            {% endif %}
-        </div>
-    </div>
-</section> -->
+        /* علامة رائج */
+        .trending-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
+        /* صورة القسم */
+        .category-image-wrapper {
+            height: 120px;
+            position: relative;
+            overflow: hidden;
+        }
 
+        .category-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
 
+        .trending-category-card:hover .category-image {
+            transform: scale(1.05);
+        }
 
-<!-- <style>
-    /* أضف هذا الـ CSS إلى ملف الأنماط الخاص بك أو في <style> في القالب */
-    .most-visited-categories-section {
-        margin-top: 50px;
-        padding: 30px 0;
-        background-color: #f8f8f8;
-        border-top: 1px solid #eee;
-        border-bottom: 1px solid #eee;
-        text-align: center;
-    }
-    .most-visited-categories-section h2 {
-        font-size: 2em;
-        color: #333;
-        margin-bottom: 30px;
-        position: relative;
-        display: inline-block;
-    }
-    .most-visited-categories-section h2::after {
-        content: '';
-        position: absolute;
-        left: 50%;
-        bottom: -10px;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background-color: #007bff; /* لون مميز */
-        border-radius: 5px;
-    }
-    .category-list-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 25px;
-        justify-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
-    .category-item1 {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        text-decoration: none;
-        color: inherit;
-        display: block; /* لجعل الرابط يملأ العنصر بالكامل */
-    }
-    .category-item1:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-    }
-    .category-item1 img {
-        max-width: 100%;
-        height: 100px; /* ارتفاع ثابت للصور */
-        object-fit: contain; /* للحفاظ على نسبة العرض إلى الارتفاع */
-        border-radius: 5px;
-        margin-bottom: 15px;
-    }
-    .category-item1 h3 {
-        font-size: 1.2em;
-        color: #007bff;
-        margin-bottom: 8px;
-    }
-    .category-item1 p {
-        font-size: 0.9em;
-        color: #666;
-        margin-top: 5px;
-    }
-</style> -->
+        /* تفاصيل القسم */
+        .category-details {
+            padding: 15px;
+            text-align: center;
+        }
 
+        .category-name {
+            font-size: 1rem;
+            color: var(--text-color);
+            margin: 0 0 10px;
+            font-weight: 600;
+        }
 
+        .view-products {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
 
+        .view-products i {
+            margin-right: 5px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
 
+        .trending-category-card:hover .view-products {
+            color: var(--secondary-color);
+        }
 
+        .trending-category-card:hover .view-products i {
+            transform: translateX(-3px);
+        }
 
-<!-- الأقسام المميزة -->
-<div class="section-header">
-    <h2 class="section-title">الأقسام المميزة</h2>
-    <a href="#" class="view-all">عرض الكل</a>
-</div>
+        /* حالة عدم وجود أقسام */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 0;
+        }
 
-<div class="featured-grid">
-    {% for category in main_categories[:4] %}
-    <a href="{{ url_for('product.show_subcategories', category_id=category['id']) }}">
-        <img src="{{ category['image'] }}" alt="{{ category.name }}" class="featured-img">
-        <div class="featured-info">
-            <h3 class="featured-title">{{ category.name }}</h3>
-            <span class="featured-link">تصفح المنتجات</span>
-        </div>
-    </a>
-    {% endfor %}
-</div>
+        .empty-state i {
+            font-size: 2.5rem;
+            color: #adb5bd;
+            margin-bottom: 15px;
+        }
 
+        .empty-state p {
+            color: #6c757d;
+            font-size: 1rem;
+        }
 
-<!-- الجافاسكريبت -->
-<script>
-    // إدارة القوائم المنسدلة
-    const toggleDropdown = (dropdownId) => {
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            if (dropdown.id === dropdownId) {
-                dropdown.classList.toggle('active');
-            } else {
-                dropdown.classList.remove('active');
+        /* التكيف مع الهواتف */
+        @media (max-width: 768px) {
+            .trending-categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .category-image-wrapper {
+                height: 100px;
+            }
+
+            .category-name {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .trending-categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+
+    <!-- الجافاسكريبت -->
+    <script>
+        // إدارة القوائم المنسدلة
+        const toggleDropdown = (dropdownId) => {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id === dropdownId) {
+                    dropdown.classList.toggle('active');
+                } else {
+                    dropdown.classList.remove('active');
+                }
+            });
+        };
+
+        // أحداث النقر
+        document.getElementById('categoriesBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleDropdown('categoriesDropdown');
+        });
+
+        document.getElementById('sellersBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleDropdown('sellersDropdown');
+        });
+
+        document.getElementById('cartBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleDropdown('cartDropdown');
+        });
+
+        // إغلاق القوائم
+        document.getElementById('closeCategories').addEventListener('click', () => {
+            document.getElementById('categoriesDropdown').classList.remove('active');
+        });
+
+        document.getElementById('closeSellers').addEventListener('click', () => {
+            document.getElementById('sellersDropdown').classList.remove('active');
+        });
+
+        document.getElementById('closeCart').addEventListener('click', () => {
+            document.getElementById('cartDropdown').classList.remove('active');
+        });
+
+        // إغلاق القوائم عند النقر خارجها
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-actions') && !e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
             }
         });
-    };
 
-    // أحداث النقر
-    document.getElementById('categoriesBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleDropdown('categoriesDropdown');
-    });
+        // سلايدر الهيرو (مثال بسيط)
+        const heroSlides = [
+            {
+                image: "static/style/img/categories/cat-1.jpg",
+                tag: "عرض خاص",
+                title: "خصم يصل إلى 30%",
+                desc: "على جميع المنتجات العضوية هذا الأسبوع فقط"
+            },
+            {
+                image: "static/style/img/categories/cat-2.jpg",
+                tag: "جديد",
+                title: "وصول منتجات موسمية",
+                desc: "فواكه وخضروات طازجة من المزارع مباشرة"
+            },
+            {
+                image: "static/style/img/categories/cat-3.jpg",
+                tag: "توصيل سريع",
+                title: "طلباتك خلال 24 ساعة",
+                desc: "في جميع أنحاء المدينة"
+            }
+        ];
 
-    document.getElementById('sellersBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleDropdown('sellersDropdown');
-    });
+        let currentSlide = 0;
 
-    document.getElementById('cartBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleDropdown('cartDropdown');
-    });
+        function changeHeroSlide() {
+            currentSlide = (currentSlide + 1) % heroSlides.length;
+            const slide = heroSlides[currentSlide];
+            const hero = document.querySelector('.hero-slide');
+            const content = document.querySelector('.hero-content');
 
-    // إغلاق القوائم
-    document.getElementById('closeCategories').addEventListener('click', () => {
-        document.getElementById('categoriesDropdown').classList.remove('active');
-    });
+            hero.style.backgroundImage = `url('${slide.image}')`;
+            content.querySelector('.hero-tag').textContent = slide.tag;
+            content.querySelector('.hero-title').textContent = slide.title;
+            content.querySelector('.hero-desc').textContent = slide.desc;
+        }
 
-    document.getElementById('closeSellers').addEventListener('click', () => {
-        document.getElementById('sellersDropdown').classList.remove('active');
-    });
+        setInterval(changeHeroSlide, 5000);
 
-    document.getElementById('closeCart').addEventListener('click', () => {
-        document.getElementById('cartDropdown').classList.remove('active');
-    });
 
-    // إغلاق القوائم عند النقر خارجها
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.header-actions') && !e.target.closest('.dropdown')) {
-            document.querySelectorAll('.dropdown').forEach(dropdown => {
-                dropdown.classList.remove('active');
+    </script>
+
+    <script>
+        // التحكم في القائمة الجانبية
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const closeMenu = document.getElementById('closeMenu');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sideMenu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            menuToggle.classList.add('active'); // إضافة كلاس active لزر التبديل
+        });
+
+        closeMenu.addEventListener('click', () => {
+            sideMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            menuToggle.classList.remove('active'); // إزالة كلاس active من زر التبديل
+        });
+
+        overlay.addEventListener('click', () => {
+            sideMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            menuToggle.classList.remove('active'); // إزالة كلاس active من زر التبديل
+        });
+
+        // تفعيل/تعطيل أقسام القائمة
+        const sections = document.querySelectorAll('.section-heading');
+
+        sections.forEach(section => {
+            section.addEventListener('click', () => {
+                section.classList.toggle('active');
             });
-        }
-    });
+        });
+    </script>
 
-    // سلايدر الهيرو (مثال بسيط)
-    const heroSlides = [
-        {
-            image: "static/style/img/categories/cat-1.jpg",
-            tag: "عرض خاص",
-            title: "خصم يصل إلى 30%",
-            desc: "على جميع المنتجات العضوية هذا الأسبوع فقط"
-        },
-        {
-            image: "static/style/img/categories/cat-2.jpg",
-            tag: "جديد",
-            title: "وصول منتجات موسمية",
-            desc: "فواكه وخضروات طازجة من المزارع مباشرة"
-        },
-        {
-            image: "static/style/img/categories/cat-3.jpg",
-            tag: "توصيل سريع",
-            title: "طلباتك خلال 24 ساعة",
-            desc: "في جميع أنحاء المدينة"
-        }
-    ];
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const adSlides = document.querySelectorAll('.ad-slide');
+            const paginationDotsContainer = document.querySelector('.slider-pagination');
+            const nextButton = document.querySelector('.next-slide');
+            const prevButton = document.querySelector('.prev-slide');
 
-    let currentSlide = 0;
+            let currentSlideIndex = 0;
+            let slideInterval;
 
-    function changeHeroSlide() {
-        currentSlide = (currentSlide + 1) % heroSlides.length;
-        const slide = heroSlides[currentSlide];
-        const hero = document.querySelector('.hero-slide');
-        const content = document.querySelector('.hero-content');
+            // Function to create and update pagination dots
+            function createPaginationDots() {
+                if (!paginationDotsContainer || adSlides.length <= 1) return; // Only create if needed
 
-        hero.style.backgroundImage = `url('${slide.image}')`;
-        content.querySelector('.hero-tag').textContent = slide.tag;
-        content.querySelector('.hero-title').textContent = slide.title;
-        content.querySelector('.hero-desc').textContent = slide.desc;
-    }
+                paginationDotsContainer.innerHTML = ''; // Clear existing dots
+                adSlides.forEach((_, index) => {
+                    const dot = document.createElement('div'); // Changed to div for more styling flexibility
+                    dot.classList.add('slider-dot');
+                    if (index === currentSlideIndex) {
+                        dot.classList.add('active');
+                    }
+                    dot.dataset.index = index; // Store slide index
+                    dot.addEventListener('click', () => {
+                        clearInterval(slideInterval); // Stop auto-slide on manual interaction
+                        showSlide(index);
+                        startAutoSlide(); // Restart auto-slide
+                    });
+                    paginationDotsContainer.appendChild(dot);
+                });
+            }
 
-    setInterval(changeHeroSlide, 5000);
+            // Function to update the active state of pagination dots
+            function updatePaginationDots() {
+                if (!paginationDotsContainer) return;
+                document.querySelectorAll('.slider-dot').forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlideIndex);
+                });
+            }
 
+            // Function to display a specific slide
+            function showSlide(index) {
+                // Pause all videos and remove active class from all slides
+                adSlides.forEach((slide) => {
+                    slide.classList.remove('active');
+                    const video = slide.querySelector('video');
+                    if (video) {
+                        video.pause();
+                        video.currentTime = 0; // Reset video to start
+                    }
+                });
 
+                if (adSlides.length > 0) {
+                    // Activate the new slide
+                    adSlides[index].classList.add('active');
+                    const video = adSlides[index].querySelector('video');
+                    if (video) {
+                        video.play();
+                    }
+                    currentSlideIndex = index; // Update current index
+                    updatePaginationDots(); // Update dot indicators
 
+                    // Track impression for the active ad
+                    const adId = adSlides[index].dataset.adId;
+                    if (adId && adId !== "default") {
+                        trackImpression(adId);
+                    }
+                }
+            }
 
-</script>
+            // Navigate to the next slide
+            function nextSlide() {
+                showSlide((currentSlideIndex + 1) % adSlides.length);
+            }
 
-{% include 'footer.html' %}
+            // Navigate to the previous slide
+            function prevSlide() {
+                showSlide((currentSlideIndex - 1 + adSlides.length) % adSlides.length);
+            }
+
+            // Start the automatic slide transition
+            function startAutoSlide() {
+                if (adSlides.length > 1) { // Only auto-slide if more than one ad
+                    slideInterval = setInterval(nextSlide, 7000); // Change every 7 seconds
+                }
+            }
+
+            // Stop the automatic slide transition
+            function stopAutoSlide() {
+                clearInterval(slideInterval);
+            }
+
+            // Initialize slider on page load
+            if (adSlides.length > 0) {
+                createPaginationDots(); // Create dots based on available slides
+                showSlide(currentSlideIndex); // Show the first slide
+                startAutoSlide(); // Start auto-sliding
+
+                // Add event listeners for arrow buttons if they exist
+                if (nextButton && prevButton) {
+                    nextButton.addEventListener('click', () => {
+                        stopAutoSlide();
+                        nextSlide();
+                        startAutoSlide();
+                    });
+
+                    prevButton.addEventListener('click', () => {
+                        stopAutoSlide();
+                        prevSlide();
+                        startAutoSlide();
+                    });
+                }
+
+                // Pause auto-slide on hover, resume on mouse leave
+                const sliderContainer = document.querySelector('.ad-slider-container');
+                if (sliderContainer) {
+                    sliderContainer.addEventListener('mouseenter', stopAutoSlide);
+                    sliderContainer.addEventListener('mouseleave', startAutoSlide);
+                }
+            }
+
+            // Tracking clicks on ads
+            document.querySelectorAll('.ad-link-btn, .ad-link').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const adId = this.dataset.adId;
+                    if (adId && adId !== "default") {
+                        e.preventDefault(); // Prevent immediate navigation
+                        fetch(`/ads/track_click/${adId}`, { method: 'POST' })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Click tracked:', data);
+                                window.location.href = this.href; // Navigate after tracking
+                            })
+                            .catch(error => {
+                                console.error('Error tracking click:', error);
+                                window.location.href = this.href; // Navigate even on error
+                            });
+                    }
+                });
+            });
+
+            // Track impressions function
+            function trackImpression(adId) {
+                if (adId && adId !== "default") {
+                    fetch(`/ads/track_impression/${adId}`, { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => console.log('Impression tracked:', data))
+                        .catch(error => console.error('Error tracking impression:', error));
+                }
+            }
+
+            // Initial impression tracking for the first ad shown
+            if (adSlides.length > 0) {
+                const initialAdId = adSlides[currentSlideIndex].dataset.adId;
+                if (initialAdId && initialAdId !== "default") {
+                    trackImpression(initialAdId);
+                }
+            }
+
+            // Dropdown management (Your existing code, unchanged)
+            const toggleDropdown = (dropdownId) => {
+                document.querySelectorAll('.dropdown').forEach(dropdown => {
+                    if (dropdown.id === dropdownId) {
+                        dropdown.classList.toggle('active');
+                    } else {
+                        dropdown.classList.remove('active');
+                    }
+                });
+            };
+
+            document.getElementById('categoriesBtn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleDropdown('categoriesDropdown');
+            });
+
+            document.getElementById('sellersBtn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleDropdown('sellersDropdown');
+            });
+
+            document.getElementById('cartBtn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleDropdown('cartDropdown');
+            });
+
+            document.getElementById('closeCategories')?.addEventListener('click', () => {
+                document.getElementById('categoriesDropdown').classList.remove('active');
+            });
+
+            document.getElementById('closeSellers')?.addEventListener('click', () => {
+                document.getElementById('sellersDropdown').classList.remove('active');
+            });
+
+            document.getElementById('closeCart')?.addEventListener('click', () => {
+                document.getElementById('cartDropdown').classList.remove('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.header-actions') && !e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown').forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+
+    {% include 'footer.html' %}

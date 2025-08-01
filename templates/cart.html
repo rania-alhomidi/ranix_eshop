@@ -1,7 +1,7 @@
 <!-- cart.html -->
 
 
-{% include 'header.html' %}
+{% include 'header_shop.html' %}
 
 <style>
     /* تصميم الهيدر */
@@ -294,7 +294,7 @@
         </header>
 
         <div class="main-content">
-            {# هذا الجزء سيعرض رسائل الفلاش من Flask #}
+            <!-- {# هذا الجزء سيعرض رسائل الفلاش من Flask #}
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             <div class="flashes">
@@ -308,7 +308,7 @@
                 {% endfor %}
             </div>
             {% endif %}
-            {% endwith %}
+            {% endwith %} -->
 
             {% if cart %}
 
@@ -415,19 +415,19 @@
         </div>
     </div>
 
-    {# JavaScript لتفعيل إغلاق رسائل الفلاش (إذا كنت لا تستخدم Bootstrap JS) #}
+    <!-- {# JavaScript لتفعيل إغلاق رسائل الفلاش (إذا كنت لا تستخدم Bootstrap JS) #} -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var closeButtons = document.querySelectorAll('.alert .close');
-            closeButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    var alertDiv = this.closest('.alert');
-                    if (alertDiv) {
-                        alertDiv.style.display = 'none'; // أو alertDiv.remove();
-                    }
-                });
-            });
-        });
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     var closeButtons = document.querySelectorAll('.alert .close');
+        //     closeButtons.forEach(function (button) {
+        //         button.addEventListener('click', function () {
+        //             var alertDiv = this.closest('.alert');
+        //             if (alertDiv) {
+        //                 alertDiv.style.display = 'none'; // أو alertDiv.remove();
+        //             }
+        //         });
+        //     });
+        // });
     </script>
 
 
