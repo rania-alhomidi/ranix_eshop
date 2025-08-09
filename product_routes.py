@@ -41,8 +41,27 @@ def get_main_categories_for_navbar():
 def index():
     conn = get_db_connection()
 
-    # هنا يمكنك جلب main_categories إذا كنت تحتاجها لعرض خاص بالصفحة الرئيسية
-    # ولكن لن نمررها للشريط العلوي (header)
+    # --- بداية التعديل: جلب المنتجات الأكثر شراءً ---
+    # هذا الاستعلام يحسب مجموع الكميات المباعة لكل منتج ويرتبها تنازلياً.
+    most_bought_products = conn.execute('''
+        SELECT
+            p.id,
+            p.name,
+            -- استخدم COALESCE لجلب مسار الصورة الرئيسية أو صورة افتراضية
+            COALESCE(pi.image_path, 'uploads/products/default_product.jpg') AS image,
+            pr.profit_price,
+            SUM(oi.quantity) AS total_sold
+        FROM order_items oi
+        JOIN product p ON oi.product_id = p.id
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.is_main = 1
+        GROUP BY p.id
+        ORDER BY total_sold DESC
+        LIMIT 8  -- عرض أفضل 8 منتجات فقط
+    ''').fetchall()
+    # --- نهاية التعديل ---
+
+    # ... (بقية الكود الخاص بجلب المنتجات المميزة والبيانات الأخرى)
     main_categories = conn.execute("""
         SELECT * FROM category
         WHERE parent_id IS NULL AND is_active = 1
@@ -54,12 +73,7 @@ def index():
     user_id = request.cookies.get('user_auth')
     user_name = request.cookies.get('user_name')
 
-    if user_id:
-        liked_rows = conn.execute("SELECT product_id FROM likes WHERE user_id = ?", (user_id,)).fetchall()
-        liked_products = [row['product_id'] for row in liked_rows]
-    else:
-        liked_products = []
-
+   
     total_customers_data = conn.execute("SELECT COUNT(id) AS total_customers FROM user").fetchone()
     total_customers = total_customers_data['total_customers'] if total_customers_data else 0
 
@@ -101,15 +115,15 @@ def index():
 
     return render_template(
         'index.html',
-        # لا تمرر main_categories للشريط هنا
-        main_categories_page=main_categories, # يمكنك إعادة تسميته ليكون أوضح أنه مخصص للصفحة نفسها
-        products=products,
-        liked_products=liked_products,
+        main_categories_page=main_categories,
+        products=products, # هذه المنتجات المميزة (featured products)
+        # liked_products=liked_products,
         user_name=user_name,
         total_customers=total_customers,
         total_products=total_products,
         ads=ads,
-        most_visited_categories=most_visited_categories
+        most_visited_categories=most_visited_categories,
+        most_bought_products=most_bought_products  # <--- تمرير المنتجات الأكثر مبيعاً إلى القالب
     )
 
 @product_bp.route('/subcategories/<int:category_id>')

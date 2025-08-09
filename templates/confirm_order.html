@@ -288,6 +288,7 @@
     }
 
 </style>
+
 <div class="container">
     <h1>تأكيد الطلب</h1>
 
@@ -402,27 +403,29 @@
             }
         }
     </script>
-    <div class="payment-details">
-        <h2>تفاصيل الدفع</h2>
-        <p>رصيدك الحالي: {{ user_balance | round(2) }} ريال</p>
-        
-        <form action="{{ url_for('order.process_order') }}" method="POST">
-            <input type="hidden" name="selected_address_id" value="{{ recipient_address.id if recipient_address.id }}">
-            
-            <label for="payment_method">طريقة الدفع:</label>
-            <select name="payment_method" id="payment_method">
-                <option value="from_balance">الدفع من رصيد التطبيق</option>
-                {# يمكنك إضافة خيارات دفع أخرى هنا لاحقاً #}
-            </select>
-            
-            <label for="order_notes">ملاحظات إضافية (اختياري):</label>
-            <textarea name="order_notes" id="order_notes" rows="3"></textarea>
 
-            <button type="submit" class="btn btn-primary checkout-btn">
-                <i class="fas fa-money-check-alt"></i> إتمام الطلب
-            </button>
-        </form>
-    </div>
+
+<div class="payment-details">
+    <h2>تفاصيل الدفع</h2>
+    <p>رصيدك الحالي: {{ user_balance | round(2) }} ريال</p>
+    
+    <form action="{{ url_for('order.process_order') }}" method="POST">
+        <input type="hidden" name="selected_address_id" value="{{ recipient_address.id if recipient_address.id }}">
+        
+        <label for="payment_method">طريقة الدفع:</label>
+        <select name="payment_method" id="payment_method">
+            <option value="from_balance">الدفع من رصيد التطبيق</option>
+            <option value="cash_on_delivery">الدفع عند الاستلام</option>
+        </select>
+        
+        <label for="order_notes">ملاحظات إضافية (اختياري):</label>
+        <textarea name="order_notes" id="order_notes" rows="3"></textarea>
+
+        <button type="submit" class="btn btn-primary checkout-btn">
+            <i class="fas fa-money-check-alt"></i> إتمام الطلب
+        </button>
+    </form>
+</div>
 </div>
 
 {% include 'footer.html' %}

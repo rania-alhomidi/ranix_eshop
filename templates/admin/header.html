@@ -114,14 +114,14 @@
       <li class="nav-item">
         <a class="nav-link collapsed" href="{{ url_for('admin.show_product')}}">
           <i class="bi bi-card-list"></i>
-          <span>Products</span>
+          <span>إضافة منتج</span>
         </a>
         </li>
       
         <li class="nav-item">
   <a class="nav-link collapsed" href="{{ url_for('admin.categories')}}"> 
     <i class="bi bi-card-list"></i>
-    <span>Categorices</span>
+    <span>إضافه قسم</span>
   </a>
 </li>
 
@@ -129,7 +129,7 @@
         <li class="nav-item">
         <a class="nav-link collapsed" href="{{url_for('admin.show_seller')}}">
           <i class="bi bi-card-list"></i>
-          <span>Customer</span>
+          <span>البائعين</span>
         </a>
         </li>
         <!-- End  manage members -->  
@@ -138,28 +138,23 @@
       <li class="nav-item">
         <a class="nav-link collapsed" href="{{url_for('admin.users')}}">
           <i class="bi bi-card-list"></i>
-          <span>Users</span>
+          <span>العملاء</span>
         </a>
       </li><!-- End Register Page Nav -->  
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="address.html">
+       
+        <a class="nav-link collapsed" href="{{ url_for('order.admin_orders') }}">
           <i class="bi bi-card-list"></i>
-          <span>Address</span>
+          <span>إدارة الطلبات</span>
         </a>
       </li><!-- End Register Page Nav -->  
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="orders.html">
-          <i class="bi bi-card-list"></i>
-          <span>orders</span>
-        </a>
-      </li><!-- End Register Page Nav -->  
-
+       
+     
       <li class="nav-item">
         <a class="nav-link collapsed" href="{{url_for('ads.ads_management')}}">
           <i class="bi bi-person"></i>
-          <span>ads</span>
+          <span>الاعلانات</span>
         </a>
       </li>
       <!-- End Profile Page Nav -->

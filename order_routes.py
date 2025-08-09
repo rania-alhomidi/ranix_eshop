@@ -1,4 +1,3 @@
-# order_routes.py
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash, make_response, jsonify
 import sqlite3
 import json
@@ -13,16 +12,11 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# *** دالة مساعدة جديدة (منقولة من cart_routes.py) ***
 def get_current_user_key():
-    """
-    يحصل على المفتاح الفريد لسلة التسوق للمستخدم الحالي (المسجل دخوله أو الضيف).
-    يعتمد على كوكي 'user_auth' لتحديد المستخدم المسجل دخوله.
-    """
     user_id = request.cookies.get('user_auth')
     if user_id:
-        return str(user_id) # يجب أن يكون المفتاح string في قاموس JSON
-    return 'guest_cart' # المفتاح الافتراضي لجميع المستخدمين غير المسجلين (الضيوف)
+        return str(user_id)
+    return 'guest_cart'
 
 def get_user_balance_from_db(user_id):
     conn = get_db_connection()
@@ -97,11 +91,11 @@ def set_default_address_in_db(user_id, address_id):
 @order_bp.route('/confirm_order_page')
 def confirm_order_page():
     user_id_cookie = request.cookies.get('user_auth') 
-    if not user_id_cookie:  # التحقق من تسجيل الدخول
+    if not user_id_cookie:
         flash("يجب تسجيل الدخول أولاً.", "error")
         return redirect(url_for('user.login'))
     
-    user_key = get_current_user_key()  # مفتاح سلة المستخدم الحالي
+    user_key = get_current_user_key()
     
     all_carts_cookie = request.cookies.get('all_user_carts')
     all_user_carts = json.loads(all_carts_cookie) if all_carts_cookie else {}
@@ -118,8 +112,6 @@ def confirm_order_page():
 
     for item in cart_items_raw:
         product_id = item.get('product_id')
-
-        # جلب سعر الربح (profit_price) من جدول prices
         price_row = conn.execute(
             "SELECT profit_price FROM prices WHERE product_id = ? ORDER BY id DESC LIMIT 1",
             (product_id,)
@@ -165,7 +157,7 @@ def set_default_address(address_id):
     if not user_id_cookie:
         return jsonify({'success': False, 'message': 'يجب تسجيل الدخول أولاً.'}), 401 
 
-    user_id = int(user_id_cookie) # تحويل user_id إلى عدد صحيح
+    user_id = int(user_id_cookie)
 
     conn = get_db_connection()
     try:
@@ -260,14 +252,11 @@ def process_order():
         flash("يجب تسجيل الدخول أولاً لإتمام الطلب.", "error")
         return redirect(url_for('user.login'))
     
-    user_id = int(user_id_cookie) # تحويل user_id إلى عدد صحيح
-    user_key = get_current_user_key() # جلب مفتاح سلة المستخدم الحالي
+    user_id = int(user_id_cookie)
+    user_key = get_current_user_key()
 
-    # *** التعديل هنا: قراءة الكوكي 'all_user_carts' ***
     all_carts_cookie = request.cookies.get('all_user_carts')
     all_user_carts = json.loads(all_carts_cookie) if all_carts_cookie else {}
-    
-    # جلب سلة التسوق الخاصة بالمستخدم الحالي
     cart_items_raw = all_user_carts.get(user_key, [])
 
     if not cart_items_raw:
@@ -275,89 +264,88 @@ def process_order():
         return redirect(url_for('product.index')) 
 
     selected_address_id = request.form.get('selected_address_id')
-    order_notes = request.form.get('order_notes')
-    payment_method = request.form.get('payment_method') 
-
-    total_items_price = sum(float(item.get('price', 0.0)) * int(item.get('quantity', 0)) for item in cart_items_raw)
-    delivery_cost = 1500.0
-    total_order_price = total_items_price + delivery_cost
+    payment_method = request.form.get('payment_method')
     
-    current_user_balance = get_user_balance_from_db(user_id) 
-
-    if payment_method == 'from_balance':
-        if current_user_balance >= total_order_price:
-            conn = get_db_connection()
+    conn = get_db_connection()
+    try:
+        total_items_price = sum(float(item.get('price', 0.0)) * int(item.get('quantity', 0)) for item in cart_items_raw)
+        delivery_cost = 1500.0
+        total_order_price = total_items_price + delivery_cost
+        
+        delivery_address_id = None
+        if selected_address_id:
             try:
-                new_balance = current_user_balance - total_order_price
-                conn.execute("UPDATE users SET balance = ? WHERE id = ?", (new_balance, user_id))
-                
+                delivery_address_id = int(selected_address_id)
+                check_address = conn.execute("SELECT id FROM cust_addresses WHERE id = ? AND user_id = ?", (delivery_address_id, user_id)).fetchone()
+                if not check_address:
+                    delivery_address_id = None
+            except ValueError:
                 delivery_address_id = None
-                if selected_address_id:
-                    try:
-                        delivery_address_id = int(selected_address_id)
-                        check_address = conn.execute("SELECT id FROM cust_addresses WHERE id = ? AND user_id = ?", (delivery_address_id, user_id)).fetchone()
-                        if not check_address:
-                            delivery_address_id = None 
-                    except ValueError:
-                        delivery_address_id = None 
 
-                if delivery_address_id is None:
-                    default_address_obj, _ = get_user_addresses_and_default(user_id)
-                    if default_address_obj and default_address_obj['id'] is not None:
-                        delivery_address_id = default_address_obj['id']
-                    else:
-                        flash("لا يوجد عنوان توصيل محدد لحسابك. يرجى إضافة عنوان.", "danger")
-                        conn.rollback() 
-                        return redirect(url_for('order.confirm_order_page'))
-
-                created_at = datetime.now()
-                conn.execute(
-                    "INSERT INTO orders1 (user_id, total_price, status, created_at, delivery_address_id) VALUES (?, ?, ?, ?, ?)",
-                    (user_id, total_order_price, 'pending', created_at, delivery_address_id)
-                )
-                order_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-
-                for item in cart_items_raw:
-                    conn.execute(
-                        "INSERT INTO Order_Items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
-                        (order_id, item.get('product_id'), int(item.get('quantity', 0)), float(item.get('price', 0.0)))
-                    )
-                
-                conn.execute(
-                    "INSERT INTO balance_tracking (user_id, payment_method, amount, transaction_date) VALUES (?, ?, ?, ?)",
-                    (user_id, 'رصيد التطبيق', -total_order_price, created_at)
-                )
-
-                conn.commit()
-                flash("تم تأكيد طلبك بنجاح! شكراً لطلبك.", "success")
-                
-                response = make_response(redirect(url_for('order.order_success_page', order_id=order_id)))
-                
-                # *** التعديل هنا: إزالة سلة المستخدم الحالية من الكوكي 'all_user_carts' ***
-                if user_key in all_user_carts:
-                    del all_user_carts[user_key]
-                # حفظ الكوكي المحدث بعد إزالة سلة المستخدم
-                response.set_cookie('all_user_carts', json.dumps(all_user_carts), expires=datetime.now() + timedelta(days=7), httponly=True, secure=True, samesite='Lax') 
-                
-                return response
-
-            except sqlite3.Error as e:
-                conn.rollback()
-                flash(f"حدث خطأ أثناء معالجة طلبك: {e}", "error")
+        if delivery_address_id is None:
+            default_address_obj, _ = get_user_addresses_and_default(user_id)
+            if default_address_obj and default_address_obj['id'] is not None:
+                delivery_address_id = default_address_obj['id']
+            else:
+                flash("لا يوجد عنوان توصيل محدد لحسابك. يرجى إضافة عنوان.", "danger")
                 return redirect(url_for('order.confirm_order_page'))
-            finally:
-                conn.close()
-        else:
-            flash("رصيدك غير كافٍ لإتمام الطلب. يرجى شحن رصيدك.", "warning")
-            return redirect(url_for('order.confirm_order_page'))
-    else:
-        flash("طريقة دفع غير مدعومة حالياً.", "error")
-        return redirect(url_for('order.confirm_order_page'))
 
+        if payment_method == 'from_balance':
+            current_user_balance = get_user_balance_from_db(user_id)
+            if current_user_balance < total_order_price:
+                flash("رصيدك غير كافٍ لإتمام الطلب. يرجى شحن رصيدك.", "warning")
+                return redirect(url_for('order.confirm_order_page'))
+            new_balance = current_user_balance - total_order_price
+            conn.execute("UPDATE users SET balance = ? WHERE id = ?", (new_balance, user_id))
+            conn.execute("INSERT INTO balance_tracking (user_id, payment_method, amount, transaction_date) VALUES (?, ?, ?, ?)",
+                         (user_id, 'رصيد التطبيق', -total_order_price, datetime.now()))
+        
+        elif payment_method == 'cash_on_delivery':
+            pass
+            
+        else:
+            flash("طريقة دفع غير مدعومة حالياً.", "error")
+            return redirect(url_for('order.confirm_order_page'))
+
+        # --- هذا هو السطر الذي تم تصحيحه ---
+        created_at = datetime.now()
+        conn.execute(
+            "INSERT INTO orders (user_id, total_price, status, created_at, delivery_address_id, payment_method) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, total_order_price, 'قيد الانتظار', created_at, delivery_address_id, payment_method)
+        )
+        
+        order_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        
+        for item in cart_items_raw:
+            conn.execute(
+                "INSERT INTO Order_Items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
+                (order_id, item.get('product_id'), int(item.get('quantity', 0)), float(item.get('price', 0.0)))
+            )
+        
+        conn.commit()
+        
+        if user_key in all_user_carts:
+            del all_user_carts[user_key]
+        
+        response = make_response(redirect(url_for('order.order_success_page', order_id=order_id)))
+        expires = datetime.now() + timedelta(days=7)
+        response.set_cookie('all_user_carts', json.dumps(all_user_carts), expires=expires, httponly=True, samesite='Lax')
+        flash("تم تأكيد طلبك بنجاح! شكراً لطلبك.", "success")
+        
+        return response
+
+    except sqlite3.Error as e:
+        conn.rollback()
+        flash(f"حدث خطأ أثناء معالجة طلبك: {e}", "error")
+        return redirect(url_for('order.confirm_order_page'))
+    finally:
+        conn.close()
+
+        
 @order_bp.route('/order_success_page/<int:order_id>')
 def order_success_page(order_id):
     conn = get_db_connection()
-    order = conn.execute("SELECT * FROM orders1 WHERE id = ?", (order_id,)).fetchone()
+    order = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
     
     items = conn.execute('''
         SELECT oi.quantity, oi.price, p.name, p.image 
@@ -379,3 +367,115 @@ def order_success_page(order_id):
         return redirect(url_for('product.index')) 
     
     return render_template('order_success.html', order=order, items=items, delivery_address=delivery_address)
+
+# في ملف order.py
+@order_bp.route('/admin/orders')
+def admin_orders():
+    status_filter = request.args.get('status', 'all')
+    conn = get_db_connection()
+    orders = []
+    try:
+        query = '''
+            SELECT 
+                o.id AS order_id, 
+                o.total_price, 
+                o.status, 
+                o.created_at,
+                o.payment_method,
+                u.name AS username,  -- استخدام الاسم الصحيح في جدول users
+                u.num AS phone_number,  -- استخدام الاسم الصحيح في جدول users
+                ca.recipient_name AS recipient_name,
+                ca.full_address_description AS full_address_description
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id
+            LEFT JOIN cust_addresses ca ON o.delivery_address_id = ca.id
+        '''
+        params = []
+        if status_filter != 'all':
+            query += " WHERE o.status = ?"
+            params.append(status_filter)
+        query += " ORDER BY o.created_at DESC"
+        orders = conn.execute(query, tuple(params)).fetchall()
+    except sqlite3.Error as e:
+        print(f"Database error in admin_orders: {e}")
+        flash("حدث خطأ في قاعدة البيانات أثناء جلب الطلبات.", "danger")
+    finally:
+        conn.close()
+    return render_template('admin/admin_orders.html', orders=orders, current_status=status_filter)
+
+@order_bp.route('/admin/orders/<int:order_id>')
+def admin_order_details(order_id):
+    # هنا يجب أن يتم التحقق من صلاحيات المستخدم (هل هو مسؤول؟)
+    # if not session.get('is_admin'):
+    #     flash("ليس لديك صلاحيات الوصول لهذه الصفحة.", "danger")
+    #     return redirect(url_for('user.login'))
+
+    conn = get_db_connection()
+    order_details = None
+    order_items = []
+    try:
+        # جلب تفاصيل الطلب الأساسية من قاعدة البيانات
+        order_details = conn.execute('''
+            SELECT 
+                o.*, 
+                u.name AS customer_name,
+                a.full_address_description AS delivery_address,
+                a.recipient_name,
+                a.recipient_phone
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id
+            LEFT JOIN cust_addresses a ON o.delivery_address_id = a.id
+            WHERE o.id = ?
+        ''', (order_id,)).fetchone()
+
+        if order_details:
+            # جلب المنتجات الموجودة في هذا الطلب
+            order_items = conn.execute('''
+                SELECT 
+                    oi.quantity, 
+                    oi.price, 
+                    p.name AS product_name, 
+                    pi.image_path AS product_image
+                FROM Order_Items oi
+                JOIN product p ON oi.product_id = p.id
+                LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.is_main = 1
+                WHERE oi.order_id = ?
+            ''', (order_id,)).fetchall()
+    except sqlite3.Error as e:
+        print(f"خطأ في قاعدة البيانات أثناء جلب تفاصيل الطلب: {e}")
+        flash("حدث خطأ في قاعدة البيانات أثناء جلب تفاصيل الطلب.", "danger")
+        return redirect(url_for('order.admin_orders'))
+    finally:
+        conn.close()
+
+    if not order_details:
+        flash("الطلب غير موجود.", "warning")
+        return redirect(url_for('order.admin_orders'))
+
+    return render_template('admin/admin_order_details.html', order=order_details, items=order_items)
+
+# ... (الكود السابق) ...
+
+@order_bp.route('/admin/update_order_status/<int:order_id>', methods=['POST'])
+def update_order_status(order_id):
+    conn = get_db_connection()
+    try:
+        # قراءة البيانات المرسلة من JavaScript (يجب أن تكون JSON)
+        data = request.get_json()
+        new_status = data.get('status')
+        
+        if not new_status:
+            return jsonify({'success': False, 'message': 'الحالة الجديدة مفقودة.'}), 400
+
+        # تنفيذ استعلام التحديث
+        conn.execute('UPDATE orders SET status = ? WHERE id = ?', (new_status, order_id))
+        conn.commit()
+
+        return jsonify({'success': True, 'message': 'تم تحديث الحالة بنجاح.'})
+
+    except sqlite3.Error as e:
+        print(f"Database error while updating status: {e}")
+        conn.rollback() # التراجع عن التغييرات في حالة حدوث خطأ
+        return jsonify({'success': False, 'message': 'حدث خطأ في قاعدة البيانات.'}), 500
+    finally:
+        conn.close()

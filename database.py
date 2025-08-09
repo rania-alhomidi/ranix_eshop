@@ -107,14 +107,21 @@ cursor = conn.cursor()
 # );''')
 
 
-# cursor.execute('''CREATE TABLE orders1 (
+# database.py (أو حيثما تقوم بإنشاء الجداول)
+
+# cursor.execute('''
+# CREATE TABLE orders (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
 #     user_id INTEGER NOT NULL,
 #     total_price REAL NOT NULL,
-#     status TEXT CHECK(status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled')) DEFAULT 'pending',
+#     status TEXT CHECK(status IN ('قيد الانتظار', 'قيد المعالجة', 'تم الشحن', 'تم التوصيل', 'ملغي')) DEFAULT 'قيد الانتظار',
 #     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-# );''')
+#     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     delivery_address_id INTEGER,
+#     payment_method TEXT,
+#     FOREIGN KEY (delivery_address_id) REFERENCES cust_addresses(id) ON DELETE SET NULL
+# );
+# ''')
 
 # cursor.execute('''
 #     CREATE TABLE Order_Items (
@@ -123,7 +130,7 @@ cursor = conn.cursor()
 #     product_id INTEGER NOT NULL,
 #     quantity INTEGER NOT NULL CHECK(quantity > 0),
 #     price REAL NOT NULL,
-#     FOREIGN KEY (order_id) REFERENCES orders1(id) ON DELETE CASCADE,
+#     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
 #     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 # );''')
 
@@ -195,7 +202,7 @@ cursor = conn.cursor()
 #     amount REAL CHECK(amount >= 0) NOT NULL,
 #     payment_status TEXT DEFAULT 'معلق' CHECK(payment_status IN ('معلق', 'مدفوع', 'مرفوض')),
 #     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#     FOREIGN KEY (order_id) REFERENCES orders1(id) ON DELETE CASCADE
+#     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 # );
 # ''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_hidden INTEGER DEFAULT 0;''')
@@ -350,20 +357,20 @@ cursor = conn.cursor()
 # newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
 # print(newdata)
 
-cursor.execute("SELECT * FROM likes ")  # استعلام عن كل البيانات
+cursor.execute("SELECT * FROM orders")  # استعلام عن كل البيانات
 rows = cursor.fetchall()  # جلب جميع الصفوف
 print("البيانات الموجودة في قاعدة البيانات:", rows)
 
 for row in rows:
     print(row)
 
-# cursor.execute('''ALTER TABLE category ADD COLUMN is_active INTEGER DEFAULT 0;''')
+# cursor.execute('''ALTER TABLE orders ADD COLUMN payment_method INTEGER ;''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_new BOOLEAN DEFAULT TRUE;''')
 # cursor.execute('''ALTER TABLE category ADD COLUMN view_count INTEGER DEFAULT 0;''')
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
 # VALUES 
 # ('منتج 1', 'static/uploads\\51ada2ee49fccfda68f0114966161bcd.jpg', '  nice and buteaful', 7, 1, 3, 1, 1, 1);''')
-# cursor.execute('DROP TABLE IF EXISTS ads')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
+# cursor.execute('DROP TABLE IF EXISTS Order_Items')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
 # cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
@@ -374,11 +381,11 @@ for row in rows:
 # print(newdata)
 
 
-# cursor.execute("PRAGMA table_info(category);")
+# cursor.execute("PRAGMA table_info(orders);")
 # columns = cursor.fetchall()
 
 # for col in columns:
-#     print(col[1])  # col[1] يحتوي على اسم العمود
+    # print(col[1])  # col[1] يحتوي على اسم العمود
 
 # إغلاق الاتصال
 conn.commit()

@@ -1,0 +1,144 @@
+{% include 'admin/header.html' %}
+
+<main id="main" class="main">
+    <div class="container mt-4">
+        <h2 class="mb-4">إدارة الطلبات</h2>
+
+
+        <div class="mb-4">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('order.admin_orders', status='all') }}"
+                    class="btn btn-outline-secondary {% if current_status == 'all' %}active{% endif %}">
+                    جميع الطلبات
+                </a>
+                <a href="{{ url_for('order.admin_orders', status='قيد الانتظار') }}"
+                    class="btn btn-outline-primary {% if current_status == 'قيد الانتظار' %}active{% endif %}">
+                    قيد الانتظار
+                </a>
+                <a href="{{ url_for('order.admin_orders', status='قيد المعالجة') }}"
+                    class="btn btn-outline-info {% if current_status == 'قيد المعالجة' %}active{% endif %}">
+                    قيد المعالجة
+                </a>
+                <a href="{{ url_for('order.admin_orders', status='تم الشحن') }}"
+                    class="btn btn-outline-warning {% if current_status == 'تم الشحن' %}active{% endif %}">
+                    تم الشحن
+                </a>
+                <a href="{{ url_for('order.admin_orders', status='تم التوصيل') }}"
+                    class="btn btn-outline-success {% if current_status == 'تم التوصيل' %}active{% endif %}">
+                    تم التوصيل
+                </a>
+                <a href="{{ url_for('order.admin_orders', status='ملغي') }}"
+                    class="btn btn-outline-danger {% if current_status == 'ملغي' %}active{% endif %}">
+                    ملغي
+                </a>
+            </div>
+
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>التاريخ</th>
+                            <th>العميل</th>
+                            <th>المجموع</th>
+                            <th>طريقة الدفع</th>
+                            <th>الحالة</th>
+                            <th>العنوان</th>
+                            <th>الاجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.created_at }}</td>
+                            <td>{{ order.username }}<br>{{ order.phone_number }}</td>
+                            <td>{{ "%.2f"|format(order.total_price) }} ر.س</td>
+                            <td>{{ order.payment_method }}</td>
+                            <td>
+                                <span class="badge 
+    {% if order.status == 'تم التوصيل' %}bg-success
+    {% elif order.status == 'ملغي' %}bg-danger
+    {% elif order.status == 'تم الشحن' %}bg-warning
+    {% elif order.status == 'قيد المعالجة' %}bg-info
+    {% else %}bg-primary{% endif %}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if order.recipient_name %}
+                                <strong>{{ order.recipient_name }}</strong><br>
+                                {{ order.full_address_description }}
+                                {% else %}
+                                لا يوجد عنوان محدد
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('order.admin_order_details', order_id=order.order_id) }}"
+                                    class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> تفاصيل
+                                </a>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown">
+                                        تغيير الحالة
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#"
+                                                onclick="updateOrderStatus({{ order.order_id }}, 'قيد الانتظار')">قيد
+                                                الانتظار</a></li>
+                                        <li><a class="dropdown-item" href="#"
+                                                onclick="updateOrderStatus({{ order.order_id }}, 'قيد المعالجة')">قيد
+                                                المعالجة</a></li>
+                                        <li><a class="dropdown-item" href="#"
+                                                onclick="updateOrderStatus({{ order.order_id }}, 'تم الشحن')">تم
+                                                الشحن</a></li>
+                                        <li><a class="dropdown-item" href="#"
+                                                onclick="updateOrderStatus({{ order.order_id }}, 'تم التوصيل')">تم
+                                                التوصيل</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li><a class="dropdown-item text-danger" href="#"
+                                                onclick="updateOrderStatus({{ order.order_id }}, 'ملغي')">إلغاء
+                                                الطلب</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            function updateOrderStatus(orderId, newStatus) {
+                if (confirm(`هل أنت متأكد من تغيير حالة الطلب #${orderId} إلى "${newStatus}"؟`)) {
+                    fetch(`/admin/update_order_status/${orderId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('تم تحديث حالة الطلب بنجاح');
+                                location.reload();
+                            } else {
+                                alert('حدث خطأ: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('حدث خطأ أثناء تحديث الحالة');
+                        });
+                }
+            }
+        </script>
+</main>
+
+{% include 'admin/footer.html' %}

@@ -12,12 +12,16 @@
 
             <div class="col-6 col-lg-3">
                 <div class="modern-card">
+                    
+                    {% if product.featured %}
+                    <div class="featured-badge">جديد</div>
+                    {% endif %}
+                    <button class="like-btn {% if product.id in liked_products %}liked{% endif %}"
+                        data-product-id="{{ product.id }}">
+                        <i class="fa fa-heart"></i>
+                    </button>
+                    
                     <a href="{{ url_for('product.product_details', product_id=product.id) }}" class="modern-card-link">
-
-                        {% if product.featured %}
-                        <div class="featured-badge">جديد</div>
-                        {% endif %}
-
                         <div class="modern-img-container">
                             {% if product.image %}
                             <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
@@ -31,10 +35,6 @@
                         <div class="modern-card-body">
                             <h5 class="modern-product-title">{{ product.name }}</h5>
 
-                            <button class="like-btn {% if product.id in liked_products %}liked{% endif %}"
-                                data-product-id="{{ product.id }}">
-                                <i class="fa fa-heart"></i>
-                            </button>
 
                             <p class="modern-product-price">
                                 ر.ي{{ product.profit_price }}

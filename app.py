@@ -16,7 +16,7 @@ from product_routes import product_bp
 from cart_routes import cart_bp
 from seller_routes import seller_bp
 from general_routes import general_bp
-from order import order_bp # تأكد أن هذا الاستيراد صحيح
+from order_routes import order_bp # تأكد أن هذا الاستيراد صحيح
 from ads_routes import ads_bp # تأكد أن هذا الاستيراد صحيح
 from search_routes import search_bp
 

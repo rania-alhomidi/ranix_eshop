@@ -1,0 +1,169 @@
+{% include 'admin/header.html' %}
+
+<main id="main" class="main">
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>تفاصيل الطلب #{{ order.id }}</h2>
+        <a href="{{ url_for('order.admin_orders') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> رجوع
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">معلومات الطلب</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>رقم الطلب:</strong> #{{ order.id }}</p>
+                    <p><strong>التاريخ:</strong> {{ order.created_at }}</p>
+                    <p><strong>الحالة:</strong> 
+                        <span class="badge 
+                            {% if order.status == 'مكتمل' %}bg-success
+                            {% elif order.status == 'ملغي' %}bg-danger
+                            {% elif order.status == 'تم الشحن' %}bg-warning
+                            {% elif order.status == 'قيد التجهيز' %}bg-info
+                            {% else %}bg-primary{% endif %}">
+                            {{ order.status }}
+                        </span>
+                    </p>
+                    <p><strong>طريقة الدفع:</strong> {{ order.payment_method }}</p>
+                    <p><strong>المجموع:</strong> {{ "%.2f"|format(order.total_price) }} ر.س</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">معلومات العميل</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>اسم العميل:</strong> {{ order.username }}</p>
+                    <p><strong>رقم الهاتف:</strong> {{ order.phone_number }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">عنوان التوصيل</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>اسم المستلم:</strong> {{ order.recipient_name }}</p>
+                    <p><strong>هاتف المستلم:</strong> {{ order.recipient_phone }}</p>
+                    <p><strong>العنوان:</strong> {{ order.full_address_description }}</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">تغيير حالة الطلب</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" 
+                            onclick="updateOrderStatus({{ order.id }}, 'قيد الانتظار')">
+                            قيد الانتظار
+                        </button>
+                        <button type="button" class="btn btn-outline-info" 
+                            onclick="updateOrderStatus({{ order.id }}, 'قيد التجهيز')">
+                            قيد التجهيز
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" 
+                            onclick="updateOrderStatus({{ order.id }}, 'تم الشحن')">
+                            تم الشحن
+                        </button>
+                        <button type="button" class="btn btn-outline-success" 
+                            onclick="updateOrderStatus({{ order.id }}, 'مكتمل')">
+                            مكتمل
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" 
+                            onclick="updateOrderStatus({{ order.id }}, 'ملغي')">
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">المنتجات المطلوبة</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الصورة</th>
+                            <th>المنتج</th>
+                            <th>السعر</th>
+                            <th>الكمية</th>
+                            <th>المجموع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <img src="{{ url_for('static', filename='images/products/' + item.image) }}" 
+                                        alt="{{ item.name }}" style="width: 50px;">
+                            </td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ "%.2f"|format(item.price) }} ر.س</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ "%.2f"|format(item.price * item.quantity) }} ر.س</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="table-active">
+                            <td colspan="5" class="text-end"><strong>المجموع الفرعي:</strong></td>
+                            <td>{{ "%.2f"|format(total_items_price) }} ر.س</td>
+                        </tr>
+                        <tr class="table-active">
+                            <td colspan="5" class="text-end"><strong>تكلفة التوصيل:</strong></td>
+                            <td>{{ "%.2f"|format(order.total_price - total_items_price) }} ر.س</td>
+                        </tr>
+                        <tr class="table-success">
+                            <td colspan="5" class="text-end"><strong>المجموع الكلي:</strong></td>
+                            <td>{{ "%.2f"|format(order.total_price) }} ر.س</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
+<script>
+function updateOrderStatus(orderId, newStatus) {
+    if(confirm(`هل أنت متأكد من تغيير حالة الطلب #${orderId} إلى "${newStatus}"؟`)) {
+        fetch(`/admin/update_order_status/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({status: newStatus})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('تم تحديث حالة الطلب بنجاح');
+                location.reload();
+            } else {
+                alert('حدث خطأ: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء تحديث الحالة');
+        });
+    }
+}
+</script>
+
+{% include 'admin/footer.html' %}

@@ -1,37 +1,210 @@
-{% include 'header.html' %}
+{% include 'header_shop.html' %}
 
-<div class="container">
-    <h1>تم تأكيد طلبك بنجاح!</h1>
-    <div class="order-success-details">
+<style>
+    .success-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .success-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2ecc71;
+    }
+    
+    .success-header h1 {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .success-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+        color: #2ecc71;
+    }
+    
+    .order-details {
+        background-color: #f9f9f9;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .detail-label {
+        flex: 1;
+        font-weight: 600;
+        color: #555;
+    }
+    
+    .detail-value {
+        flex: 2;
+        color: #333;
+    }
+    
+    .order-items {
+        margin-top: 25px;
+    }
+    
+    .order-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .item-image {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-left: 15px;
+    }
+    
+    .item-info {
+        flex-grow: 1;
+    }
+    
+    .delivery-address {
+        background-color: #f0f8ff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 25px;
+    }
+    
+    .btn-continue {
+        display: block;
+        width: 100%;
+        max-width: 300px;
+        margin: 30px auto 0;
+        padding: 12px;
+        background-color:var(--primary-color);
+        color: white;
+        text-align: center;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-continue:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .success-container {
+            padding: 20px;
+            margin: 20px;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            margin-bottom: 5px;
+        }
+    }
+</style>
+
+<div class="success-container">
+    <div class="success-header">
+        <div class="success-icon">✓</div>
+        <h1>تم تأكيد طلبك بنجاح!</h1>
+        <p>شكراً لثقتك بنا. سنقوم بتجهيز طلبك وإرساله في أقرب وقت ممكن.</p>
+    </div>
+    
+    <div class="order-details">
         {% if order %}
-            <p><strong>رقم الطلب:</strong> {{ order.id }}</p>
-            <p><strong>تاريخ الطلب:</strong> {{ order.created_at }}</p>
-            <p><strong>الحالة:</strong> {{ order.status }}</p>
-            <p><strong>الإجمالي المدفوع:</strong> {{ order.total_price | round(2) }} ريال</p>
-
-            <h3>عناصر الطلب:</h3>
-            <ul>
+            <div class="detail-row">
+                <div class="detail-label">رقم الطلب:</div>
+                <div class="detail-value">{{ order.id }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">تاريخ الطلب:</div>
+                <div class="detail-value">{{ order.created_at }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">حالة الطلب:</div>
+                <div class="detail-value"><span style="color: #2ecc71;">{{ order.status }}</span></div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">المبلغ الإجمالي:</div>
+                <div class="detail-value" style="font-weight: bold; color: #e74c3c;">{{ order.total_price | round(2) }} ريال</div>
+            </div>
+            
+            <div class="order-items">
+                <h3 style="margin-bottom: 20px; color: #333;">عناصر الطلب</h3>
+                
                 {% for item in items %}
-                    <li>
-                        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;">
-                        {{ item.name }} (الكمية: {{ item.quantity }}, السعر: {{ item.price | round(2) }} ريال)
-                    </li>
+                    <div class="order-item">
+                        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}" class="item-image">
+                        <div class="item-info">
+                            <h4 style="margin: 0 0 5px 0; color: #333;">{{ item.name }}</h4>
+                            <p style="margin: 0; color: #777;">الكمية: {{ item.quantity }} | السعر: {{ item.price | round(2) }} ريال</p>
+                        </div>
+                    </div>
                 {% endfor %}
-            </ul>
-
+            </div>
+            
             {% if delivery_address %}
-                <h3>عنوان التوصيل:</h3>
-                <p><strong>اسم المستلم:</strong> {{ delivery_address.recipient_name }}</p>
-                <p><strong>رقم الهاتف:</strong> {{ delivery_address.recipient_phone }}</p>
-                <p><strong>العنوان:</strong> {{ delivery_address.full_address_description }}, {{ delivery_address.city }}, {{ delivery_address.region }}</p>
+                <div class="delivery-address">
+                    <h3 style="margin-top: 0; color: #333;">عنوان التوصيل</h3>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">اسم المستلم:</div>
+                        <div class="detail-value">{{ delivery_address.recipient_name }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">رقم الهاتف:</div>
+                        <div class="detail-value">{{ delivery_address.recipient_phone }}</div>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">العنوان:</div>
+                        <div class="detail-value">
+                            {{ delivery_address.full_address_description }}, 
+                            {{ delivery_address.city }}, 
+                            {{ delivery_address.region }}
+                        </div>
+                    </div>
+                </div>
             {% else %}
-                <p>لا يوجد عنوان توصيل لهذا الطلب.</p>
+                <p style="color: #777; text-align: center;">لا يوجد عنوان توصيل لهذا الطلب.</p>
             {% endif %}
         {% else %}
-            <p>عذراً، لا يمكن العثور على تفاصيل الطلب.</p>
+            <p style="color: #e74c3c; text-align: center;">عذراً، لا يمكن العثور على تفاصيل الطلب.</p>
         {% endif %}
     </div>
-    <a href="{{ url_for('product.index') }}" class="btn btn-primary">العودة إلى صفحة المنتجات</a>
-    {# يمكنك إضافة رابط لصفحة "طلباتي" هنا إذا كانت موجودة #}
+    
+    <a href="{{ url_for('product.index') }}" class="btn-continue">العودة إلى المتجر</a>
 </div>
+
 {% include 'footer.html' %}
