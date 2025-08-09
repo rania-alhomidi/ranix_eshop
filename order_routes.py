@@ -382,8 +382,8 @@ def admin_orders():
                 o.status, 
                 o.created_at,
                 o.payment_method,
-                u.name AS username,  -- استخدام الاسم الصحيح في جدول users
-                u.num AS phone_number,  -- استخدام الاسم الصحيح في جدول users
+                u.name AS username,  -- جلب اسم المستخدم
+                u.num AS phone_number,  -- جلب رقم الهاتف
                 ca.recipient_name AS recipient_name,
                 ca.full_address_description AS full_address_description
             FROM orders o
@@ -403,58 +403,73 @@ def admin_orders():
         conn.close()
     return render_template('admin/admin_orders.html', orders=orders, current_status=status_filter)
 
-@order_bp.route('/admin/orders/<int:order_id>')
-def admin_order_details(order_id):
-    # هنا يجب أن يتم التحقق من صلاحيات المستخدم (هل هو مسؤول؟)
-    # if not session.get('is_admin'):
-    #     flash("ليس لديك صلاحيات الوصول لهذه الصفحة.", "danger")
-    #     return redirect(url_for('user.login'))
 
+# في ملف order_routes.py
+# ...
+# في ملف order_routes.py
+# ...
+
+@order_bp.route('/admin/order_details/<int:order_id>')
+def admin_order_details(order_id):
     conn = get_db_connection()
     order_details = None
     order_items = []
+    total_items_price = 0
+
     try:
-        # جلب تفاصيل الطلب الأساسية من قاعدة البيانات
+        # جلب تفاصيل الطلب
         order_details = conn.execute('''
             SELECT 
-                o.*, 
-                u.name AS customer_name,
-                a.full_address_description AS delivery_address,
-                a.recipient_name,
-                a.recipient_phone
+                o.id, 
+                o.total_price, 
+                o.status, 
+                o.created_at,
+                o.payment_method,
+                u.name AS username,
+                u.num AS phone_number,
+                ca.recipient_name,
+                ca.recipient_phone,
+                ca.full_address_description
             FROM orders o
             LEFT JOIN users u ON o.user_id = u.id
-            LEFT JOIN cust_addresses a ON o.delivery_address_id = a.id
+            LEFT JOIN cust_addresses ca ON o.delivery_address_id = ca.id
             WHERE o.id = ?
         ''', (order_id,)).fetchone()
 
-        if order_details:
-            # جلب المنتجات الموجودة في هذا الطلب
-            order_items = conn.execute('''
-                SELECT 
-                    oi.quantity, 
-                    oi.price, 
-                    p.name AS product_name, 
-                    pi.image_path AS product_image
-                FROM Order_Items oi
-                JOIN product p ON oi.product_id = p.id
-                LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.is_main = 1
-                WHERE oi.order_id = ?
-            ''', (order_id,)).fetchall()
+        # إذا لم يتم العثور على الطلب، توقف هنا وأعد توجيه المستخدم
+        if order_details is None:
+            flash(f"لا يوجد طلب بهذا الرقم: #{order_id}", "danger")
+            return redirect(url_for('order.admin_orders'))
+
+        # جلب المنتجات في الطلب
+        order_items = conn.execute('''
+            SELECT 
+                oi.quantity, 
+                oi.price, 
+                p.name AS product_name, 
+                pi.image_path AS product_image
+            FROM Order_Items oi
+            JOIN product p ON oi.product_id = p.id
+            LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.is_main = 1
+            WHERE oi.order_id = ?
+        ''', (order_id,)).fetchall()
+        
+        # حساب المجموع الفرعي لأسعار المنتجات
+        for item in order_items:
+            total_items_price += item['price'] * item['quantity']
+
     except sqlite3.Error as e:
-        print(f"خطأ في قاعدة البيانات أثناء جلب تفاصيل الطلب: {e}")
+        print(f"Database error in admin_order_details: {e}")
         flash("حدث خطأ في قاعدة البيانات أثناء جلب تفاصيل الطلب.", "danger")
         return redirect(url_for('order.admin_orders'))
     finally:
         conn.close()
 
-    if not order_details:
-        flash("الطلب غير موجود.", "warning")
-        return redirect(url_for('order.admin_orders'))
-
-    return render_template('admin/admin_order_details.html', order=order_details, items=order_items)
-
-# ... (الكود السابق) ...
+    # تمرير المتغيرات إلى القالب
+    return render_template('admin/admin_order_details.html', 
+                           order=order_details, 
+                           items=order_items, 
+                           total_items_price=total_items_price)
 
 @order_bp.route('/admin/update_order_status/<int:order_id>', methods=['POST'])
 def update_order_status(order_id):

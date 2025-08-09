@@ -47,7 +47,7 @@ def signup():
                 'user_auth',
                 value=str(user_id),
                 max_age=60*60*24*30, # 30 يوم
-                secure=True,       # استخدم True في HTTPS
+                secure=False,       # استخدم True في HTTPS
                 httponly=True,     # يمنع الوصول من JavaScript
                 samesite='Lax'
             )
@@ -55,7 +55,7 @@ def signup():
                 'user_name',
                 value=name,
                 max_age=60*60*24*30,
-                secure=True,
+                secure=False,
                 httponly=False,    # السماح بالوصول من JavaScript إذا لزم الأمر
                 samesite='Lax'
             )
@@ -104,7 +104,7 @@ def login():
                 'user_auth',
                 value=str(user['id']),
                 max_age=60*60*24*7, # 7 أيام
-                secure=True,
+                secure=False,
                 httponly=True,
                 samesite='Lax'
             )
@@ -112,7 +112,7 @@ def login():
                 'user_name',
                 value=user['name'],
                 max_age=60*60*24*7,
-                secure=True,
+                secure=False,
                 httponly=False,
                 samesite='Lax'
             )
