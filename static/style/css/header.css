@@ -10,6 +10,15 @@
     --text-light: #777;
     --shadow: 0 4px 12px rgba(0,0,0,0.08);
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+     --background-light: #f8f9fa;
+        --card-background: #fff;
+        --unread-bg: #e9f5ff;
+        --text-color: #212529;
+
+        /* ألوان الإشعارات بناءً على النوع */
+        --promotion-color: #ffc107;
+        --new-product-color: #17a2b8;
+        --cancellation-color: #dc3545;
 }
 
 * {

@@ -25,8 +25,7 @@
     <script src="{{ url_for('static', filename='style/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='style/js/owl.carousel.min.js') }}"></script>
 
-
-     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 
@@ -127,9 +126,20 @@
                 <i class="fas fa-heart"></i>
             </a> -->
         </div>
+    <a class="nav-link position-relative" href="{{ url_for('order.user_notifications') }}" id="navbarNotifications">
+        <i class="fas fa-bell"></i>
+        {% if unread_notifications_count > 0 %}
+        <span id="navbar-notification-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ unread_notifications_count }}
+        </span>
+        {% endif %}
+    </a>
+
         <a href="{{ url_for('product.index') }}" class="brand">
             <span class="brand-name">Rezza</span>
             </a>
+
+            
     </header>
     
     <div class="luxury-sidebar" id="sideMenu">

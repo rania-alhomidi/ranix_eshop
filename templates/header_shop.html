@@ -2,12 +2,13 @@
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rezza | متجرك المميز</title>
-    
-    
+
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/nice-select.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/jquery-ui.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/owl.carousel.min.css') }}">
@@ -20,14 +21,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/index.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/header.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/shop_u.css')}}">
-    
+
     <script src="{{ url_for('static', filename='style/js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='style/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='style/js/owl.carousel.min.js') }}"></script>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-     
 </head>
+
 <body>
 
     <header class="premium-header">
@@ -46,18 +48,29 @@
             <a href="{{ url_for('cart.view_cart') }}" class="nav-icon">
                 <i class="fas fa-shopping-cart"></i>
                 {% if total_items_count > 0 %}
-                    <span class="cart-counter">{{ total_items_count }}</span>
+                <span class="cart-counter">{{ total_items_count }}</span>
                 {% endif %}
             </a>
             <!-- <a href="#" class="nav-icon">
                 <i class="fas fa-heart"></i>
             </a> -->
         </div>
+        <a class="nav-link position-relative" href="{{ url_for('order.user_notifications') }}" id="navbarNotifications">
+            <i class="fas fa-bell"></i>
+            {% if unread_notifications_count > 0 %}
+            <span id="navbar-notification-count"
+                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ unread_notifications_count }}
+            </span>
+            {% endif %}
+        </a>
+
         <a href="{{ url_for('product.index') }}" class="brand">
             <span class="brand-name">Rezza</span>
-            </a>
+        </a>
+
     </header>
-    
+
     <div class="luxury-sidebar" id="sideMenu">
         <div class="sidebar-header">
             <h3 class="sidebar-title">مرحباً بك في Rezza</h3>
@@ -65,7 +78,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="sidebar-content">
             <div class="sidebar-section">
                 <div class="section-heading" id="accountSection">
@@ -90,7 +103,7 @@
                         </a>
                     </li>
                     {% endif %}
-                    
+
                     <li>
                         <a href="{{ url_for('user.profile') }}">
                             <i class="fas fa-user-cog"></i>
@@ -105,7 +118,7 @@
                     </li>
                 </ul>
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="section-heading" id="categoriesSection">
                     <h4 class="section-title">الأقسام</h4>
@@ -114,7 +127,8 @@
                 <ul class="sidebar-list">
                     {% for category in main_categories %}
                     <li>
-                        <a href="{{ url_for('product.show_subcategories', category_id=category.id) }}"> {# تأكد أنك تمرر category.id وليس category[0] #}
+                        <a href="{{ url_for('product.show_subcategories', category_id=category.id) }}"> {# تأكد أنك تمرر
+                            category.id وليس category[0] #}
                             <i class="fas fa-tag"></i>
                             {{ category.name }}
                         </a>
@@ -122,7 +136,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="section-heading" id="sellersSection">
                     <h4 class="section-title">البائعين</h4>
@@ -139,7 +153,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="section-heading" id="helpSection">
                     <h4 class="section-title">المساعدة</h4>
@@ -168,15 +182,15 @@
             </div>
         </div>
     </div>
-    
+
     <div class="overlay" id="overlay"></div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const logoutLink = document.getElementById("logout-link");
-    
+
             if (logoutLink) {
-                logoutLink.addEventListener("click", function(event) {
+                logoutLink.addEventListener("click", function (event) {
                     const confirmLogout = confirm("هل أنت متأكد أنك تريد تسجيل الخروج؟");
                     if (!confirmLogout) {
                         event.preventDefault(); // منع الانتقال للرابط
@@ -185,42 +199,41 @@
             }
         });
     </script>
-    
+
     <script>
         // التحكم في القائمة الجانبية
         const menuToggle = document.getElementById('menuToggle');
         const sideMenu = document.getElementById('sideMenu');
         const closeMenu = document.getElementById('closeMenu');
         const overlay = document.getElementById('overlay');
-        
+
         menuToggle.addEventListener('click', () => {
             sideMenu.classList.add('active');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
             menuToggle.classList.add('active'); // إضافة كلاس active لزر التبديل
         });
-        
+
         closeMenu.addEventListener('click', () => {
             sideMenu.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = 'auto';
             menuToggle.classList.remove('active'); // إزالة كلاس active من زر التبديل
         });
-        
+
         overlay.addEventListener('click', () => {
             sideMenu.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = 'auto';
             menuToggle.classList.remove('active'); // إزالة كلاس active من زر التبديل
         });
-        
+
         // تفعيل/تعطيل أقسام القائمة
         const sections = document.querySelectorAll('.section-heading');
-        
+
         sections.forEach(section => {
             section.addEventListener('click', () => {
                 section.classList.toggle('active');
             });
         });
     </script>
-

@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, make_response
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, make_response, has_request_context
+
 import sqlite3
 import os
 import json
@@ -150,6 +151,55 @@ def handle_product_image(image_path):
     if not image_path:
         return 'uploads/products/default_product.jpg'
     return image_path.replace('static/', '')
+
+# اشعارات المستخدم
+@app.context_processor
+def inject_notifications():
+    # تهيئة قيمة افتراضية
+    notifications_data = {'unread_notifications_count': 0}
+    
+    # التحقق من وجود طلب نشط
+    if not has_request_context():
+        return notifications_data
+        
+    try:
+        user_id = request.cookies.get('user_auth')
+        
+        # التحقق من وجود user_id صالح
+        if user_id and user_id.isdigit():
+            conn = get_db_connection()
+            try:
+                count = conn.execute(
+                    "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0",
+                    (int(user_id),)
+                ).fetchone()[0]
+                notifications_data['unread_notifications_count'] = count
+            except Exception as e:
+                app.logger.error(f"Error fetching notifications: {e}")
+            finally:
+                conn.close()
+    except Exception as e:
+        app.logger.error(f"Error in notification processor: {e}")
+    
+    return notifications_data
+
+
+@app.template_filter('datetime_format')
+def datetime_format(value, format="%Y-%m-%d %H:%M:%S"):
+    """فلتر لتنسيق التواريخ في القوالب"""
+    if value is None:
+        return ""
+        
+    if isinstance(value, str):
+        try:
+            value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            return value
+            
+    if isinstance(value, datetime):
+        return value.strftime(format)
+        
+    return value
 
 
 if __name__ == '__main__':

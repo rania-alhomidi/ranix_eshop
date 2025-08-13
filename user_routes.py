@@ -1,3 +1,5 @@
+# user_routes.py
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, make_response # 🟢 إزالة session من هنا
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash

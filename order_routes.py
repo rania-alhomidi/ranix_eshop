@@ -87,6 +87,39 @@ def set_default_address_in_db(user_id, address_id):
     finally:
         conn.close()
 
+
+# خاص باشعارات المستخدم
+# في نفس ملف order.py مع الدوال المساعدة الأخرى
+def create_notification(user_id, title, message, notification_type, related_id=None):
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            "INSERT INTO notifications (user_id, title, message, notification_type, related_id) VALUES (?, ?, ?, ?, ?)",
+            (user_id, title, message, notification_type, related_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+def get_unread_notifications_count(user_id):
+    conn = get_db_connection()
+    try:
+        count = conn.execute("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0", (user_id,)).fetchone()[0]
+        return count
+    finally:
+        conn.close()
+
+def get_user_notifications(user_id, limit=10):
+    conn = get_db_connection()
+    try:
+        notifications = conn.execute(
+            "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",
+            (user_id, limit)
+        ).fetchall()
+        return [dict(notif) for notif in notifications]
+    finally:
+        conn.close()
+
 # --- مسارات (Routes) للطلبات ---
 @order_bp.route('/confirm_order_page')
 def confirm_order_page():
@@ -324,6 +357,10 @@ def process_order():
         
         conn.commit()
         
+        notification_title = "تم استلام طلبك بنجاح!"
+        notification_message = f"طلبك رقم #{order_id} قيد المعالجة. شكراً لثقتك!"
+        create_notification(user_id, notification_title, notification_message, 'order', order_id)
+        
         if user_key in all_user_carts:
             del all_user_carts[user_key]
         
@@ -475,22 +512,114 @@ def admin_order_details(order_id):
 def update_order_status(order_id):
     conn = get_db_connection()
     try:
-        # قراءة البيانات المرسلة من JavaScript (يجب أن تكون JSON)
         data = request.get_json()
         new_status = data.get('status')
         
         if not new_status:
-            return jsonify({'success': False, 'message': 'الحالة الجديدة مفقودة.'}), 400
+            return jsonify({'success': False, 'message': 'الحالة الجديدة مفقودة'}), 400
 
-        # تنفيذ استعلام التحديث
+        # جلب معلومات الطلب
+        order = conn.execute('''
+            SELECT user_id, id FROM orders WHERE id = ?
+        ''', (order_id,)).fetchone()
+        
+        if not order:
+            return jsonify({'success': False, 'message': 'الطلب غير موجود'}), 404
+
+        # تحديث حالة الطلب
         conn.execute('UPDATE orders SET status = ? WHERE id = ?', (new_status, order_id))
+        
+        # إنشاء رسالة الإشعار مع ذكر حالة الطلب
+        status_messages = {
+            'قيد الانتظار': 'تم وضع طلبك في حالة "قيد الانتظار" وسيتم مراجعته قريباً',
+            'قيد التجهيز': 'طلبك الآن في مرحلة "قيد التجهيز" وسيتم تحضيره للإرسال',
+            'تم الشحن': 'تهانينا! تم شحن طلبك وهو في طريقه إليك',
+            'ملغى': 'نأسف لإعلامك أنه تم إلغاء طلبك'
+        }
+        
+        message = status_messages.get(new_status, f'تم تحديث حالة طلبك إلى: {new_status}')
+        
+        # إضافة رقم الطلب في الرسالة
+        full_message = f"{message}\nرقم الطلب: {order_id}"
+        
+        conn.execute('''
+            INSERT INTO notifications (user_id, title, message, notification_type, related_id)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            order['user_id'],
+            f'تحديث حالة الطلب #{order_id}',
+            full_message,
+            'order',
+            order_id
+        ))
+        
         conn.commit()
+        return jsonify({
+            'success': True,
+            'message': f'تم تحديث حالة الطلب إلى {new_status} وإرسال الإشعار'
+        })
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'حدث خطأ: {str(e)}'
+        }), 500
+    finally:
+        conn.close()
+# اشعارات المستخدم
+@order_bp.route('/notifications')
+def user_notifications():
+    user_id = request.cookies.get('user_auth')
+    if not user_id:
+        return redirect(url_for('user.login'))
+    
+    notifications = get_user_notifications(user_id)
+    return render_template('notifications.html', notifications=notifications)
 
-        return jsonify({'success': True, 'message': 'تم تحديث الحالة بنجاح.'})
+@order_bp.route('/api/notifications/count')
+def notifications_count():
+    user_id = request.cookies.get('user_auth')
+    if not user_id:
+        return jsonify({'count': 0})
+    count = get_unread_notifications_count(user_id)
+    return jsonify({'count': count})
 
-    except sqlite3.Error as e:
-        print(f"Database error while updating status: {e}")
-        conn.rollback() # التراجع عن التغييرات في حالة حدوث خطأ
-        return jsonify({'success': False, 'message': 'حدث خطأ في قاعدة البيانات.'}), 500
+
+
+@order_bp.route('/check_notifications')
+def check_notifications():
+    user_id = request.cookies.get('user_auth')
+    if not user_id:
+        return "يجب تسجيل الدخول أولاً"
+    
+    conn = get_db_connection()
+    notifications = conn.execute("SELECT * FROM notifications WHERE user_id = ?", (user_id,)).fetchall()
+    conn.close()
+    
+    if not notifications:
+        return "لا توجد إشعارات مسجلة لهذا المستخدم"
+    
+    result = []
+    for notif in notifications:
+        result.append(dict(notif))
+    
+    return jsonify(result)
+
+@order_bp.route('/mark_all_read', methods=['POST'])
+def mark_all_notifications_read():
+    user_id = request.cookies.get('user_auth')
+    if not user_id:
+        return jsonify({'success': False}), 401
+
+    conn = get_db_connection()
+    try:
+        conn.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ?", (user_id,))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        print(f"Error marking notifications as read: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
     finally:
         conn.close()

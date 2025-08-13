@@ -1,0 +1,225 @@
+{% include 'header_shop.html' %}
+
+<style>
+    :root {
+
+        --background-light: #f8f9fa;
+        --card-background: #fff;
+        --unread-bg: #e9f5ff;
+        --text-color: #212529;
+
+        /* ألوان الإشعارات بناءً على النوع */
+        --promotion-color: #ffc107;
+        --new-product-color: #17a2b8;
+        --cancellation-color: #dc3545;
+    }
+
+    body {
+        background-color: var(--background-light);
+    }
+
+    .notification-header {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 1rem;
+    }
+
+    .notification-card {
+        background-color: var(--card-background);
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-bottom: 1rem;
+        padding: 1.25rem;
+        cursor: pointer; /* لإظهار أن البطاقة قابلة للنقر */
+    }
+
+    .notification-card.unread {
+        background-color: var(--unread-bg);
+        border-left: 5px solid var(--primary-color);
+    }
+
+    .notification-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .notification-icon {
+        font-size: 1.8rem;
+        margin-left: 1rem;
+    }
+
+    .notification-title {
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .notification-message {
+        color: var(--secondary-color);
+        line-height: 1.5;
+        margin-bottom: 0.5rem;
+    }
+
+    .notification-time {
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+    }
+
+    .empty-state {
+        color: var(--secondary-color);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    /* ربط الألوان بنوع الإشعار */
+    .notification-card[data-type="order"] .notification-icon,
+    .notification-card[data-type="order"] .notification-title {
+        color: var(--order-color);
+    }
+    
+    .notification-card[data-type="promotion"] .notification-icon,
+    .notification-card[data-type="promotion"] .notification-title {
+        color: var(--promotion-color);
+    }
+    
+    .notification-card[data-type="new_product"] .notification-icon,
+    .notification-card[data-type="new_product"] .notification-title {
+        color: var(--new-product-color);
+    }
+    
+    .notification-card[data-type="cancellation"] .notification-icon,
+    .notification-card[data-type="cancellation"] .notification-title {
+        color: var(--cancellation-color);
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 notification-header">
+        <h2 class="mb-0">
+            <i class="fas fa-bell me-2" style="color: var(--primary-color);"></i> إشعاراتي
+            {% if unread_count is defined and unread_count > 0 %}
+                <span id="unread-count" class="badge bg-danger rounded-pill">{{ unread_count }}</span>
+            {% endif %}
+        </h2>
+        
+        <div>
+            <button id="refresh-btn" class="btn btn-sm btn-outline-primary me-2">
+                <i class="fas fa-sync-alt"></i> تحديث
+            </button>
+            <button id="mark-read-btn" class="btn btn-sm btn-success">
+                <i class="fas fa-check-double"></i> تعيين الكل كمقروء
+            </button>
+        </div>
+    </div>
+
+    <div class="notification-list">
+        {% if not notifications %}
+            <div class="text-center py-5 empty-state">
+                <i class="fas fa-bell-slash fa-3x mb-3"></i>
+                <p class="mb-0">لا توجد إشعارات لعرضها حالياً</p>
+            </div>
+        {% else %}
+            {% for notif in notifications %}
+                <div class="notification-card {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}" data-type="{{ notif.notification_type }}">
+                    <div class="d-flex align-items-start">
+                        <i class="notification-icon {{ 'fas fa-shopping-basket' if notif.notification_type == 'order' else 'fas fa-gift' if notif.notification_type == 'promotion' else 'fas fa-box-open' if notif.notification_type == 'new_product' else 'fas fa-times-circle' if notif.notification_type == 'cancellation' else 'fas fa-bell' }}"></i>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="notification-title">{{ notif.title }}</h6>
+                                <small class="notification-time">
+                                    <i class="far fa-clock"></i>
+                                    {{ notif.created_at|datetime_format('%d/%m/%Y %I:%M %p') }}
+                                </small>
+                            </div>
+                            <p class="notification-message mb-0">{{ notif.message }}</p>
+                            {% if notif.notification_type == 'order' and notif.related_id %}
+                                <a href="{{ url_for('order.order_success_page', order_id=notif.related_id) }}" 
+                                   class="btn btn-sm btn-primary mt-2">
+                                    <i class="fas fa-info-circle"></i> تفاصيل الطلب
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // زر تحديث
+    $('#refresh-btn').click(function() {
+        const icon = $(this).find('i');
+        icon.addClass('fa-spin');
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+    });
+
+    // زر تعيين الكل كمقروء
+    $('#mark-read-btn').click(function() {
+        const btn = $(this);
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> جاري التحديث...');
+        
+        $.post("{{ url_for('order.mark_all_notifications_read') }}")
+        .done(function(response) {
+            if (response.success) {
+                location.reload();
+            } else {
+                alert('حدث خطأ أثناء تحديث الإشعارات.');
+                btn.prop('disabled', false).html('<i class="fas fa-check-double"></i> تعيين الكل كمقروء');
+            }
+        })
+        .fail(function() {
+            alert('فشل الاتصال بالخادم. حاول مرة أخرى.');
+            btn.prop('disabled', false).html('<i class="fas fa-check-double"></i> تعيين الكل كمقروء');
+        });
+    });
+
+    // معالجة النقر على الإشعارات الفردية
+    $('.notification-card').click(function() {
+        const notificationCard = $(this);
+        if (notificationCard.hasClass('unread')) {
+            const notificationId = notificationCard.data('id');
+
+            $.post("{{ url_for('order.mark_all_notifications_read') }}", { notif_id: notificationId })
+            .done(function() {
+                notificationCard.removeClass('unread');
+                const unreadCount = $('#unread-count');
+                let currentCount = parseInt(unreadCount.text());
+                if (currentCount > 0) {
+                    currentCount--;
+                    unreadCount.text(currentCount);
+                    if (currentCount === 0) {
+                        unreadCount.remove();
+                    }
+                }
+            });
+        }
+    });
+
+    // تحديث تلقائي لعدد الإشعارات غير المقروءة
+    setInterval(function() {
+        $.get("{{ url_for('order.notifications_count') }}")
+        .done(function(data) {
+            const unreadCountBadge = $('#unread-count');
+            if (data.count > 0) {
+                if (unreadCountBadge.length) {
+                    unreadCountBadge.text(data.count);
+                } else {
+                    const h2 = $('.notification-header h2');
+                    $('<span id="unread-count" class="badge bg-danger rounded-pill">' + data.count + '</span>').insertAfter(h2);
+                }
+            } else {
+                unreadCountBadge.remove();
+            }
+        });
+    }, 30000); // 30 ثانية
+});
+</script>
+
+{% include 'footer.html' %}
