@@ -1,17 +1,365 @@
-{% include 'admin/header.html' %}
+<!-- {% include 'admin/header.html' %} -->
 
 <style>
     /* تنسيق خاص ببطاقة الأقسام الفرعية */
     .info-card.subcategories-card .card-icon {
         color: #2196F3;
-        /* لون أزرق مثلاً */
         background: #e3f2fd;
-        /* خلفية فاتحة */
+    }
+
+    /* تنسيق بطاقة المنتجات الأكثر مبيعًا */
+    .card.top-products {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card.top-products .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card.top-products .card-title {
+        margin-bottom: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .card.top-products .card-title span {
+        font-weight: 400;
+        font-size: 0.9rem;
+    }
+
+    .card.top-products .card-body {
+        padding: 0;
+    }
+
+    .card.top-products .table {
+        margin-bottom: 0;
+    }
+
+    .card.top-products .table thead th {
+        border-top: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-weight: 500;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .card.top-products .table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .card.top-products .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .card.top-products .table tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.01);
+    }
+
+    .product-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-name {
+        color: #343a40;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .product-name:hover {
+        color: #0d6efd;
+    }
+
+    .card.top-products .card-footer {
+        background-color: transparent;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem 1.5rem;
+    }
+
+    .btn-outline-primary {
+        border-color: rgba(13, 110, 253, 0.3);
+        color: #0d6efd;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .dropdown-toggle::after {
+        margin-right: 0.5em;
+        margin-left: 0;
+    }
+
+    .dropdown-menu {
+        font-size: 0.85rem;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 0.5rem 0;
+    }
+
+    .dropdown-item {
+        padding: 0.5rem 1.5rem;
+    }
+
+    .dropdown-item:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+        border-radius: 6px;
+    }
+
+    .section.dashboard {
+        padding: 20px;
+    }
+
+    .stat-card {
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+        text-decoration: none !important;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card .card-body {
+        padding: 20px;
+    }
+
+    .stat-card .card-title {
+        font-size: 14px;
+        color: #6c757d;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .stat-card .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 5px 0;
+        color: #343a40;
+    }
+
+    .stat-card .stat-label {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .orders-card {
+        background-color: rgba(108, 117, 125, 0.05);
+        border-left: 4px solid #6c757d;
+    }
+
+    .orders-card .stat-icon {
+        background-color: #6c757d;
+    }
+
+    .pending-card {
+        background-color: rgba(255, 193, 7, 0.05);
+        border-left: 4px solid #ffc107;
+    }
+
+    .pending-card .stat-icon {
+        background-color: #ffc107;
+    }
+
+    .sales-card {
+        background-color: rgba(40, 167, 69, 0.05);
+        border-left: 4px solid #28a745;
+    }
+
+    .sales-card .stat-icon {
+        background-color: #28a745;
+    }
+
+    .customers-card {
+        background-color: rgba(23, 162, 184, 0.05);
+        border-left: 4px solid #17a2b8;
+    }
+
+    .customers-card .stat-icon {
+        background-color: #17a2b8;
+    }
+
+    .sellers-card {
+        background-color: rgba(111, 66, 193, 0.05);
+        border-left: 4px solid #6f42c1;
+    }
+
+    .sellers-card .stat-icon {
+        background-color: #6f42c1;
+    }
+
+    .products-card {
+        background-color: rgba(220, 53, 69, 0.05);
+        border-left: 4px solid #dc3545;
+    }
+
+    .products-card .stat-icon {
+        background-color: #dc3545;
+    }
+
+    .subcategories-card {
+        background-color: rgba(253, 126, 20, 0.05);
+        border-left: 4px solid #fd7e14;
+    }
+
+    .subcategories-card .stat-icon {
+        background-color: #fd7e14;
+    }
+
+    .maincategories-card {
+        background-color: rgba(13, 110, 253, 0.05);
+        border-left: 4px solid #0d6efd;
+    }
+
+    .maincategories-card .stat-icon {
+        background-color: #0d6efd;
+    }
+
+    .activity-feed {
+        padding-left: 0;
+        list-style: none;
+    }
+
+    .feed-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .feed-item:last-child {
+        border-bottom: none;
+    }
+
+    .feed-time {
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .feed-content {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .feed-content i {
+        margin-right: 10px;
+        font-size: 16px;
+        margin-top: 2px;
+    }
+
+    .feed-content span {
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .quick-stats {
+        margin-top: 15px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: white;
+        font-size: 18px;
+    }
+
+    .stat-info {
+        flex: 1;
+    }
+
+    .stat-title {
+        font-size: 13px;
+        color: #6c757d;
+        margin-bottom: 3px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .stat-change {
+        font-size: 12px;
+        margin-left: 5px;
+    }
+
+    .stat-change.up {
+        color: #28a745;
+    }
+
+    .stat-change.down {
+        color: #dc3545;
+    }
+
+    #salesChart {
+        width: 100%;
     }
 </style>
 
 <main id="main" class="main">
-
     <div class="pagetitle">
         <h1>لوحة التحكم</h1>
         <nav>
@@ -20,381 +368,496 @@
                 <li class="breadcrumb-item active">لوحة التحكم</li>
             </ol>
         </nav>
-    </div><!-- End Page Title -->
+    </div>
 
     <section class="section dashboard">
         <div class="row">
 
-
-
-
-            <!-- الأعمدة اليسرى -->
             <div class="col-lg-8">
                 <div class="row">
-
-                    <div class="col-md-6">
-                        <a class="nav-link collapsed" href="{{url_for('admin.users')}}">
-                            <div class="card info-card customers-card">
-                                <div class="card-body">
-                                    <h5 class="card-title">العملاء <span>| اليوم</span></h5>
-                                    <div class="d-flex align-items-center">
-                                        <div
-                                            class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-
-                                            <i class="bi bi-people"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            {# 🚀 هنا نقوم بعرض عدد العملاء الذي تم تمريره مباشرة من Flask #}
-                                            <h6>{{ total_customers }}</h6>
-                                            {# ⚠️ ملاحظة: الـ 12% والزيادة/النقصان هنا لا تزال بيانات ثابتة #}
-                                            {# لجعلها ديناميكية، ستحتاج لحسابها في Flask وتمريرها أيضاً #}
-                                            <span class="text-success small pt-1 fw-bold">12%</span>
-                                            <span class="text-muted small pt-2 ps-1">زيادة</span>
-                                        </div>
+                    <div class="col-md-8 col-lg-4 mb-4">
+                        <a href="{{ url_for('order.admin_orders') }}" class="card stat-card orders-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">الطلبات</h6>
+                                        <h2 class="stat-value">{{ total_orders }}</h2>
+                                        <span class="stat-label">طلبات مكتملة وقيد الانتظار</span>
                                     </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-cart"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="{{ url_for('order.admin_orders', status='قيد الانتظار') }}"
+                            class="card stat-card pending-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">طلبات منتظرة</h6>
+                                        <h2 class="stat-value">{{ pending_orders }}</h2>
+                                        <span class="stat-label">بانتظار المراجعة</span>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-clock"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="{{ url_for('order.admin_orders') }}" class="card stat-card sales-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">إجمالي المبيعات</h6>
+                                        <h2 class="stat-value">{{ total_purchases | int }} ر.ي</h2>
+                                        <span class="stat-label">قيمة المبيعات</span>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-currency-dollar"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="{{ url_for('admin.users') }}" class="card stat-card customers-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">العملاء</h6>
+                                        <h2 class="stat-value">{{ total_customers }}</h2>
+                                        <span class="stat-label">زيادة 12%</span>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="{{ url_for('admin.show_seller') }}" class="card stat-card sellers-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">البائعون</h6>
+                                        <h2 class="stat-value">{{ total_sellers }}</h2>
+                                        <span class="stat-label">متاجر نشطة</span>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-shop"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="{{ url_for('admin.show_product') }}" class="card stat-card products-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">المنتجات</h6>
+                                        <h2 class="stat-value">{{ total_products }}</h2>
+                                        <span class="stat-label">منتجات متوفرة</span>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="{{ url_for('admin.categories', filter='sub') }}"
+                            class="card stat-card subcategories-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">الأقسام الفرعية</h6>
+                                        <h2 class="stat-value">{{ total_subcategories }}</h2>
+                                        <span class="stat-label">قسم فرعي</span>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-diagram-3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="{{ url_for('admin.categories', filter='main') }}"
+                            class="card stat-card maincategories-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">الأقسام الرئيسية</h6>
+                                        <h2 class="stat-value">{{ total_main_categories }}</h2>
+                                        <span class="stat-label">قسم رئيسي</span>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="bi bi-folder-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </a>
                     </div>
                 </div>
-            </div>
 
 
-            <div class="col-md-6">
-                <div class="card info-card5 customers-card"> {# يمكنك اختيار نوع/لون بطاقة مختلف إذا كان متاحًا في القالب
-                    الخاص بك #}
-                    <a class="nav-link collapsed" href="{{url_for('admin.show_seller')}}"> {# رابط لصفحة البائعين الخاصة
-                        بك #}
+
+                <div class="col-lg-12 mt-4">
+                    <div class="card top-products">
+                        <div class="card-header">
+                            <h5 class="card-title">المنتجات الأكثر مبيعًا <span class="text-muted">| هذا الشهر</span>
+                            </h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    هذا الشهر
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                                    <li><a class="dropdown-item" href="#">هذا الأسبوع</a></li>
+                                    <li><a class="dropdown-item" href="#">هذا الشهر</a></li>
+                                    <li><a class="dropdown-item" href="#">هذه السنة</a></li>
+                                </ul>
+                            </div>
+                        </div>
                         <div class="card-body">
-                            <h5 class="card-title">البائعون <span>| الإجمالي</span></h5>
-                            <div class="d-flex align-items-center">
-                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-shop"></i> {# استخدام أيقونة متجر للبائعين، يمكنك اختيار أخرى إذا
-                                    كنت تفضل #}
-                                </div>
-                                <div class="ps-3">
-                                    <h6>{{ total_sellers }}</h6> {# عرض العدد الإجمالي للبائعين هنا #}
-                                    {# يمكنك إضافة نسبة التغيير المئوية إذا قمت بحسابها في Flask #}
-                                    {# <span class="text-success small pt-1 fw-bold">XX%</span>
-                                    <span class="text-muted small pt-2 ps-1">زيادة</span> #}
-                                </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" width="50px">#</th>
+                                            <th scope="col">المنتج</th>
+                                            <th scope="col" class="text-end">السعر</th>
+                                            <th scope="col" class="text-end">المبيعات</th>
+                                            <th scope="col" class="text-end">الإيرادات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in top_selling_products %}
+                                        <tr>
+                                            <td class="text-muted">{{ loop.index }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="product-img">
+                                                       {% if product.image %}
+                                        {% set image_path_no_static = product.image.replace('static/', '', 1) %}
+                                        <img src="{{ url_for('static', filename=image_path_no_static) }}" alt="صورة {{ product.name }}" width="100" class="">
+                                    {% else %}
+                                        <span class="text-muted">لا توجد صورة</span>
+                                    {% endif %}  </div>
+                                                    <div class="ms-3">
+                                                        <a href="#" class="product-name fw-bold">{{ product.product_name
+                                                            }}</a>
+                                                        <div class="text-muted small">{{ product.category }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-end">{{ product.price }} ر.ي</td>
+                                            <td class="text-end">
+                                                <span class="badge bg-light text-dark">{{ product.total_sales | int }}
+                                                    قطعة</span>
+                                            </td>
+                                            <td class="text-end fw-bold">{{ product.total_price }} ر.ي</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <a class="nav-link collapsed" href="{{url_for('admin.show_product')}}">
-                    <div class="card info-card1 customers-card card1">
-                        <div class="card-body">
-                            <h5 class="card-title">المنتجات <span>| الإجمالي</span></h5> {# يمكنك تغيير النص حسب الحاجة
-                            #}
-                            <div class="d-flex align-items-center">
-                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-
-                                    <i class="bi bi-box-seam"></i> {# 📦 أيقونة المنتجات #}
-                                </div>
-                                <div class="ps-3">
-                                    <h6>{{ total_products }}</h6>
-                                    <span class="text-muted small pt-2 ps-1">منتج متوفر</span> {# نص وصفي #}
-
-                                    <span class="text-success small pt-1 fw-bold"></span>
-                                    <span class="text-muted small pt-2 ps-1">زيادة</span>
-                                </div>
-                            </div>
-                </a>
-            </div>
-        </div>
-        </div>
-
-        <div class="col-md-6">
-            <a class="nav-link collapsed" href="{{url_for('admin.categories', filter='sub')}}"> {# 🆕 رابط لفلترة
-                الأقسام الفرعية #}
-                <div class="card info-card2 customers-card">
-                    <div class="card-body">
-                        <h5 class="card-title">الأقسام الفرعية <span>| الإجمالي</span></h5> {# 🆕 تغيير النص #}
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-
-                                <i class="bi bi-diagram-3"></i> {# 📁🆕 أيقونة مقترحة للأقسام الفرعية أو ابقَ على
-                                bi-grid #}
-                            </div>
-                            <div class="ps-3">
-                                <h6>{{ total_subcategories }}</h6> {# 📁🆕 عرض عدد الأقسام الفرعية هنا #}
-                                <span class="text-muted small pt-2 ps-1">قسم فرعي متاح</span>
-                            </div>
-                            <span class="text-success small pt-1 fw-bold"></span>
-                            <!-- <span class="text-muted small pt-2 ps-1">زيادة</span> -->
-                        </div>
-                    </div>
-            </a>
-        </div>
-        </div>
-
-
-        <div class="col-md-6">
-            <a class="nav-link collapsed" href="{{url_for('admin.categories', filter='main')}}"> {# 🆕 رابط لفلترة
-                الأقسام الرئيسية #}
-                <div class="card info-card3 customers-card">
-                    <div class="card-body">
-                        <h5 class="card-title">الأقسام الرئيسية <span>| الإجمالي</span></h5> {# 🆕 تغيير النص #}
-
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-folder-fill"></i> {# 📁🆕 أيقونة مقترحة للأقسام الرئيسية أو ابقَ على
-                                bi-grid #}
-                            </div>
-                            <div class="ps-3">
-                                <h6>{{ total_main_categories }}</h6> {# 📁🆕 عرض عدد الأقسام الرئيسية هنا #}
-                                <span class="text-muted small pt-2 ps-1">قسم رئيسي متاح</span>
-                            </div>
-                            <span class="text-success small pt-1 fw-bold"></span>
-                            <!-- <span class="text-muted small pt-2 ps-1">زيادة</span> -->
-                        </div>
-            </a>
-        </div>
-        </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card info-card4 customers-card">
-                <a class="nav-link collapsed" href="{{url_for('admin.users')}}">
-                    <div class="card-body">
-                        <h5 class="card-title">العملاء <span>| اليوم</span></h5>
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-
-                                <i class="bi bi-people"></i>
-                            </div>
-                            <div class="ps-3">
-                                {# 🚀 هنا نقوم بعرض عدد العملاء الذي تم تمريره مباشرة من Flask #}
-                                <h6>{{ total_customers }}</h6>
-                                {# ⚠️ ملاحظة: الـ 12% والزيادة/النقصان هنا لا تزال بيانات ثابتة #}
-                                {# لجعلها ديناميكية، ستحتاج لحسابها في Flask وتمريرها أيضاً #}
-                                <span class="text-success small pt-1 fw-bold">12%</span>
-                                <span class="text-muted small pt-2 ps-1">زيادة</span>
-                </a>
-            </div>
-        </div>
-        </div>
-        </div>
-        </div>
-
-        <!-- بطاقة الأعضاء (المستخدمين الإداريين) -->
-        <div class="col-md-6">
-            <div class="card info-card members-card">
-                <div class="card-body">
-                    <h5 class="card-title">المستخدمين الإداريين <span>| هذا الشهر</span></h5>
-
-                    <div class="d-flex align-items-center">
-                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fa fa-users"></i>
-                        </div>
-                        <div class="ps-3">
-                            <h6>8</h6>
-                            <span class="text-danger small pt-1 fw-bold">8%</span> <span
-                                class="text-muted small pt-2 ps-1">نقصان</span>
+                        <div class="card-footer text-end">
+                            <a href="{{ url_for('admin.show_product') }}" class="btn btn-sm btn-outline-primary">عرض
+                                جميع المنتجات</a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div><!-- End الأعضاء Card -->
+        </div>
+      <div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">تقرير المبيعات</h5>
+        <div id="salesChart" style="height: 300px;"></div>
+    </div>
+</div>
 
-        <!-- تقرير المبيعات -->
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">تقرير المبيعات الأخير <span>/اليوم</span></h5>
-
-                    <!-- Chart هنا سيتم إضافة الرسم البياني لاحقًا -->
-                    <div id="salesChart" style="min-height: 400px;" class="echart"></div>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", () => {
-                            echarts.init(document.querySelector("#salesChart")).setOption({
-                                title: {
-                                    text: 'المبيعات'
-                                },
-                                tooltip: {
-                                    trigger: 'axis'
-                                },
-                                legend: {
-                                    data: ['المبيعات']
-                                },
-                                grid: {
-                                    left: '3%',
-                                    right: '4%',
-                                    bottom: '3%',
-                                    containLabel: true
-                                },
-                                toolbox: {
-                                    feature: {
-                                        saveAsImage: {}
-                                    }
-                                },
-                                xAxis: {
-                                    type: 'category',
-                                    boundaryGap: false,
-                                    data: ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد']
-                                },
-                                yAxis: {
-                                    type: 'value'
-                                },
-                                series: [
-                                    {
-                                        name: 'المبيعات',
-                                        type: 'line',
-                                        stack: 'Total',
-                                        data: [150, 232, 201, 154, 190, 330, 410]
-                                    }
-                                ]
-                            });
-                        });
-                    </script>
-                    <!-- End Sales Chart -->
-
+<div class="col-lg-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">النشاط الأخير</h5>
+            <div class="activity-feed">
+                {% if latest_activities %}
+                    {% for activity in latest_activities %}
+                        <div class="feed-item">
+                            <div class="feed-time">
+                                {{ activity.timestamp }}
+                            </div>
+                            <div class="feed-content">
+                                <i class="bi {{ activity.icon_class }}"></i>
+                                <span>{{ activity.description }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-muted">لا يوجد نشاط حديث لعرضه.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">نظرة سريعة</h5>
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-icon bg-success">
+                        <i class="bi bi-list-task"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-title">الأقسام</div>
+                        <div class="stat-value">{{ total_categories }}</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-warning">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-title">المنتجات</div>
+                        <div class="stat-value">{{ total_products }}</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-info">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-title">البائعين</div>
+                        <div class="stat-value">{{ total_sellers }}</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-primary">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-title">العملاء</div>
+                        <div class="stat-value">{{ total_customers }}</div>
+                    </div>
                 </div>
             </div>
-        </div><!-- End تقرير المبيعات -->
-
-        <!-- العناصر المتبقية في الصف (إذا كنت تريد إضافة المزيد من العناصر في هذا الصف) -->
         </div>
-        </div><!-- End Left side columns -->
+    </div>
+</div>
 
-        <!-- الأعمدة اليمنى -->
         <div class="col-lg-4">
-
-            <!-- آخر العمليات -->
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">آخر العمليات <span>| اليوم</span></h5>
-
-                    <div class="activity">
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">منذ 32 دقيقة</div>
-                            <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                            <div class="activity-content">
-                                قام <a href="#" class="fw-bold text-dark">أحمد محمد</a> بإضافة <a href="#">قسم
-                                    جديد</a>
+                    <h5 class="card-title">النشاط الأخير</h5>
+                    <div class="activity-feed">
+                        <div class="feed-item">
+                            <div class="feed-time">منذ 32 دقيقة</div>
+                            <div class="feed-content">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span>قام <strong>أحمد محمد</strong> بإضافة قسم جديد</span>
                             </div>
-                        </div><!-- End activity-item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">منذ 56 دقيقة</div>
-                            <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                            <div class="activity-content">
-                                تم <a href="#" class="fw-bold text-dark">حذف منتج</a> بواسطة <a href="#"
-                                    class="fw-bold text-dark">سارة علي</a>
+                        </div>
+                        <div class="feed-item">
+                            <div class="feed-time">منذ 56 دقيقة</div>
+                            <div class="feed-content">
+                                <i class="bi bi-x-circle-fill text-danger"></i>
+                                <span>تم حذف منتج بواسطة <strong>سارة علي</strong></span>
                             </div>
-                        </div><!-- End activity-item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">منذ ساعتين</div>
-                            <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                            <div class="activity-content">
-                                <a href="#" class="fw-bold text-dark">تم تعديل</a> حالة <a href="#">الطلب رقم
-                                    154</a> إلى "تم التوصيل"
+                        </div>
+                        <div class="feed-item">
+                            <div class="feed-time">منذ ساعتين</div>
+                            <div class="feed-content">
+                                <i class="bi bi-arrow-repeat text-primary"></i>
+                                <span>تم تعديل حالة الطلب #154 إلى "تم التوصيل"</span>
                             </div>
-                        </div><!-- End activity-item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">منذ يوم</div>
-                            <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                            <div class="activity-content">
-                                تم إنشاء <a href="#" class="fw-bold text-dark">حساب جديد لبائع</a> باسم <a href="#"
-                                    class="fw-bold text-dark">متجر الأمل</a>
+                        </div>
+                        <div class="feed-item">
+                            <div class="feed-time">منذ يوم</div>
+                            <div class="feed-content">
+                                <i class="bi bi-plus-circle-fill text-info"></i>
+                                <span>تم إنشاء حساب جديد لبائع <strong>متجر الأمل</strong></span>
                             </div>
-                        </div><!-- End activity-item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">منذ أسبوع</div>
-                            <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                            <div class="activity-content">
-                                <a href="#" class="fw-bold text-dark">تنبيه بالمخزون:</a> المنتج <a href="#">"اسم
-                                    المنتج"</a> قارب على النفاذ
-                            </div>
-                        </div><!-- End activity-item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">منذ شهر</div>
-                            <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                            <div class="activity-content">
-                                تم <a href="#" class="fw-bold text-dark">تسجيل مستخدم جديد</a> في الموقع
-                            </div>
-                        </div><!-- End activity-item-->
-
+                        </div>
                     </div>
                 </div>
-            </div><!-- End آخر العمليات -->
+            </div>
 
-            <!-- بطاقات سريعة -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">نظرة سريعة</h5>
-
-                    <div class="sales-card">
-                        <h6 class="card-title">المبيعات <span class="float-end"></span></h6>
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-cart"></i>
-                            </div>
-                            <div class="ps-3">
-                                <span class="h6">2,497 ر.س</span>
-                                <span class="text-success small pt-1 fw-bold">8%</span> <span
-                                    class="text-muted small pt-2 ps-1">زيادة في هذا الشهر</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="category-card">
-                        <h6 class="card-title">الأقسام <span class="float-end"></span></h6>
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-list-task"></i>
-                            </div>
-                            <div class="ps-3">
-                                <span class="h6">14</span>
-                                <span class="text-success small pt-1 fw-bold">15%</span> <span
-                                    class="text-muted small pt-2 ps-1">زيادة في الأقسام</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="product-card">
-                        <h6 class="card-title">المنتجات <span class="float-end"></span></h6>
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-box-seam"></i>
-                            </div>
-                            <div class="ps-3">
-                                <span class="h6">557</span>
-                                <span class="text-danger small pt-1 fw-bold">5%</span> <span
-                                    class="text-muted small pt-2 ps-1">نقص في المنتجات</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="sellers-card">
-                        <h6 class="card-title">البائعين <span class="float-end"></span></h6>
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-shop"></i>
-                            </div>
-                            <div class="ps-3">
-                                <span class="h6">15</span>
-                                <span class="text-success small pt-1 fw-bold">20%</span> <span
-                                    class="text-muted small pt-2 ps-1">زيادة في البائعين</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div><!-- End بطاقات سريعة -->
-
-        </div><!-- End Right side columns -->
-
+ 
+        </div>
         </div>
     </section>
+</main>
 
-</main><!-- End #main -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // تهيئة مخطط المبيعات
+        const salesChart = echarts.init(document.querySelector("#salesChart"));
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'],
+                axisLine: {
+                    lineStyle: {
+                        color: '#dee2e6'
+                    }
+                },
+                axisLabel: {
+                    color: '#6c757d'
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: {
+                    lineStyle: {
+                        color: '#dee2e6'
+                    }
+                },
+                axisLabel: {
+                    color: '#6c757d'
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#f8f9fa'
+                    }
+                }
+            },
+            series: [{
+                data: [150, 232, 201, 154, 190, 330, 410],
+                type: 'bar',
+                showBackground: true,
+                backgroundStyle: {
+                    color: 'rgba(180, 180, 180, 0.2)'
+                },
+                itemStyle: {
+                    color: '#4e73df',
+                    borderRadius: [4, 4, 0, 0]
+                },
+                barWidth: '60%'
+            }]
+        };
+        salesChart.setOption(option);
+
+        // إعادة رسم المخطط عند تغيير حجم النافذة
+        window.addEventListener('resize', function () {
+            salesChart.resize();
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Get the DOM element for the chart
+    const chartDom = document.getElementById('salesChart');
+    if (!chartDom) {
+        console.error('Could not find the salesChart element.');
+        return;
+    }
+
+    // Initialize the ECharts instance
+    const myChart = echarts.init(chartDom);
+
+    // Function to fetch data and render the chart
+    async function fetchAndRenderChart() {
+        try {
+            // Fetch data from the Flask route
+            const response = await fetch('/admin/sales_data');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+
+            // Prepare the data for the chart
+            const dates = data.map(item => item.order_date);
+            const sales = data.map(item => item.total_sales);
+
+            // Set the chart options
+            const option = {
+                title: {
+                    text: 'مبيعات يومية',
+                    subtext: 'إجمالي المبيعات حسب اليوم'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        const param = params[0];
+                        return `اليوم: ${param.name}<br/>المبيعات: ${param.value} ر.ي`;
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    axisLabel: {
+                        rotate: 45 // Rotate labels for better readability
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    // name: 'إجمالي المبيعات (ريال يمني)'
+                },
+                series: [{
+                    name: 'إجمالي المبيعات',
+                    type: 'line',
+                    data: sales,
+                    smooth: true,
+                    lineStyle: {
+                        color: '#4a90e2' // Blue line color
+                    },
+                    itemStyle: {
+                        color: '#4a90e2'
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgba(74, 144, 226, 0.5)'
+                        }, {
+                            offset: 1,
+                            color: 'rgba(74, 144, 226, 0)'
+                        }])
+                    }
+                }]
+            };
+
+            // Render the chart with the options
+            myChart.setOption(option);
+            
+        } catch (error) {
+            console.error('Error fetching or rendering chart:', error);
+            chartDom.innerHTML = '<p class="text-danger text-center">فشل في تحميل بيانات المبيعات.</p>';
+        }
+    }
+
+    // Call the function to fetch and render the chart
+    fetchAndRenderChart();
+
+    // Handle window resizing to make the chart responsive
+    window.addEventListener('resize', function() {
+        myChart.resize();
+    });
+});
+
+
+</script>
+<!-- </main>End #main -->
 
 {% include 'admin/footer.html' %}

@@ -19,7 +19,10 @@
         color: var(--text-color);
     }
 
-    h1, h2, h3, h4 {
+    h1,
+    h2,
+    h3,
+    h4 {
         color: var(--primary-color);
         margin-bottom: 20px;
     }
@@ -66,7 +69,9 @@
         color: var(--danger-color);
     }
 
-    .order-summary, .delivery-address, .payment-details {
+    .order-summary,
+    .delivery-address,
+    .payment-details {
         background-color: white;
         border-radius: 10px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -148,7 +153,8 @@
         font-weight: bold;
     }
 
-    select, textarea {
+    select,
+    textarea {
         width: 100%;
         padding: 10px;
         border: 1px solid var(--border-color);
@@ -205,8 +211,9 @@
             font-size: 1.5rem;
         }
     }
+
     /* أضف هذه الأنماط الجديدة مع الحفاظ على الأنماط السابقة */
-    
+
     .address-details {
         background-color: white;
         border-radius: 10px;
@@ -215,25 +222,25 @@
         margin-bottom: 20px;
         border: 1px solid #e0e0e0;
     }
-    
+
     .address-details p {
         margin-bottom: 12px;
         padding-bottom: 12px;
         border-bottom: 1px dashed #eee;
     }
-    
+
     .address-details p:last-child {
         border-bottom: none;
         margin-bottom: 0;
         padding-bottom: 0;
     }
-    
+
     .address-actions {
         display: flex;
         gap: 15px;
         margin-bottom: 25px;
     }
-    
+
     .address-actions .btn {
         flex: 1;
         text-align: center;
@@ -242,18 +249,18 @@
         font-weight: 600;
         transition: all 0.3s ease;
     }
-    
+
     .address-actions .btn-secondary {
         background-color: #f0f0f0;
         color: var(--primary-color);
         border: 1px solid var(--primary-color);
     }
-    
+
     .address-actions .btn-secondary:hover {
         background-color: var(--primary-color);
         color: white;
     }
-    
+
     #address-select-container {
         background-color: white;
         padding: 20px;
@@ -262,7 +269,7 @@
         margin-bottom: 25px;
         display: none;
     }
-    
+
     #address-selector {
         width: 100%;
         padding: 12px;
@@ -272,7 +279,7 @@
         background-color: white;
         font-size: 1rem;
     }
-    
+
     #address-select-container button {
         width: 100%;
         padding: 12px;
@@ -282,42 +289,38 @@
         cursor: pointer;
         transition: all 0.3s ease;
     }
-    
+
     #address-select-container button:hover {
         background-color: #e9ecef;
     }
-
 </style>
 
 <div class="container">
     <h1>تأكيد الطلب</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <div class="order-summary">
         <h2>عناصر الطلب</h2>
         {% if order_items %}
-            <div class="items-list">
-                {% for item in order_items %}
-                    <div class="item-details">
-                        <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}">
-                        <div>
-                            <h4>{{ item.name }}</h4>
-                            <p>السعر: {{ item.price | round(2) }} ريال</p>
-                            <p>الكمية: {{ item.quantity }}</p>
-                            <p>المجموع الفرعي: {{ item.total_item_price | round(2) }} ريال</p>
-                        </div>
-                    </div>
-                {% endfor %}
+        <div class="items-list">
+            {% for item in order_items %}
+            <div class="item-details">
+                {% if item.image %}
+                {% set image_path_no_static = item.image.replace('static/', '', 1) %}
+                <img src="{{ url_for('static', filename=image_path_no_static) }}" alt="صورة {{ item.name }}" width="70"
+                    class="img-thumbnail">
+                {% else %}
+                <span class="text-muted">لا توجد صورة</span>
+                {% endif %} <div>
+                    <h4>{{ item.name }}</h4>
+                    <p>السعر: {{ item.price | round(2) }} ريال</p>
+                    <p>الكمية: {{ item.quantity }}</p>
+                    <p>المجموع الفرعي: {{ item.total_item_price | round(2) }} ريال</p>
+                </div>
             </div>
+            {% endfor %}
+        </div>
         {% else %}
-            <p>لا توجد عناصر في سلة التسوق.</p>
+        <p>لا توجد عناصر في سلة التسوق.</p>
         {% endif %}
 
         <div class="pricing-details">
@@ -333,25 +336,26 @@
         <p><strong>نوع العنوان:</strong> <span id="address-type">{{ recipient_address.address_type }}</span></p>
         <p><strong>المدينة:</strong> <span id="address-city">{{ recipient_address.city }}</span></p>
         <p><strong>المنطقة:</strong> <span id="address-region">{{ recipient_address.region }}</span></p>
-        <p><strong>الوصف التفصيلي:</strong> <span id="full-address-description">{{ recipient_address.full_address_description }}</span></p>
+        <p><strong>الوصف التفصيلي:</strong> <span id="full-address-description">{{
+                recipient_address.full_address_description }}</span></p>
     </div>
-    
+
     <div class="address-actions">
         <a href="#" onclick="toggleAddressSelect(); return false;" class="btn btn-secondary">تغيير العنوان</a>
         <a href="{{ url_for('order.add_address_page') }}" class="btn btn-secondary">إضافة عنوان جديد</a>
     </div>
-    
+
     <div id="address-select-container" style="display:none;">
         <select id="address-selector" onchange="setDefaultAddress(this.value)">
             {% for addr in all_addresses %}
-                <option value="{{ addr.id }}" {% if addr.id == recipient_address.id %}selected{% endif %}>
-                    {{ addr.address_type }} - {{ addr.full_address_description }}
-                </option>
+            <option value="{{ addr.id }}" {% if addr.id==recipient_address.id %}selected{% endif %}>
+                {{ addr.address_type }} - {{ addr.full_address_description }}
+            </option>
             {% endfor %}
         </select>
         <button onclick="toggleAddressSelect();" class="btn btn-secondary">إلغاء</button>
     </div>
-    
+
     <script>
         // دالة لتبديل عرض قائمة العناوين المنسدلة
         function toggleAddressSelect() {
@@ -362,7 +366,7 @@
                 container.style.display = 'none';
             }
         }
-    
+
         // دالة لتحديث تفاصيل العنوان في الواجهة الأمامية
         function updateAddressUI(address) {
             document.getElementById('recipient-name').innerText = address.recipient_name;
@@ -372,21 +376,21 @@
             document.getElementById('address-region').innerText = address.region;
             document.getElementById('full-address-description').innerText = address.full_address_description;
         }
-    
+
         // الدالة التي يتم استدعاؤها عند تغيير العنوان من القائمة المنسدلة
         async function setDefaultAddress(addressId) {
             if (!addressId) return; // لا تفعل شيئًا إذا كانت القيمة فارغة
-    
+
             try {
                 // أرسل طلب Fetch (AJAX) إلى الخادم لتعيين العنوان الافتراضي
-                const response = await fetch(`/set_default_address/${addressId}`, { 
+                const response = await fetch(`/set_default_address/${addressId}`, {
                     method: 'GET', // أو POST إذا أردت استخدام POST هنا
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
                 const data = await response.json();
-    
+
                 if (data.success) {
                     // إذا نجحت العملية، قم بتحديث الواجهة الأمامية
                     updateAddressUI(data.address); // تحديث تفاصيل العنوان المعروضة
@@ -405,27 +409,27 @@
     </script>
 
 
-<div class="payment-details">
-    <h2>تفاصيل الدفع</h2>
-    <p>رصيدك الحالي: {{ user_balance | round(2) }} ريال</p>
-    
-    <form action="{{ url_for('order.process_order') }}" method="POST">
-        <input type="hidden" name="selected_address_id" value="{{ recipient_address.id if recipient_address.id }}">
-        
-        <label for="payment_method">طريقة الدفع:</label>
-        <select name="payment_method" id="payment_method">
-            <option value="from_balance">الدفع من رصيد التطبيق</option>
-            <option value="cash_on_delivery">الدفع عند الاستلام</option>
-        </select>
-        
-        <label for="order_notes">ملاحظات إضافية (اختياري):</label>
-        <textarea name="order_notes" id="order_notes" rows="3"></textarea>
+    <div class="payment-details">
+        <h2>تفاصيل الدفع</h2>
+        <p>رصيدك الحالي: {{ user_balance | round(2) }} ريال</p>
 
-        <button type="submit" class="btn btn-primary checkout-btn">
-            <i class="fas fa-money-check-alt"></i> إتمام الطلب
-        </button>
-    </form>
-</div>
+        <form action="{{ url_for('order.process_order') }}" method="POST">
+            <input type="hidden" name="selected_address_id" value="{{ recipient_address.id if recipient_address.id }}">
+
+            <label for="payment_method">طريقة الدفع:</label>
+            <select name="payment_method" id="payment_method">
+                <option value="from_balance">الدفع من رصيد التطبيق</option>
+                <option value="cash_on_delivery">الدفع عند الاستلام</option>
+            </select>
+
+            <label for="order_notes">ملاحظات إضافية (اختياري):</label>
+            <textarea name="order_notes" id="order_notes" rows="3"></textarea>
+
+            <button type="submit" class="btn btn-primary checkout-btn">
+                <i class="fas fa-money-check-alt"></i> إتمام الطلب
+            </button>
+        </form>
+    </div>
 </div>
 
 {% include 'footer.html' %}

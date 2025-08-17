@@ -13,7 +13,7 @@
 :root {
     --primary-color: #ba4ac2;    /* لون أساسي (زهري غامق) */
     --secondary-color: #f48fb1;  /* لون ثانوي (زهري فاتح) */
-    --accent-color: #ff6b6b;     /* لون مميز/أبرز (أحمر، للحالات الخاصة مثل شارة التوفر) */
+    --accent-color: #ba4ac2;     /* لون مميز/أبرز (أحمر، للحالات الخاصة مثل شارة التوفر) */
     --dark-color: #333;          /* لون نص داكن */
     --light-color: #f8f9fa;      /* لون خلفية فاتح */
     --text-color: #333;          /* لون النص الافتراضي */
@@ -25,6 +25,11 @@
     --footer-text: #5f6368;
     --active-color: var(--primary-color); /* اللون النشط في الفوتر هو اللون الأساسي الزهري */
     --footer-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+
+    --success-color: #4cc9f0;
+    --border-radius: 12px;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+
 }
 
 /* ---------------------------------------------------- */
@@ -71,7 +76,16 @@ a:hover {
 /* هذه التنسيقات تنطبق على سلايدر الهيرو، أقسام التصنيفات، والأقسام المميزة.
  * (المسار: /)
  * ---------------------------------------------------- */
-
+.btn-primary {
+    background-color: #ba4ac2;
+    border-color: #ba4ac2; /* It's good practice to match the border color */
+    color: white; /* Ensure text is visible on the new background */
+    border-radius: var(--border-radius);
+    padding: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: var(--transition);
+}
 /* سلايدر الهيرو */
 .hero-slider {
     border-radius: 15px;

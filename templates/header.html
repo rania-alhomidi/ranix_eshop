@@ -156,7 +156,7 @@
                     <h4 class="section-title">حسابك</h4>
                     <i class="fas fa-chevron-down section-toggle"></i>
                 </div>
-                <ul class="sidebar-list">
+               <ul class="sidebar-list">
                     {# استخدام 'logged_in' بدلاً من 'user_name' لتوحيد التحقق من تسجيل الدخول #}
                     {% if logged_in %}
                     <li>
@@ -179,6 +179,12 @@
                         <a href="{{ url_for('user.profile') }}">
                             <i class="fas fa-user-cog"></i>
                             إعدادات الحساب
+                        </a>
+                    </li>
+                     <li>
+                        <a href="{{ url_for('user.manage_addresses') }}">
+                            <i class="fas fa-user-cog"></i>
+                            تغير عنوان التوصيل
                         </a>
                     </li>
                     <li>
@@ -447,4 +453,5 @@
             });
         });
     </script>
+    
 

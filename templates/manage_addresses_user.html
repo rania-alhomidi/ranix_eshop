@@ -1,0 +1,44 @@
+{% include 'header_shop.html' %}
+
+<div class="container py-5">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-4 text-center">إدارة العناوين</h2>
+
+        <a href="{{ url_for('order.add_address_page') }}" class="btn btn-primary mb-4">
+            <i class="fas fa-plus me-2"></i> إضافة عنوان جديد
+        </a>
+
+        {% if not addresses %}
+            <div class="alert alert-info text-center">
+                لا توجد عناوين مسجلة بعد.
+            </div>
+        {% else %}
+            <ul class="list-group list-group-flush">
+                {% for address in addresses %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">
+                            {{ address.address_type }} 
+                            {% if address.is_default == 1 %}
+                                <span class="badge bg-primary me-2">افتراضي</span>
+                            {% endif %}
+                        </h5>
+                        <p class="text-muted mb-1">{{ address.full_address_description }}، {{ address.city }}، {{ address.region }}</p>
+                        <p class="text-muted small mb-0">المستلم: {{ address.recipient_name }} | الهاتف: {{ address.recipient_phone }}</p>
+                    </div>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-outline-info me-2">
+                            <i class="fas fa-edit"></i> تعديل
+                        </a>
+                        <button class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+{% include 'footer.html' %}

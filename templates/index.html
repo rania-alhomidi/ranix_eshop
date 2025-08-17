@@ -176,6 +176,13 @@
                             إعدادات الحساب
                         </a>
                     </li>
+
+                     <li>
+                        <a href="{{ url_for('user.manage_addresses') }}">
+                            <i class="fas fa-user-cog"></i>
+                            تغير عنوان التوصيل
+                        </a>
+                    </li>
                     <li>
                         <a href="#">
                             <i class="fas fa-box-open"></i>
@@ -785,14 +792,6 @@
 
     <style>
         /* أنماط عامة */
-        :root {
-            /* --primary-color: #4361ee;
-        --secondary-color: #3a0ca3;
-        --accent-color: #f72585;
-        --text-color: #2b2d42;
-        --light-bg: #f8f9fa;
-        --white: #ffffff; */
-        }
 
         /* قسم الأقسام الرائجة */
         .trending-categories-section {

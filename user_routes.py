@@ -4,7 +4,6 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-
 user_bp = Blueprint('user', __name__)
 
 def get_db_connection():
@@ -160,6 +159,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 @user_bp.route('/profile')
 @login_required # هذا الـ decorator سيتحقق الآن من الكوكيز
 def profile():
@@ -273,34 +273,110 @@ def wishlist():
 
     return render_template('wishlist.html', products=liked_products)
 
-# @user_bp.route('/category/<int:category_id>') # أو @app.route إذا لم يكن لديك Blueprint
-# def view_category(category_id):
-#     conn = get_db_connection()
-#     category = None
-#     try:
-#         # جلب تفاصيل القسم
-#         category = conn.execute('''
-#             SELECT c1.*, c2.name as parent_name,
-#                    (SELECT COUNT(p.id) FROM product p WHERE p.category_id = c1.id) as product_count
-#             FROM category c1
-#             LEFT JOIN category c2 ON c1.parent_id = c2.id
-#             WHERE c1.id = ?
-#         ''', (category_id,)).fetchone()
+@user_bp.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    user_id = request.cookies.get('user_auth')
 
-#         if not category:
-#             flash("القسم غير موجود!", "danger")
-#             return redirect(url_for('product.index')) # أو المسار الرئيسي لموقعك
+    if request.method == 'POST':
+        try:
+            name = request.form.get('name')
+            email = request.form.get('email')
+            num = request.form.get('num')
+            
+            conn = get_db_connection()
+            cursor = conn.cursor()
 
-#         # **زيادة عداد الزيارات**
-#         conn.execute('UPDATE category SET view_count = view_count + 1 WHERE id = ?', (category_id,))
-#         conn.commit()
+            cursor.execute("UPDATE user SET name = ?, email = ?, num = ? WHERE id = ?",
+                           (name, email, num, user_id))
+            conn.commit()
+            conn.close()
 
-#         # جلب المنتجات المرتبطة بهذا القسم (مثال)
-#         products = conn.execute('SELECT * FROM product WHERE category_id = ?', (category_id,)).fetchall()
+            flash('تم تحديث معلوماتك بنجاح!', 'success')
+            
+            # تحديث اسم المستخدم في الكوكي بعد التعديل
+            response = make_response(redirect(url_for('user.profile')))
+            response.set_cookie(
+                'user_name',
+                value=name,
+                max_age=60*60*24*7,
+                secure=False,
+                httponly=False,
+                samesite='Lax'
+            )
+            return response
 
-#         return render_template('user/category_details.html', category=category, products=products)
-#     except Exception as e:
-#         flash(f"حدث خطأ أثناء جلب تفاصيل القسم: {str(e)}", "danger")
-#         return redirect(url_for('product.index')) # أو المسار الرئيسي لموقعك
-#     finally:
-#         conn.close()
+        except Exception as e:
+            flash(f"حدث خطأ أثناء تحديث المعلومات: {str(e)}", 'danger')
+            return redirect(url_for('user.edit_profile'))
+    
+    # عند طلب الصفحة بـ GET
+    try:
+        conn = get_db_connection()
+        user_data = conn.execute("SELECT name, email, num FROM user WHERE id = ?", (user_id,)).fetchone()
+        conn.close()
+        
+        if not user_data:
+            flash("المستخدم غير موجود. يرجى تسجيل الدخول مجدداً.", 'danger')
+            return redirect(url_for('user.login'))
+            
+        return render_template('edit_profile.html', user=user_data)
+    except Exception as e:
+        flash(f"حدث خطأ في جلب البيانات: {str(e)}", 'danger')
+        return redirect(url_for('user.profile'))
+    
+# في user_routes.py
+# ... (بعد المسار السابق) ...
+
+@user_bp.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    user_id = request.cookies.get('user_auth')
+    
+    if request.method == 'POST':
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if not new_password or new_password != confirm_password:
+            flash('كلمة المرور الجديدة وتأكيدها غير متطابقين!', 'danger')
+            return redirect(url_for('user.change_password'))
+
+        conn = get_db_connection()
+        user_data = conn.execute("SELECT pass FROM user WHERE id = ?", (user_id,)).fetchone()
+
+        if user_data and check_password_hash(user_data['pass'], old_password):
+            new_password_hash = generate_password_hash(new_password)
+            conn.execute("UPDATE user SET pass = ? WHERE id = ?", (new_password_hash, user_id))
+            conn.commit()
+            conn.close()
+            flash('تم تغيير كلمة المرور بنجاح!', 'success')
+            return redirect(url_for('user.profile'))
+        else:
+            conn.close()
+            flash('كلمة المرور القديمة غير صحيحة.', 'danger')
+            return redirect(url_for('user.change_password'))
+    
+    return render_template('change_password.html')
+
+# في user_routes.py
+# ... (بعد المسار السابق) ...
+# تأكد من استيراد دالة get_user_addresses_and_default من ملف order_bp
+# في ملف user_routes.py
+
+# ... (باقي الكود) ...
+
+@user_bp.route('/manage_addresses')
+@login_required
+def manage_addresses():
+    user_id = request.cookies.get('user_auth')
+    if not user_id:
+        flash("يجب تسجيل الدخول لإدارة العناوين.", "danger")
+        return redirect(url_for('user.login'))
+        
+    # 🟢 قم بالاستيراد هنا فقط
+    from order_routes import get_user_addresses_and_default
+
+    _, all_addresses = get_user_addresses_and_default(int(user_id))
+    
+    return render_template('manage_addresses_user.html', addresses=all_addresses)

@@ -1,3 +1,4 @@
+<!-- profile.html -->
 {% include 'header_shop.html'%}
 
 <style>
@@ -192,7 +193,11 @@
                         <i class="fas fa-user-circle card-icon me-2"></i>
                         المعلومات الشخصية
                     </h3>
-                    
+                         <button class="btn btn-sm btn-primary">
+                             <a href="{{ url_for('user.edit_profile') }}">
+                            <i class="fas fa-edit me-1"></i> تعديل
+                            </a>
+                        </button>
                     <div class="detail-item">
                         <small class="text-muted">الاسم الكامل</small>
                         <p class="mb-0 fw-bold">{{ user.name }}</p>
@@ -207,9 +212,13 @@
                         <small class="text-muted">رقم الهاتف</small>
                         <p class="mb-0 fw-bold">{{ user.num }}</p>
                     </div>
+                    
+                    <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-lock me-2"></i> تغيير كلمة المرور
+                    </a>
                 </div>
             </div>
-            
+
             <!-- Address Section -->
             <div class="col-lg-8">
                 <div class="info-card p-4 mb-4">
@@ -223,9 +232,7 @@
                             <h5 class="mb-1">العنوان الرئيسي</h5>
                             <p class="text-muted mb-0">{{ user.address }}</p>
                         </div>
-                        <button class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-edit me-1"></i> تعديل
-                        </button>
+                   
                     </div>
                     
                     {% if user.latitude and user.longitude %}

@@ -16,6 +16,86 @@ def get_db_connection():
     return conn
 
 
+# 🆕 دالة جديدة لجلب المنتجات الأكثر مبيعاً
+def get_top_selling_products():
+    conn = get_db_connection()
+    try:
+        query = """
+        SELECT
+            p.name AS product_name,
+            p.image AS image,
+            SUM(oi.price * oi.quantity) AS total_price,
+            SUM(oi.quantity) AS total_sales
+        FROM Order_Items oi
+        JOIN product p ON oi.product_id = p.id
+        GROUP BY p.id
+        ORDER BY total_sales DESC
+        LIMIT 5;
+        """
+        top_products = conn.execute(query).fetchall()
+        return [dict(row) for row in top_products]
+    except sqlite3.Error as e:
+        print(f"Database error getting top selling products: {e}")
+        return []
+    finally:
+        conn.close()
+
+# Add this new function to get the latest activity from the database
+def get_latest_activity():
+    conn = get_db_connection()
+    try:
+        # This is a complex query to demonstrate fetching various types of activities.
+        # It's a UNION of different queries for different event types.
+        query = """
+        SELECT
+            'order_status' AS event_type,
+            o.id AS item_id,
+            'تم تعديل حالة الطلب #' || o.id || ' إلى "' || o.status || '"' AS description,
+            o.order_date AS timestamp,
+            'bi-arrow-repeat text-primary' AS icon_class
+        FROM orders o
+        ORDER BY o.order_date DESC
+        LIMIT 2
+        
+        UNION ALL
+        
+        SELECT
+            'product_creation' AS event_type,
+            p.id AS item_id,
+            'تمت إضافة منتج جديد: ' || p.name AS description,
+            p.created_at AS timestamp,
+            'bi-plus-circle-fill text-success' AS icon_class
+        FROM product p
+        ORDER BY p.created_at DESC
+        LIMIT 2
+        
+        UNION ALL
+        
+        SELECT
+            'seller_creation' AS event_type,
+            s.id AS item_id,
+            'تم إنشاء حساب جديد لبائع ' || s.name AS description,
+            s.created_at AS timestamp,
+            'bi-shop text-info' AS icon_class
+        FROM sellers s
+        ORDER BY s.created_at DESC
+        LIMIT 2
+        
+        ORDER BY timestamp DESC
+        LIMIT 5;
+        """
+        # Note: The UNION ALL is a simplified example. A real-world scenario
+        # might require a dedicated 'activity_log' table for efficiency.
+
+        latest_activities = conn.execute(query).fetchall()
+        return [dict(row) for row in latest_activities]
+    except sqlite3.Error as e:
+        print(f"Database error getting latest activity: {e}")
+        return []
+    finally:
+        conn.close()
+
+
 @admin_bp.route('/')
 def home():
     conn = get_db_connection()
@@ -48,6 +128,17 @@ def home():
     total_sellers = total_sellers_data['total_sellers'] if total_sellers_data else 0
 
 
+ # 🆕 استعلامات المقاييس الجديدة
+    total_orders = conn.execute("SELECT COUNT(*) FROM orders").fetchone()[0]
+    pending_orders = conn.execute("SELECT COUNT(*) FROM orders WHERE status = 'قيد الانتظار'").fetchone()[0]
+    total_purchases = conn.execute("SELECT SUM(total_price) FROM orders").fetchone()[0] or 0.0
+
+     # 🆕 استدعاء الدالة الجديدة
+    top_selling_products = get_top_selling_products()
+
+# جلب النشاط الأخير (New)
+    latest_activities = get_latest_activity()
+
     conn.close()
 
     # تمرير جميع الإحصائيات إلى القالب
@@ -56,7 +147,13 @@ def home():
                            total_products=total_products,
                            total_subcategories=total_subcategories, # 🆕 تمرير عدد الأقسام الفرعية
                            total_main_categories=total_main_categories, # 🆕 تمرير عدد الأقسام الرئيسية
-                           total_sellers=total_sellers 
+                           total_sellers=total_sellers,
+                           total_orders=total_orders,
+                           pending_orders=pending_orders,
+                           total_purchases=total_purchases,
+                           top_selling_products=top_selling_products, # 🆕 تمرير قائمة المنتجات الأكثر مبيعاً للقالب
+                           latest_activities=latest_activities # Pass the new data to the template
+
                           )
 
 
@@ -1023,3 +1120,5 @@ def seller_products_admin(seller_id):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+

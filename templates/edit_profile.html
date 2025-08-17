@@ -1,0 +1,246 @@
+{% include 'header_shop.html' %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<style>
+    /* يمكنك نسخ نفس التصميم من صفحة signup.html هنا */
+
+
+
+    body {
+        font-family: 'Tajawal', sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+    }
+
+    .registration-container {
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .registration-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .registration-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .registration-header {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .registration-header h2 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .registration-body {
+        padding: 2rem;
+    }
+
+    .form-control {
+        border-radius: var(--border-radius);
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+        transform: translateY(-2px);
+    }
+
+    .btn-info {
+        background-color: var(--accent-color);
+        border: none;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+    }
+
+    .btn-info:hover {
+        background-color: #3a7bd5;
+    }
+
+    .login-link {
+        color: var(--primary-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .login-link:hover {
+        color: var(--secondary-color);
+        text-decoration: underline;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        border: 1px solid #e0e0e0;
+        border-right: none;
+    }
+
+    .form-floating .form-control {
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+    }
+
+    .form-floating label {
+        padding: 1rem 0.75rem;
+    }
+
+    /* تأثيرات للعناصر */
+    .animate-input {
+        transition: all 0.3s ease;
+    }
+
+    .animate-input:focus {
+        transform: scale(1.02);
+    }
+
+    /* تصميم متجاوب */
+    @media (max-width: 768px) {
+        .registration-container {
+            padding: 0 15px;
+        }
+
+        .registration-body {
+            padding: 1.5rem;
+        }
+    }
+
+    /* تأثيرات للزر */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    /* تأثيرات للبطاقة */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .registration-card {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+</style>
+
+<main id="main" class="main animate__animated animate__fadeIn">
+    <div class="container registration-container">
+        <div class="registration-card">
+            <div class="registration-header">
+                <h2><i class="fas fa-edit me-2"></i>تعديل الملف الشخصي</h2>
+            </div>
+
+            <div class="registration-body">
+               
+
+                <form method="POST" action="{{ url_for('user.edit_profile') }}" class="needs-validation" novalidate>
+
+                    <div class="mb-4">
+                        <label for="name" class="form-label"><i class="fas fa-user me-2"></i>الاسم الكامل</label>
+                        <input type="text" id="name" name="name" class="form-control animate-input"
+                            value="{{ user.name }}" required>
+                        <div class="invalid-feedback">يرجى إدخال الاسم الكامل</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="num" class="form-label"><i class="fas fa-phone me-2"></i>رقم الهاتف</label>
+                        <input type="tel" id="num" name="num" class="form-control animate-input" value="{{ user.num }}"
+                            required>
+                        <div class="invalid-feedback">يرجى إدخال رقم هاتف صحيح</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label"><i class="fas fa-envelope me-2"></i>البريد
+                            الإلكتروني</label>
+                        <input type="email" id="email" name="email" class="form-control animate-input"
+                            value="{{ user.email }}" required>
+                        <div class="invalid-feedback">يرجى إدخال بريد إلكتروني صحيح</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-4">
+                        <i class="fas fa-save me-2"></i>حفظ التغييرات
+                    </button>
+                    <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="fas fa-times me-2"></i>إلغاء
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (() => {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        const forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
+
+{% include 'footer.html' %}

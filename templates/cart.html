@@ -294,21 +294,6 @@
         </header>
 
         <div class="main-content">
-            <!-- {# هذا الجزء سيعرض رسائل الفلاش من Flask #}
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            <div class="flashes">
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            {% endwith %} -->
 
             {% if cart %}
 
@@ -317,15 +302,11 @@
                 <div class="cart-item">
                     <div class="product-info">
                         {% if item.image %}
-{% if item.image and item.image != '' %}
-    <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" class="product-image">
-{% else %}
-    <img src="{{ url_for('static', filename='uploads/products/default_product.jpg') }}"
-        alt="صورة افتراضية" class="product-image">
-{% endif %}
+                        {% set image_path_no_static = item.image.replace('static/', '', 1) %}
+                        <img src="{{ url_for('static', filename=image_path_no_static) }}" alt="صورة {{ item.name }}"
+                            width="70" class="img-thumbnail">
                         {% else %}
-                        <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}"
-                            class="product-image">
+                        <span class="text-muted">لا توجد صورة</span>
                         {% endif %}
                         <div class="product-details">
                             <h5>{{ item.name }}</h5>

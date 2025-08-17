@@ -278,6 +278,79 @@ def add_address_page():
 
     return render_template('add_address.html')
 
+
+
+# المسار الجديد لصفحة تعديل العنوان
+@order_bp.route('/edit_address/<int:address_id>', methods=['GET', 'POST'])
+def edit_address_page(address_id):
+    if request.method == 'GET':
+        try:
+            conn = get_db_connection()
+            # استرداد بيانات العنوان المحدد من قاعدة البيانات
+            address_data = conn.execute('SELECT * FROM user_addresses WHERE id = ? AND user_id = ?',
+                                        (address_id, session['user_id'])).fetchone()
+            conn.close()
+
+            if address_data:
+                # عرض صفحة التعديل مع البيانات الحالية
+                return render_template('edit_address.html',
+                                       address=address_data,
+                                       recipient_name=address_data['recipient_name'],
+                                       recipient_phone=address_data['recipient_phone'],
+                                       address_type=address_data['address_type'],
+                                       city=address_data['city'],
+                                       region=address_data['region'],
+                                       full_address_description=address_data['full_address_description'],
+                                       is_default=address_data['is_default'])
+            else:
+                flash('العنوان غير موجود أو لا تملك الصلاحية لتعديله.', 'danger')
+                return redirect(url_for('order.confirm_order_page'))
+        except Exception as e:
+            flash(f"حدث خطأ غير متوقع: {e}", "danger")
+            return redirect(url_for('order.confirm_order_page'))
+
+    elif request.method == 'POST':
+        try:
+            conn = get_db_connection()
+            recipient_name = request.form['recipient_name']
+            recipient_phone = request.form['recipient_phone']
+            address_type = request.form['address_type']
+            city = request.form['city']
+            region = request.form['region']
+            full_address_description = request.form['full_address_description']
+            is_default = 'is_default' in request.form
+
+            # تحديث البيانات في قاعدة البيانات
+            conn.execute('''
+                UPDATE user_addresses
+                SET recipient_name = ?, recipient_phone = ?, address_type = ?, city = ?, region = ?, full_address_description = ?, is_default = ?
+                WHERE id = ? AND user_id = ?
+            ''', (recipient_name, recipient_phone, address_type, city, region, full_address_description, is_default, address_id, session['user_id']))
+            conn.commit()
+            conn.close()
+
+            flash('تم تحديث العنوان بنجاح!', 'success')
+            return redirect(url_for('order.confirm_order_page'))
+        except Exception as e:
+            flash(f"حدث خطأ أثناء التحديث: {e}", "danger")
+            return redirect(url_for('order.confirm_order_page'))
+
+# المسار الخاص بحذف العنوان
+@order_bp.route('/delete_address/<int:address_id>', methods=['POST'])
+def delete_address(address_id):
+    try:
+        conn = get_db_connection()
+        # حذف العنوان من قاعدة البيانات
+        conn.execute('DELETE FROM user_addresses WHERE id = ? AND user_id = ?',
+                     (address_id, session['user_id']))
+        conn.commit()
+        conn.close()
+        flash('تم حذف العنوان بنجاح.', 'success')
+    except Exception as e:
+        flash(f"حدث خطأ أثناء الحذف: {e}", "danger")
+    
+    return redirect(url_for('order.confirm_order_page'))
+
 @order_bp.route('/process_order', methods=['POST'])
 def process_order():
     user_id_cookie = request.cookies.get('user_auth') 
@@ -621,5 +694,57 @@ def mark_all_notifications_read():
         conn.rollback()
         print(f"Error marking notifications as read: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        conn.close()
+
+# Place this route inside your 'order_bp' Blueprint in order.py
+
+@order_bp.route('/admin/sales_data')
+def get_sales_data():
+    conn = get_db_connection()
+    try:
+        # Get sales data by date
+        sales_data_raw = conn.execute('''
+            SELECT 
+                STRFTIME('%Y-%m-%d', created_at) AS order_date,
+                SUM(total_price) AS total_sales
+            FROM orders
+            GROUP BY order_date
+            ORDER BY order_date
+        ''').fetchall()
+        
+        # Convert fetched data to a list of dictionaries
+        sales_data = [dict(row) for row in sales_data_raw]
+        
+        return jsonify(sales_data)
+        
+    except Exception as e:
+        print(f"Error fetching sales data: {e}")
+        return jsonify({'error': 'Failed to fetch sales data'}), 500
+    finally:
+        conn.close()
+
+# Add this new route to your Flask blueprint
+@order_bp.route('/admin/sales_by_category')
+def get_sales_by_category():
+    conn = get_db_connection()
+    try:
+        sales_data_raw = conn.execute('''
+            SELECT 
+                pc.category_name,
+                SUM(oi.price * oi.quantity) AS total_sales
+            FROM Order_Items oi
+            JOIN product p ON oi.product_id = p.id
+            JOIN product_categories pc ON p.category_id = pc.id
+            GROUP BY pc.category_name
+            ORDER BY total_sales DESC
+        ''').fetchall()
+        
+        sales_data = [dict(row) for row in sales_data_raw]
+        return jsonify(sales_data)
+        
+    except Exception as e:
+        print(f"Error fetching sales by category: {e}")
+        return jsonify({'error': 'Failed to fetch sales data'}), 500
     finally:
         conn.close()

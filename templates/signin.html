@@ -1,4 +1,4 @@
-{% include 'header.html' %}
+{% include 'header_shop.html' %}
 
 <!-- أضفنا Font Awesome للرموز -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -6,17 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
 <style>
-:root {
-    --primary-color: #4361ee;
-    --secondary-color: #3f37c9;
-    --accent-color: #4895ef;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
-    --success-color: #4cc9f0;
-    --border-radius: 12px;
-    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-}
+
 
 body {
     font-family: 'Tajawal', sans-serif;
@@ -325,7 +315,7 @@ body {
                         <div class="position-relative">
                             <i class="fas fa-lock"></i>
                             <input type="password" id="password" name="password" class="form-control animate-input" placeholder="أدخل كلمة المرور" required>
-                            <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password" style="position: absolute; left: auto; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
+                            <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password" style="position: absolute; left: auto; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
                         </div>
                         <div class="invalid-feedback">يرجى إدخال كلمة المرور</div>
                     </div>
