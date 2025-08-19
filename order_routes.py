@@ -183,7 +183,6 @@ def confirm_order_page():
         total_items_price=total_items_price 
     )
 
-
 @order_bp.route('/set_default_address/<int:address_id>')
 def set_default_address(address_id):
     user_id_cookie = request.cookies.get('user_auth') 
@@ -202,12 +201,9 @@ def set_default_address(address_id):
         conn.execute("UPDATE cust_addresses SET is_default = 1 WHERE id = ? AND user_id = ?", (address_id, user_id))
         conn.commit()
 
-        updated_address_details = dict(conn.execute("SELECT * FROM cust_addresses WHERE id = ?", (address_id,)).fetchone())
-        
         return jsonify({
             'success': True, 
-            'message': 'تم تحديث العنوان الافتراضي بنجاح.',
-            'address': updated_address_details
+            'message': 'تم تحديث العنوان الافتراضي بنجاح.'
         })
     except sqlite3.Error as e:
         conn.rollback()
@@ -219,7 +215,6 @@ def set_default_address(address_id):
         return jsonify({'success': False, 'message': f'حدث خطأ غير متوقع: {e}'}), 500
     finally:
         conn.close()
-
 
 @order_bp.route('/add_address_page', methods=['GET', 'POST'])
 def add_address_page():
@@ -266,7 +261,7 @@ def add_address_page():
             )
             conn.commit()
             flash("تم إضافة العنوان بنجاح!", "success")
-            return redirect(url_for('order.confirm_order_page')) 
+            return redirect(url_for('order.manage_addresses')) 
         except sqlite3.Error as e:
             conn.rollback()
             flash(f"حدث خطأ في قاعدة البيانات عند إضافة العنوان: {e}", "danger")
@@ -280,76 +275,116 @@ def add_address_page():
 
 
 
-# المسار الجديد لصفحة تعديل العنوان
-@order_bp.route('/edit_address/<int:address_id>', methods=['GET', 'POST'])
+  # أضف هذا المسار الجديد الذي يعرض صفحة إدارة العناوين
+@order_bp.route('/manage_addresses')
+def manage_addresses():
+    user_id_cookie = request.cookies.get('user_auth')
+    if not user_id_cookie:
+        flash("يجب تسجيل الدخول أولاً.", "error")
+        return redirect(url_for('user.login'))
+    
+    user_id = int(user_id_cookie)
+    
+    # جلب جميع عناوين المستخدم
+    _, all_addresses = get_user_addresses_and_default(user_id)
+    
+    return render_template('manage_addresses_user.html', addresses=all_addresses)
+
+# --- مسار تعديل العنوان ---
+@order_bp.route('/edit_address_page/<int:address_id>', methods=['GET', 'POST'])
 def edit_address_page(address_id):
-    if request.method == 'GET':
+    user_id_cookie = request.cookies.get('user_auth') 
+    if not user_id_cookie:
+        flash("يجب تسجيل الدخول أولاً.", "error")
+        return redirect(url_for('user.login'))
+    
+    user_id = int(user_id_cookie)
+    
+    conn = get_db_connection()
+    address = conn.execute("SELECT * FROM cust_addresses WHERE id = ? AND user_id = ?", 
+                          (address_id, user_id)).fetchone()
+    conn.close()
+    
+    if not address:
+        flash("العنوان غير موجود أو لا تملك الصلاحية لتعديله.", "danger")
+        return redirect(url_for('order.manage_addresses'))
+    
+    if request.method == 'POST':
+        recipient_name = request.form.get('recipient_name')
+        recipient_phone = request.form.get('recipient_phone')
+        address_type = request.form.get('address_type')
+        city = request.form.get('city')
+        region = request.form.get('region')
+        full_address_description = request.form.get('full_address_description')
+        is_default = request.form.get('is_default') == 'on'
+
+        if not all([recipient_name, recipient_phone, address_type, city, region, full_address_description]):
+            flash("الرجاء تعبئة جميع الحقول المطلوبة.", "error")
+            return render_template('edit_add_user.html', address=dict(address),
+                                   recipient_name=recipient_name,
+                                   recipient_phone=recipient_phone,
+                                   address_type=address_type,
+                                   city=city,
+                                   region=region,
+                                   full_address_description=full_address_description,
+                                   is_default=is_default)
+
+        conn = get_db_connection()
         try:
-            conn = get_db_connection()
-            # استرداد بيانات العنوان المحدد من قاعدة البيانات
-            address_data = conn.execute('SELECT * FROM user_addresses WHERE id = ? AND user_id = ?',
-                                        (address_id, session['user_id'])).fetchone()
-            conn.close()
-
-            if address_data:
-                # عرض صفحة التعديل مع البيانات الحالية
-                return render_template('edit_address.html',
-                                       address=address_data,
-                                       recipient_name=address_data['recipient_name'],
-                                       recipient_phone=address_data['recipient_phone'],
-                                       address_type=address_data['address_type'],
-                                       city=address_data['city'],
-                                       region=address_data['region'],
-                                       full_address_description=address_data['full_address_description'],
-                                       is_default=address_data['is_default'])
-            else:
-                flash('العنوان غير موجود أو لا تملك الصلاحية لتعديله.', 'danger')
-                return redirect(url_for('order.confirm_order_page'))
-        except Exception as e:
-            flash(f"حدث خطأ غير متوقع: {e}", "danger")
-            return redirect(url_for('order.confirm_order_page'))
-
-    elif request.method == 'POST':
-        try:
-            conn = get_db_connection()
-            recipient_name = request.form['recipient_name']
-            recipient_phone = request.form['recipient_phone']
-            address_type = request.form['address_type']
-            city = request.form['city']
-            region = request.form['region']
-            full_address_description = request.form['full_address_description']
-            is_default = 'is_default' in request.form
-
-            # تحديث البيانات في قاعدة البيانات
-            conn.execute('''
-                UPDATE user_addresses
-                SET recipient_name = ?, recipient_phone = ?, address_type = ?, city = ?, region = ?, full_address_description = ?, is_default = ?
+            if is_default:
+                conn.execute("UPDATE cust_addresses SET is_default = 0 WHERE user_id = ?", (user_id,))
+            
+            conn.execute(
+                """
+                UPDATE cust_addresses 
+                SET recipient_name = ?, recipient_phone = ?, address_type = ?, 
+                    city = ?, region = ?, full_address_description = ?, is_default = ?
                 WHERE id = ? AND user_id = ?
-            ''', (recipient_name, recipient_phone, address_type, city, region, full_address_description, is_default, address_id, session['user_id']))
+                """,
+                (recipient_name, recipient_phone, address_type, city, region, 
+                 full_address_description, int(is_default), address_id, user_id)
+            )
             conn.commit()
-            conn.close()
-
-            flash('تم تحديث العنوان بنجاح!', 'success')
-            return redirect(url_for('order.confirm_order_page'))
+            flash("تم تحديث العنوان بنجاح!", "success")
+            return redirect(url_for('order.manage_addresses'))
+        except sqlite3.Error as e:
+            conn.rollback()
+            flash(f"حدث خطأ في قاعدة البيانات: {e}", "danger")
         except Exception as e:
-            flash(f"حدث خطأ أثناء التحديث: {e}", "danger")
-            return redirect(url_for('order.confirm_order_page'))
+            conn.rollback()
+            flash(f"حدث خطأ غير متوقع: {e}", "danger")
+        finally:
+            conn.close()
+    
+    return render_template('edit_add_user.html', address=dict(address))
 
-# المسار الخاص بحذف العنوان
+# --- المسار الخاص بحذف العنوان ---
 @order_bp.route('/delete_address/<int:address_id>', methods=['POST'])
 def delete_address(address_id):
+    user_id_cookie = request.cookies.get('user_auth')
+    if not user_id_cookie:
+        flash("يجب تسجيل الدخول أولاً.", "error")
+        return redirect(url_for('user.login'))
+    user_id = int(user_id_cookie)
+
+    conn = get_db_connection()
     try:
-        conn = get_db_connection()
-        # حذف العنوان من قاعدة البيانات
-        conn.execute('DELETE FROM user_addresses WHERE id = ? AND user_id = ?',
-                     (address_id, session['user_id']))
+        address_row = conn.execute("SELECT * FROM cust_addresses WHERE id = ? AND user_id = ?", (address_id, user_id)).fetchone()
+        if not address_row:
+            flash('العنوان غير موجود أو لا تملك الصلاحية لحذفه.', 'danger')
+            return redirect(url_for('order.manage_addresses'))
+        
+        conn.execute('DELETE FROM cust_addresses WHERE id = ? AND user_id = ?', (address_id, user_id))
         conn.commit()
-        conn.close()
         flash('تم حذف العنوان بنجاح.', 'success')
     except Exception as e:
+        conn.rollback()
         flash(f"حدث خطأ أثناء الحذف: {e}", "danger")
+    finally:
+        conn.close()
     
-    return redirect(url_for('order.confirm_order_page'))
+    return redirect(url_for('order.manage_addresses'))
+
 
 @order_bp.route('/process_order', methods=['POST'])
 def process_order():
@@ -451,7 +486,7 @@ def process_order():
     finally:
         conn.close()
 
-        
+
 @order_bp.route('/order_success_page/<int:order_id>')
 def order_success_page(order_id):
     conn = get_db_connection()
@@ -748,3 +783,76 @@ def get_sales_by_category():
         return jsonify({'error': 'Failed to fetch sales data'}), 500
     finally:
         conn.close()
+
+# أضف هذا المسار لعرض قائمة الطلبات للمستخدم
+@order_bp.route('/my_orders')
+def my_orders():
+    user_id_cookie = request.cookies.get('user_auth')
+    if not user_id_cookie:
+        flash("يجب تسجيل الدخول أولاً لعرض طلباتك.", "error")
+        return redirect(url_for('user.login'))
+
+    user_id = int(user_id_cookie)
+    conn = get_db_connection()
+    orders = []
+    try:
+        orders = conn.execute(
+            "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC", 
+            (user_id,)
+        ).fetchall()
+        # تحويل الصفوف إلى قاموس لسهولة الوصول في القالب
+        orders = [dict(row) for row in orders]
+    except Exception as e:
+        flash(f"حدث خطأ أثناء جلب طلباتك: {e}", "danger")
+    finally:
+        conn.close()
+
+    return render_template('my_orders.html', orders=orders)
+
+
+# أضف هذا المسار لعرض تفاصيل طلب معين
+@order_bp.route('/my_orders/<int:order_id>')
+def my_order_details(order_id):
+    user_id_cookie = request.cookies.get('user_auth')
+    if not user_id_cookie:
+        flash("يجب تسجيل الدخول أولاً.", "error")
+        return redirect(url_for('user.login'))
+    
+    user_id = int(user_id_cookie)
+    conn = get_db_connection()
+    order_details = None
+    order_items = []
+    
+    try:
+        # جلب تفاصيل الطلب مع التأكد من أنه يخص المستخدم الحالي
+        order_details_row = conn.execute(
+            "SELECT * FROM orders WHERE id = ? AND user_id = ?", 
+            (order_id, user_id)
+        ).fetchone()
+
+        if not order_details_row:
+            flash("الطلب غير موجود أو لا تملك الصلاحية لعرضه.", "danger")
+            return redirect(url_for('order.my_orders'))
+        
+        order_details = dict(order_details_row)
+
+        # جلب المنتجات المرتبطة بالطلب
+        order_items = conn.execute('''
+            SELECT 
+                oi.quantity, 
+                oi.price, 
+                p.name AS product_name, 
+                pi.image_path AS product_image
+            FROM Order_Items oi
+            JOIN product p ON oi.product_id = p.id
+            LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.is_main = 1
+            WHERE oi.order_id = ?
+        ''', (order_id,)).fetchall()
+
+    except Exception as e:
+        flash(f"حدث خطأ أثناء جلب تفاصيل الطلب: {e}", "danger")
+        return redirect(url_for('order.my_orders'))
+    finally:
+        conn.close()
+
+    return render_template('my_order_details.html', order=order_details, items=order_items)

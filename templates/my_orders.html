@@ -1,0 +1,38 @@
+{% include 'header_shop.html' %}
+
+<div class="container py-5">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-4 text-center">طلباتي</h2>
+
+        {% if not orders %}
+            <div class="alert alert-info text-center">
+                لا توجد طلبات سابقة. 
+                <a href="{{ url_for('product.index') }}">ابدأ التسوق الآن!</a>
+            </div>
+        {% else %}
+            <div class="list-group">
+                {% for order in orders %}
+                    <a href="{{ url_for('order.my_order_details', order_id=order.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="mb-1">الطلب رقم #{{ order.id }}</h5>
+                            <p class="text-muted mb-1">بتاريخ: {{ order.created_at }}</p>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-1 text-primary">{{ order.total_price }} ر.س</h5>
+                            <span class="badge 
+                                {% if order.status == 'قيد الانتظار' %}bg-warning text-dark{% endif %}
+                                {% if order.status == 'قيد التجهيز' %}bg-info{% endif %}
+                                {% if order.status == 'تم الشحن' %}bg-success{% endif %}
+                                {% if order.status == 'ملغى' %}bg-danger{% endif %}
+                                ">
+                                {{ order.status }}
+                            </span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% include 'footer.html' %}

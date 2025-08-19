@@ -86,6 +86,10 @@ a:hover {
     letter-spacing: 0.5px;
     transition: var(--transition);
 }
+.btn-primary:hover {
+    background-color: #df93e5;
+    transition: var(--transition);
+}
 /* سلايدر الهيرو */
 .hero-slider {
     border-radius: 15px;
