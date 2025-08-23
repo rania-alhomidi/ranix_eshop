@@ -809,8 +809,8 @@ def my_orders():
 
     return render_template('my_orders.html', orders=orders)
 
+# ... (rest of your imports)
 
-# أضف هذا المسار لعرض تفاصيل طلب معين
 @order_bp.route('/my_orders/<int:order_id>')
 def my_order_details(order_id):
     user_id_cookie = request.cookies.get('user_auth')
@@ -824,9 +824,22 @@ def my_order_details(order_id):
     order_items = []
     
     try:
-        # جلب تفاصيل الطلب مع التأكد من أنه يخص المستخدم الحالي
+        # الاستعلام الصحيح: يربط جدول orders مع cust_addresses
+        # ... (داخل دالة my_order_details)
+
         order_details_row = conn.execute(
-            "SELECT * FROM orders WHERE id = ? AND user_id = ?", 
+            """
+            SELECT 
+                o.*, 
+                a.recipient_name, 
+                a.recipient_phone, 
+                a.full_address_description, 
+                a.city, 
+                a.region
+            FROM orders o
+            LEFT JOIN cust_addresses a ON o.delivery_address_id = a.id
+            WHERE o.id = ? AND o.user_id = ?
+            """, 
             (order_id, user_id)
         ).fetchone()
 
