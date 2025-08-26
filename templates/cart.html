@@ -3,285 +3,7 @@
 
 {% include 'header_shop.html' %}
 
-<style>
-    /* تصميم الهيدر */
-    .app-header {
-        /* background-color: #c63683; زهري هادئ */
-        color: rgb(255, 255, 255);
-        padding: 15px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        border-bottom-left-radius: 10px;
-        border-bottom-right-radius: 10px;
-        background-color: #ba4ac2;
-    }
 
-    .app-header h1 {
-        font-size: 1.2em;
-        margin: 0;
-        flex-grow: 1;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    .app-header .back-arrow,
-    .app-header .action-icon {
-        color: rgb(0, 0, 0);
-        font-size: 1.4em;
-    }
-
-    .container {
-        /* background-color: white; */
-        /* خلفية بيضاء للصفحة */
-        /* min-height: 100vh; */
-    }
-
-    .main-content {
-        /* padding: 20px 15px; */
-        /* background-color: white; */
-    }
-
-    .cart-title {
-        text-align: center;
-        color: #d74e90;
-        font-weight: bold;
-        margin-bottom: 25px;
-    }
-
-    .cart-header,
-    .cart-item {
-        display: grid;
-        grid-template-columns: 2fr 1fr 2fr 1fr;
-        gap: 10px;
-        background: white;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        align-items: center;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .product-info {
-        display: flex;
-        align-items: center;
-    }
-
-    .product-image {
-        width: 60px;
-        height: 60px;
-        border-radius: 6px;
-        object-fit: cover;
-        margin-left: 10px;
-        /* للغة العربية، هذه Margin-right */
-    }
-
-    .product-details h5 {
-        margin: 0;
-        font-size: 1em;
-        color: #444;
-    }
-
-    .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        flex-wrap: wrap;
-    }
-
-    .quantity-btn,
-    .remove-btn {
-        padding: 6px 10px;
-        border: none;
-        background-color: #f8d7e6;
-        color: #222;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        font-size: 0.9em;
-    }
-
-    .quantity-btn:hover,
-    .remove-btn:hover {
-        background-color: #e4b5ce;
-    }
-
-    .cart-summary {
-        background: white;
-        padding: 20px;
-        margin-top: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-        font-size: 1em;
-        color: #555;
-    }
-
-    .total-row {
-        font-weight: bold;
-        color: #c794ca;
-        border-top: 1px solid #eee;
-        padding-top: 10px;
-    }
-
-    .btn-primary {
-        background-color: #c794ca;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-size: 1em;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 10px;
-    }
-
-    .btn-primary:hover {
-        background-color: #ceb1cf;
-    }
-
-    .btn-outline-danger {
-        background: transparent;
-        border: 2px solid #c794ca;
-        color: #c794ca;
-        border-radius: 6px;
-        padding: 8px 15px;
-        margin-top: 10px;
-        font-size: 0.95em;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #fcc0ff;
-    }
-
-    .empty-cart-message {
-        text-align: center;
-        padding: 50px 20px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .empty-cart-message h4 {
-        font-size: 1.3em;
-        color: #c794ca;
-    }
-
-    .empty-cart-message p {
-        color: #666;
-        margin: 15px 0;
-    }
-
-    /* تنسيقات رسائل الفلاش */
-    .flashes {
-        margin-bottom: 20px;
-    }
-
-    .alert {
-        padding: 15px;
-        margin-bottom: 1rem;
-        border: 1px solid transparent;
-        border-radius: 0.25rem;
-        position: relative;
-    }
-
-    .alert-success {
-        color: #155724;
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-    }
-
-    .alert-info {
-        color: #0c5460;
-        background-color: #d1ecf1;
-        border-color: #bee5eb;
-    }
-
-    .alert-warning {
-        color: #856404;
-        background-color: #fff3cd;
-        border-color: #ffeeba;
-    }
-
-    .alert-danger,
-    .alert-error {
-        /* 'alert-error' for Flask flash categories */
-        color: #721c24;
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-    }
-
-    .alert .close {
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 0.75rem 1.25rem;
-        color: inherit;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        line-height: 1;
-        opacity: 0.5;
-        cursor: pointer;
-    }
-
-    .alert .close:hover {
-        opacity: 0.75;
-    }
-
-    /* end of flash message styles */
-
-    /* استجابة الهاتف */
-    @media (max-width: 768px) {
-        .cart-header {
-            display: none;
-            /* إخفاء رأس الجدول في الشاشات الصغيرة */
-        }
-
-        .cart-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .quantity-controls {
-            margin-top: 10px;
-        }
-
-        .summary-row {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .summary-row span {
-            margin-bottom: 5px;
-        }
-
-        .product-image {
-            margin-left: 0;
-            /* إزالة الهامش في الشاشات الصغيرة */
-            margin-bottom: 10px;
-        }
-
-        .product-info {
-            width: 100%;
-            justify-content: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .product-info .product-details {
-            width: calc(100% - 70px);
-            /* 60px للصورة + 10px هامش */
-        }
-    }
-</style>
 
 </head>
 
@@ -293,25 +15,25 @@
             <i class="fas fa-shopping-cart action-icon"></i>
         </header>
 
-        <div class="main-content">
 
             {% if cart %}
 
             <div class="cart-items">
                 {% for item in cart %}
+                <a href="{{ url_for('product.product_details', product_id=item.product_id) }}">
                 <div class="cart-item">
                     <div class="product-info">
                         {% if item.image %}
                         {% set image_path_no_static = item.image.replace('static/', '', 1) %}
                         <img src="{{ url_for('static', filename=image_path_no_static) }}" alt="صورة {{ item.name }}"
-                            width="70" class="img-thumbnail">
+                        width="70" class="img-thumbnail">
                         {% else %}
-                        <span class="text-muted">لا توجد صورة</span>
-                        {% endif %}
-                        <div class="product-details">
-                            <h5>{{ item.name }}</h5>
-                            <span class="mobile-label d-md-none">السعر: {{ item.price }} ريال</span>
-                        </div>
+                            <span class="text-muted">لا توجد صورة</span>
+                            {% endif %}
+                            <div class="product-details">
+                                <h5>{{ item.name }}</h5>
+                                <span class="mobile-label d-md-none">السعر: {{ item.price }} ريال</span>
+                            </div>
                     </div>
 
                     <div class="price d-none d-md-block">
@@ -344,7 +66,7 @@
                 </div>
                 {% endfor %}
             </div>
-
+            </a>
             <div class="cart-summary">
                 {# ملاحظة: subtotal هنا يتم حسابه كتحقق، ولكن total_price و total_items_count
                 يجب أن يأتيان من Flask (كما تم تعديل cart_routes.py) #}
@@ -365,7 +87,7 @@
 
                 {% if request.cookies.get('user_auth') %}
                 <form method="GET" action="{{ url_for('order.confirm_order_page') }}">
-                    <button type="submit" class="btn btn-primary checkout-btn">
+                    <button type="submit" class="btn-primary checkout-btn">
                         <i class="fa fa-shopping-cart"></i> إتمام الشراء
                     </button>
                 </form>
@@ -394,7 +116,6 @@
             </div>
             {% endif %}
         </div>
-    </div>
 
     <!-- {# JavaScript لتفعيل إغلاق رسائل الفلاش (إذا كنت لا تستخدم Bootstrap JS) #} -->
     <script>

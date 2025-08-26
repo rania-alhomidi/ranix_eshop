@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/index.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/header.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/css/shop_u.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/css/user.css')}}">
+
 
     <script src="{{ url_for('static', filename='style/js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='style/js/bootstrap.bundle.min.js') }}"></script>
@@ -697,7 +699,7 @@
 
 
     <section class="trending-categories-section">
-        <div class="container">
+        <div class="">
             <div class="section-header">
                 <h2 class="section-title">الأقسام الأكثر زيارة</h2>
                 <!-- <p class="section-subtitle">اكتشف الأقسام الرائجة بين عملائنا</p> -->
@@ -744,7 +746,7 @@
 
 
     <div class="modern-products mt-5">
-        <div class="container">
+        <div class="">
             <h1 class="modern-title">المنتجات الأكثر مبيعاً</h1>
             <div class="row">
                 {% for product in most_bought_products %}
