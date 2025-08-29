@@ -29,7 +29,7 @@
 }
 
 body {
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     color: var(--text);
     padding-top: 80px;
     
@@ -48,6 +48,44 @@ a:hover {
     /* يمكنك إضافة تأثيرات أخرى هنا مثل: */
     /* text-decoration: underline; */
 }
+ .nav-link {
+        color: #000000;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #000000; /* Blue color on hover */
+    }
+
+    /* Style for the notification bell icon */
+    .fa-bell {
+        /* Add some effects to the bell icon for better visual appeal */
+        transition: transform 0.3s ease;
+    }
+    
+    .nav-link:hover .fa-bell {
+        transform: scale(1.1); /* Slightly enlarge the icon on hover */
+    }
+
+    /* Style for the notification count badge */
+    #navbar-notification-count {
+        font-size: 0.7rem;
+        font-weight: bold;
+        padding: 0.25em 0.5em;
+        border-radius: 50%; /* Make the badge perfectly round */
+        background-color: #dc3545; /* Red color for unread notifications */
+        color: white;
+        /* Position adjustments */
+        top: 0;
+        left: 100%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* Optional: Hide the badge if the count is zero to prevent an empty circle */
+    .nav-link:not(.has-notifications) #navbar-notification-count {
+        display: none;
+    }
 /* الهيدر الفريد */
 .premium-header {
     position: fixed;

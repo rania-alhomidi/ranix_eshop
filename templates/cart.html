@@ -15,25 +15,23 @@
             <i class="fas fa-shopping-cart action-icon"></i>
         </header>
 
-
-            {% if cart %}
-
-            <div class="cart-items">
-                {% for item in cart %}
-                <a href="{{ url_for('product.product_details', product_id=item.product_id) }}">
+        {% if cart %}
+        <div class="cart-items">
+            {% for item in cart %}
+            <a href="{{ url_for('product.product_details', product_id=item.product_id) }}" style="text-decoration: none; color: inherit;">
                 <div class="cart-item">
                     <div class="product-info">
                         {% if item.image %}
                         {% set image_path_no_static = item.image.replace('static/', '', 1) %}
                         <img src="{{ url_for('static', filename=image_path_no_static) }}" alt="صورة {{ item.name }}"
-                        width="70" class="img-thumbnail">
+                        width="70" height="70">
                         {% else %}
-                            <span class="text-muted">لا توجد صورة</span>
-                            {% endif %}
-                            <div class="product-details">
-                                <h5>{{ item.name }}</h5>
-                                <span class="mobile-label d-md-none">السعر: {{ item.price }} ريال</span>
-                            </div>
+                        <span class="text-muted">لا توجد صورة</span>
+                        {% endif %}
+                        <div class="product-details">
+                            <h5>{{ item.name }}</h5>
+                            <span class="mobile-label d-md-none">السعر: {{ item.price }} ريال</span>
+                        </div>
                     </div>
 
                     <div class="price d-none d-md-block">
@@ -64,58 +62,67 @@
                         {{ (item.price * item.quantity) | round(2) }} ريال
                     </div>
                 </div>
-                {% endfor %}
-            </div>
             </a>
-            <div class="cart-summary">
-                {# ملاحظة: subtotal هنا يتم حسابه كتحقق، ولكن total_price و total_items_count
-                يجب أن يأتيان من Flask (كما تم تعديل cart_routes.py) #}
-                {% set subtotal_check = 0 %}
-                {% for item in cart %}
-                {% set subtotal_check = subtotal_check + (item.price * item.quantity) %}
-                {% endfor %}
+            {% endfor %}
+        </div>
 
-
-                <div class="summary-row">
-                    <span>إجمالي عدد المنتجات:</span>
-                    <span>{{ total_items_count }}</span> {# هذا المتغير يأتي من Flask #}
-                </div>
-                <div class="summary-row total-row">
-                    <span>المجموع الكلي:</span>
-                    <span>{{ total_price | round(2) }} ريال</span> {# هذا المتغير يأتي من Flask #}
-                </div>
-
-                {% if request.cookies.get('user_auth') %}
-                <form method="GET" action="{{ url_for('order.confirm_order_page') }}">
-                    <button type="submit" class="btn-primary checkout-btn">
-                        <i class="fa fa-shopping-cart"></i> إتمام الشراء
-                    </button>
-                </form>
-                {% else %}
-                <div class="alert alert-warning mt-3">
-                    <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
-                    <a href="{{ url_for('user.login') }}?next={{ url_for('cart.view_cart') }}"
-                        class="btn btn-sm btn-primary">
-                        <i class="fa fa-sign-in"></i> تسجيل الدخول
-                    </a>
-                </div>
-                {% endif %}
-
-                <form method="POST" action="{{ url_for('cart.clear_cart') }}"
-                    onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
-                    <button type="submit" class="btn btn-outline-danger empty-cart-btn">
-                        <i class="fa fa-trash"></i> تفريغ السلة
-                    </button>
-                </form>
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>إجمالي عدد المنتجات:</span>
+                <span>{{ total_items_count }}</span>
             </div>
+            <div class="summary-row total-row">
+                <span>المجموع الكلي:</span>
+                <span>{{ total_price | round(2) }} ريال</span>
+            </div>
+
+            {% if request.cookies.get('user_auth') %}
+            <form method="GET" action="{{ url_for('order.confirm_order_page') }}">
+                <button type="submit" class="checkout-btn">
+                    <i class="fa fa-shopping-cart"></i> إتمام الشراء
+                </button>
+            </form>
             {% else %}
-            <div class="alert alert-info empty-cart-message">
-                <h4>عربة التسوق فارغة</h4>
-                <p>لم تقم بإضافة أي منتجات إلى عربة التسوق بعد.</p>
-                <a href="{{ url_for('product.index') }}" class="btn btn-primary">تصفح المنتجات</a>
+            <div class="alert alert-warning">
+                <p>يجب تسجيل الدخول لإتمام عملية الشراء</p>
+                <a href="{{ url_for('user.login') }}?next={{ url_for('cart.view_cart') }}" class="btn btn-primary">
+                    <i class="fa fa-sign-in"></i> تسجيل الدخول
+                </a>
             </div>
             {% endif %}
+
+            <form method="POST" action="{{ url_for('cart.clear_cart') }}"
+                onsubmit="return confirm('هل أنت متأكد من أنك تريد تفريغ السلة؟');">
+                <button type="submit" class="empty-cart-btn">
+                    <i class="fa fa-trash"></i> تفريغ السلة
+                </button>
+            </form>
         </div>
+        {% else %}
+        <div class="alert alert-info">
+            <h4>عربة التسوق فارغة</h4>
+            <p>لم تقم بإضافة أي منتجات إلى عربة التسوق بعد.</p>
+            <a href="{{ url_for('product.index') }}" class="btn btn-primary">تصفح المنتجات</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // إضافة تأثيرات تفاعلية بسيطة
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                });
+            });
+        });
+    </script>
+</body>
 
     <!-- {# JavaScript لتفعيل إغلاق رسائل الفلاش (إذا كنت لا تستخدم Bootstrap JS) #} -->
     <script>

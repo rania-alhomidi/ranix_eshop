@@ -2,7 +2,7 @@
 
 {% include 'header_shop.html' %}
 
-<div class="container">
+
     <header>
         <h1>إضافة عنوان جديد</h1>
     </header>
@@ -55,7 +55,7 @@
                 <label for="is_default">تعيين كعنوان افتراضي</label>
             </div>
 
-            <button type="submit" class="btn btn-primary">حفظ العنوان</button>
+            <button type="submit" class="checkout-btn">حفظ العنوان</button>
             <a href="{{ url_for('order.confirm_order_page') }}" class="btn btn-secondary">العودة لصفحة الطلب</a>
         </form>
     </main>
