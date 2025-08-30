@@ -263,14 +263,31 @@ def product_details(product_id):
         SELECT * FROM product_image WHERE product_id = ? ORDER BY is_main DESC
     ''', (product_id,)).fetchall()
 
+# استعلام محسن للمنتجات المشابهة
     related_products = conn.execute('''
-        SELECT p.id, p.name, COALESCE(p.image, 'static/uploads/products/default_product.jpg') AS image, pr.profit_price
+        SELECT 
+            p.id, 
+            p.name, 
+            COALESCE(pi.image_path, 'uploads/products/default_product.jpg') AS image, 
+            pr.profit_price,
+            -- معيار التشابه: نفس القسم + نفس نطاق السعر تقريبًا (±20%)
+            (CASE 
+                WHEN p.category_id = (SELECT category_id FROM product WHERE id = ?) THEN 1 ELSE 0 
+            END) * 2 +
+            (CASE 
+                WHEN pr.profit_price BETWEEN (SELECT pr2.profit_price * 0.8 FROM prices pr2 JOIN product p2 ON p2.price_id = pr2.id WHERE p2.id = ?)
+                                        AND (SELECT pr2.profit_price * 1.2 FROM prices pr2 JOIN product p2 ON p2.price_id = pr2.id WHERE p2.id = ?) THEN 1 
+                ELSE 0 
+            END) AS similarity_score
         FROM product p
         LEFT JOIN prices pr ON p.price_id = pr.id
-        WHERE p.category_id = (SELECT category_id FROM product WHERE id = ?) AND p.id != ?
+        -- انضم لجلب الصورة الرئيسية للمنتج
+        LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.is_main = 1
+        WHERE p.id != ?
+        -- رتب النتائج بناء على درجة التشابه (الأعلى أولاً) ثم بشكل عشوائي قليلاً للتنويع
+        ORDER BY similarity_score DESC, RANDOM()
         LIMIT 4
-    ''', (product_id, product_id)).fetchall()
-    
+    ''', (product_id, product_id, product_id, product_id)).fetchall()
     # *** هنا نمرر الأقسام الرئيسية للشريط ***
     main_categories_for_navbar = get_main_categories_for_navbar()
 

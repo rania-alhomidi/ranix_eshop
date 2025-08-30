@@ -174,6 +174,77 @@ cursor = conn.cursor()
 # ''')
 
 
+
+
+# cursor.execute('''
+# CREATE TABLE IF NOT EXISTS cust_addresses (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     user_id INTEGER NOT NULL,
+#     address_type TEXT,                -- نوع العنوان (مثل: 'المنزل', 'العمل', 'أخرى')
+#     recipient_name TEXT,              -- اسم المستلم لهذا العنوان
+#     recipient_phone TEXT NOT NULL,    -- رقم هاتف المستلم (مطلوب)
+#     city TEXT NOT NULL,               -- المدينة (مطلوب)
+#     region TEXT,                      -- المنطقة أو الحي
+#     full_address_description TEXT NOT NULL, -- الوصف التفصيلي للعنوان (مطلوب)
+#     latitude REAL,                    -- إحداثيات خط العرض (اختياري، للخرائط)
+#     longitude REAL,                   -- إحداثيات خط الطول (اختياري، للخرائط)
+#     is_default INTEGER DEFAULT 0,     -- 1 إذا كان العنوان افتراضيًا، 0 خلاف ذلك
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- وقت إنشاء السجل
+#     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- وقت آخر تحديث للسجل
+
+#     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+#     -- هذا السطر يفترض وجود جدول 'users' وأن عمود المعرف فيه اسمه 'id'.
+#     -- ON DELETE CASCADE يعني إذا تم حذف المستخدم، تُحذف جميع عناوينه تلقائياً.
+# );''')
+
+
+
+
+
+
+
+
+# اعلانات
+# cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS ads (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         seller_id INTEGER NOT NULL,
+#         title TEXT NOT NULL,
+#         description TEXT,
+#         content_type TEXT NOT NULL,  -- 'image', 'video', 'text'
+#         content_path TEXT,           -- مسار الملف أو النص
+#         link_url TEXT NOT NULL,
+#         start_date TEXT NOT NULL,    -- 'YYYY-MM-DD'
+#         end_date TEXT NOT NULL,
+#         is_active INTEGER DEFAULT 1, -- 1/0
+#         order_index INTEGER DEFAULT 0,
+#         click_count INTEGER DEFAULT 0, -- إضافة عداد النقرات
+#         impression_count INTEGER DEFAULT 0, -- عداد المشاهدات
+#         priority INTEGER DEFAULT 1,   -- أولوية العرض (1-10)
+#         target_audience TEXT,        -- جمهور مستهدف (اختياري)
+#         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#         FOREIGN KEY (seller_id) REFERENCES sellers(id) ON DELETE CASCADE
+#     );
+# ''')
+# اشعارات
+
+# cursor.execute('''
+# CREATE TABLE IF NOT EXISTS notifications (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     user_id INTEGER NOT NULL,
+#     title TEXT NOT NULL,
+#     message TEXT NOT NULL,
+#     notification_type TEXT NOT NULL, -- 'order', 'system', 'promotion'
+#     is_read BOOLEAN DEFAULT 0,
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     related_id INTEGER, -- order_id أو أي معرف مرتبط
+#     FOREIGN KEY (user_id) REFERENCES users(id)
+# );''')
+# conn.commit()
+
+
+
+
 # cursor.execute('''
 #     CREATE TABLE payment_methods (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -289,72 +360,6 @@ cursor = conn.cursor()
 #     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL
 # );
 # ''')
-
-# cursor.execute('''
-# CREATE TABLE IF NOT EXISTS cust_addresses (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     user_id INTEGER NOT NULL,
-#     address_type TEXT,                -- نوع العنوان (مثل: 'المنزل', 'العمل', 'أخرى')
-#     recipient_name TEXT,              -- اسم المستلم لهذا العنوان
-#     recipient_phone TEXT NOT NULL,    -- رقم هاتف المستلم (مطلوب)
-#     city TEXT NOT NULL,               -- المدينة (مطلوب)
-#     region TEXT,                      -- المنطقة أو الحي
-#     full_address_description TEXT NOT NULL, -- الوصف التفصيلي للعنوان (مطلوب)
-#     latitude REAL,                    -- إحداثيات خط العرض (اختياري، للخرائط)
-#     longitude REAL,                   -- إحداثيات خط الطول (اختياري، للخرائط)
-#     is_default INTEGER DEFAULT 0,     -- 1 إذا كان العنوان افتراضيًا، 0 خلاف ذلك
-#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- وقت إنشاء السجل
-#     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- وقت آخر تحديث للسجل
-
-#     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-#     -- هذا السطر يفترض وجود جدول 'users' وأن عمود المعرف فيه اسمه 'id'.
-#     -- ON DELETE CASCADE يعني إذا تم حذف المستخدم، تُحذف جميع عناوينه تلقائياً.
-# );''')
-
-
-
-
-
-
-
-
-# اعلانات
-# cursor.execute('''
-#     CREATE TABLE IF NOT EXISTS ads (
-#         id INTEGER PRIMARY KEY AUTOINCREMENT,
-#         seller_id INTEGER NOT NULL,
-#         title TEXT NOT NULL,
-#         description TEXT,
-#         content_type TEXT NOT NULL,  -- 'image', 'video', 'text'
-#         content_path TEXT,           -- مسار الملف أو النص
-#         link_url TEXT NOT NULL,
-#         start_date TEXT NOT NULL,    -- 'YYYY-MM-DD'
-#         end_date TEXT NOT NULL,
-#         is_active INTEGER DEFAULT 1, -- 1/0
-#         order_index INTEGER DEFAULT 0,
-#         click_count INTEGER DEFAULT 0, -- إضافة عداد النقرات
-#         impression_count INTEGER DEFAULT 0, -- عداد المشاهدات
-#         priority INTEGER DEFAULT 1,   -- أولوية العرض (1-10)
-#         target_audience TEXT,        -- جمهور مستهدف (اختياري)
-#         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#         FOREIGN KEY (seller_id) REFERENCES sellers(id) ON DELETE CASCADE
-#     );
-# ''')
-# اشعارات
-
-# cursor.execute('''
-# CREATE TABLE IF NOT EXISTS notifications (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     user_id INTEGER NOT NULL,
-#     title TEXT NOT NULL,
-#     message TEXT NOT NULL,
-#     notification_type TEXT NOT NULL, -- 'order', 'system', 'promotion'
-#     is_read BOOLEAN DEFAULT 0,
-#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#     related_id INTEGER, -- order_id أو أي معرف مرتبط
-#     FOREIGN KEY (user_id) REFERENCES users(id)
-# );''')
-# conn.commit()
 
 
 

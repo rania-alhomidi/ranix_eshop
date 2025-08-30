@@ -1,13 +1,13 @@
 /*user.css  */
     .container {
-        max-width: 600px;
+        /* max-width: 600px;
         margin: 20px auto;
         background-color: #f6f4f4;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow);
         overflow: hidden;
         display: flex;
-        flex-direction: column;
+        flex-direction: column; */
         /* flex-grow: 1; */
     }
 a {

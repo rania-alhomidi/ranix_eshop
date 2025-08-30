@@ -203,6 +203,82 @@
     </div>
 </section>
 
+<!-- المنتجات المشابهه -->
+<style>
+    /* أنماط قسم المنتجات المشابهة */
+    .related-products-section {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+    }
+    .related-products-section .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .related-products-section .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .related-products-section .card-img-top {
+        padding: 15px;
+    }
+</style>
+<!-- بداية قسم المنتجات المشابهة -->
+<!-- ... الكود الأصلي لصفحة المنتج ... -->
+
+</section> <!-- نهاية section.product-details-section -->
+
+<!-- بداية قسم المنتجات المشابهة -->
+<section class="modern-products py-5" style="background-color: #f8f9fa; border-radius: 15px;">
+    <div class="container">
+        <h3 class="modern-title text-center mb-4">منتجات قد تعجبك أيضًا</h3>
+        <div class="row">
+            {% for related_product in related_products %}
+            <div class="col-6 col-lg-3 mb-4">
+                <div class="modern-card">
+                    <button class="like-btn" data-product-id="{{ related_product.id }}">
+                        <i class="fa fa-heart"></i>
+                    </button>
+                    
+                    <a href="{{ url_for('product.product_details', product_id=related_product.id) }}" class="modern-card-link">
+                        <div class="modern-img-container">
+                            <img src="{{ url_for('static', filename=related_product.image.replace('static/', '')) }}"
+                                alt="{{ related_product.name }}" class="modern-img">
+                        </div>
+
+                        <div class="modern-card-body">
+                            <h5 class="modern-product-title">{{ related_product.name }}</h5>
+                            <p class="modern-product-price">ر.ي{{ related_product.profit_price }}</p>
+                            
+                            <div class="modern-btn-group">
+                                <form class="add-to-cart-form d-inline" method="POST"
+                                    action="{{ url_for('cart.add_to_cart', product_id=related_product.id) }}">
+                                    <input type="hidden" name="name" value="{{ related_product.name }}">
+                                    <input type="hidden" name="price" value="{{ related_product.profit_price }}">
+                                    <input type="hidden" name="image_url" value="{{ related_product.image }}">
+                                    <input type="hidden" name="description" value="{{ related_product.description }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="modern-btn modern-btn-primary">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('product.product_details', product_id=related_product.id) }}"
+                                    class="modern-btn modern-btn-secondary">
+                                    <i class="fa fa-info-circle"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- نهاية قسم المنتجات المشابهة -->
+
+
+<!-- نهاية قسم المنتجات المشابهة -->
+<!-- نهايه كود المنتجات المشابهة -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/zoom/lg-zoom.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js"></script>
