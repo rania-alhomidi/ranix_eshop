@@ -2,7 +2,7 @@
 <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery-bundle.min.css" />
 
 <style>
-    /* ... احتفظ بجميع قواعد الـ CSS الخاصة بك كما هي، بما في ذلك قواعد الزووم بالتحويم ... */
+    /* أنماط تفاصيل المنتج الرئيسية */
     .product-details-section {
         padding: 3rem 0;
     }
@@ -27,7 +27,7 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        cursor: zoom-in; /* لتكبير الكمبيوتر */
+        cursor: zoom-in;
     }
     .main-image {
         max-width: 100%;
@@ -36,7 +36,7 @@
         transition: transform 0.3s ease-out;
         transform-origin: center center;
     }
-    .main-image-container:hover .main-image { /* زووم الكمبيوتر */
+    .main-image-container:hover .main-image {
         transform: scale(1.5);
     }
     .thumbnail-gallery {
@@ -62,16 +62,14 @@
         object-fit: cover;
     }
     .seller-link {
-    color: #e83e8c;
-    text-decoration: underline;
-    cursor: pointer;
-    transition: color 0.3s ease;
+        color: #e83e8c;
+        text-decoration: underline;
+        cursor: pointer;
+        transition: color 0.3s ease;
     }
-
     .seller-link:hover {
         color: #c82368;
     }
-
     .product-badge {
         position: absolute;
         top: 10px;
@@ -139,6 +137,109 @@
         font-size: 1.1rem;
         font-weight: bold;
     }
+    
+    /* أنماط قسم التقييمات والمراجعات */
+    .rating-form-container {
+        background-color: #f8f9fa;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .rating-form-container h4 {
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+    .rating-form-container .stars {
+        font-size: 1.5rem;
+        color: #ccc;
+        cursor: pointer;
+    }
+    .rating-form-container .stars .fa-star,
+    .rating-form-container .stars .checked {
+        color: #ffc107;
+    }
+    .review-item {
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+    .review-item strong {
+        color: #2c3e50;
+    }
+    .review-item small {
+        margin-right: auto;
+    }
+    .reviews-section h3 {
+        margin-bottom: 2rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* أنماط قسم المنتجات المشابهة */
+    .related-products-section {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+    }
+    .related-products-section .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .related-products-section .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .related-products-section .card-img-top {
+        padding: 15px;
+    }
+
+
+    .product-rating .fa-star.checked,
+.product-rating .fa-star-half-o.checked {
+    color: #FFD700; /* اللون الذهبي */
+}
+
+/* يمكنك استخدام هذا الكود أيضًا إذا لم ينجح الكود السابق */
+.product-rating .checked {
+    color: #FFD700 !important;
+}
+
+.reviews-section .rating-stars .fa-star {
+    color: #ffc107; /* اللون الذهبي للنجوم الممتلئة */
+}
+
+
+/* أنماط النجوم الذهبية (التي تم تحديدها أو تقييمها) */
+.product-rating .fa-star.checked,
+.product-rating .fa-star-half-o.checked,
+.reviews-section .rating-stars .fa-star {
+    color: #FFD700; /* اللون الذهبي */
+}
+
+/* أنماط النجوم الفارغة (التي لم يتم تحديدها أو تقييمها) - اجعلها بيضاء */
+.product-rating .fa-star-o,
+.reviews-section .rating-stars .fa-star-o {
+    color: #dcd9d9; /* اللون الأبيض */
+}
+
+.btn-primary-alt {
+    background-color: #ba4ac2;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px 20px;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary-alt:hover {
+    background-color: #a03cbb;
+}
+
+.d-none {
+    display: none;
+}
+
 </style>
 
 <section class="product-details-section">
@@ -165,24 +266,36 @@
                         <h2 class="product-title">
                             <a href="{{ url_for('product.product_details', product_id=product.id) }}">{{ product.name }}</a>
                         </h2>
+                        <div class="product-rating">
+                            {% set full_stars = avg_rating | int %}
+                            {% set has_half_star = (avg_rating - full_stars) >= 0.5 %}
+                            {% for _ in range(full_stars) %}
+                                <span class="fa fa-star checked"></span>
+                            {% endfor %}
+                            {% if has_half_star %}
+                                <span class="fa fa-star-half-o checked"></span>
+                            {% endif %}
+                            {% for _ in range(5 - full_stars - (1 if has_half_star else 0)) %}
+                                <span class="fa fa-star-o"></span>
+                            {% endfor %}
+                            <span class="rating-text"> ({{ avg_rating | round(1) }} من 5) </span>
+                            <span class="review-count"> ({{ total_ratings }} تقييم)</span>
+                        </div>
                         <div class="product-price">
                             {{ product.profit_price }} ر.ي
                         </div>
                         <div class="product-description">
                             {{ product.description }}
                         </div>
-
                         <div class="meta-item"><strong>الكمية المتوفرة:</strong> {{ product.quantity }}</div>
                         <div class="meta-item"><strong>القسم:</strong> {{ product.category }}</div>
                         <div class="meta-item">
                             <strong>البائع:</strong>
-                            <a href="{{ url_for('seller.seller_products', seller_id=product.seller_id) }}"
-                               class="meta-value seller-link">
+                            <a href="{{ url_for('seller.seller_products', seller_id=product.seller_id) }}" class="meta-value seller-link">
                                 {{ product.seller }} <i class="fas fa-link"></i>
                             </a>
                         </div>
                         <div class="meta-item"><strong>الموقع:</strong> {{ product.address }}</div>
-
                         <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" class="add-to-cart-form">
                             <input type="hidden" name="name" value="{{ product.name }}">
                             <input type="hidden" name="price" value="{{ product.profit_price }}">
@@ -203,30 +316,86 @@
     </div>
 </section>
 
-<!-- المنتجات المشابهه -->
-<style>
-    /* أنماط قسم المنتجات المشابهة */
-    .related-products-section {
-        background-color: #f8f9fa;
-        border-radius: 15px;
-    }
-    .related-products-section .product-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .related-products-section .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    }
-    .related-products-section .card-img-top {
-        padding: 15px;
-    }
-</style>
-<!-- بداية قسم المنتجات المشابهة -->
-<!-- ... الكود الأصلي لصفحة المنتج ... -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="rating-form-container">
+                <h4>أضف تقييمك لهذا المنتج</h4>
+                <form id="rating-form">
+                    <div class="form-group">
+                        <label for="rating-stars">تقييمك:</label>
+                        <div class="stars" id="rating-stars">
+                            <span class="fa fa-star-o" data-value="1"></span>
+                            <span class="fa fa-star-o" data-value="2"></span>
+                            <span class="fa fa-star-o" data-value="3"></span>
+                            <span class="fa fa-star-o" data-value="4"></span>
+                            <span class="fa fa-star-o" data-value="5"></span>
+                        </div>
+                        <input type="hidden" name="rating" id="selected-rating" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-text">مراجعتك (اختياري):</label>
+                        <textarea id="review-text" name="review_text" rows="4" class="form-control"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">إرسال التقييم</button>
+                </form>
+            </div>
+            
+<div class="reviews-section mt-5">
+    <h3>مراجعات وتقييمات المستخدمين</h3>
+    {% if ratings %}
+        <ul id="visible-reviews" class="list-unstyled">
+        {% for rating in ratings[:5] %}
+            <li class="review-item border-bottom pb-3 mb-3">
+                <div class="d-flex align-items-center mb-2">
+                    <strong>{{ rating.user_name }}</strong>
+                    <div class="rating-stars mx-2">
+                        {% for _ in range(rating.rating) %}
+                            <span class="fa fa-star checked"></span>
+                        {% endfor %}
+                        {% for _ in range(5 - rating.rating) %}
+                            <span class="fa fa-star-o"></span>
+                        {% endfor %}
+                    </div>
+                    <small class="text-muted">{{ rating.created_at }}</small>
+                </div>
+                <p>{{ rating.review_text }}</p>
+            </li>
+        {% endfor %}
+        </ul>
 
-</section> <!-- نهاية section.product-details-section -->
+        {% if ratings | length > 5 %}
+        <ul id="hidden-reviews" class="list-unstyled d-none">
+            {% for rating in ratings[5:] %}
+            <li class="review-item border-bottom pb-3 mb-3">
+                <div class="d-flex align-items-center mb-2">
+                    <strong>{{ rating.user_name }}</strong>
+                    <div class="rating-stars mx-2">
+                        {% for _ in range(rating.rating) %}
+                            <span class="fa fa-star checked"></span>
+                        {% endfor %}
+                        {% for _ in range(5 - rating.rating) %}
+                            <span class="fa fa-star-o"></span>
+                        {% endfor %}
+                    </div>
+                    <small class="text-muted">{{ rating.created_at }}</small>
+                </div>
+                <p>{{ rating.review_text }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="text-center mt-3">
+            <button id="show-more-reviews" class="btn btn-primary-alt">عرض جميع المراجعات ({{ ratings | length - 5 }})</button>
+        </div>
+        {% endif %}
 
-<!-- بداية قسم المنتجات المشابهة -->
+    {% else %}
+        <p>لا توجد تقييمات لهذا المنتج بعد. كن أول من يقيّمه!</p>
+    {% endif %}
+</div>
+        </div>
+    </div>
+</div>
 <section class="modern-products py-5" style="background-color: #f8f9fa; border-radius: 15px;">
     <div class="container">
         <h3 class="modern-title text-center mb-4">منتجات قد تعجبك أيضًا</h3>
@@ -243,11 +412,9 @@
                             <img src="{{ url_for('static', filename=related_product.image.replace('static/', '')) }}"
                                 alt="{{ related_product.name }}" class="modern-img">
                         </div>
-
                         <div class="modern-card-body">
                             <h5 class="modern-product-title">{{ related_product.name }}</h5>
                             <p class="modern-product-price">ر.ي{{ related_product.profit_price }}</p>
-                            
                             <div class="modern-btn-group">
                                 <form class="add-to-cart-form d-inline" method="POST"
                                     action="{{ url_for('cart.add_to_cart', product_id=related_product.id) }}">
@@ -273,16 +440,9 @@
         </div>
     </div>
 </section>
-<!-- نهاية قسم المنتجات المشابهة -->
-
-
-<!-- نهاية قسم المنتجات المشابهة -->
-<!-- نهايه كود المنتجات المشابهة -->
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/zoom/lg-zoom.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -310,33 +470,19 @@
         // --- تهيئة LightGallery لزووم الموبايل (والكمبيوتر بالنقر) ---
         const mainImageContainer = document.querySelector('.main-image-container');
         const mainProductImage = document.getElementById('main-product-image');
-        const thumbnailGallery = document.querySelector('.thumbnail-gallery');
-
         let galleryItems = [];
-        // إضافة الصورة الرئيسية كعنصر في المعرض
-        galleryItems.push({
-            src: mainProductImage.src,
-            thumb: mainProductImage.src
-        });
-
-        // إضافة الصور المصغرة كعناصر في المعرض
+        galleryItems.push({ src: mainProductImage.src, thumb: mainProductImage.src });
         document.querySelectorAll('.thumbnail').forEach(thumb => {
-            galleryItems.push({
-                src: thumb.src,
-                thumb: thumb.src
-            });
+            galleryItems.push({ src: thumb.src, thumb: thumb.src });
         });
-
-        // عند النقر على حاوية الصورة الرئيسية، افتح LightGallery
         mainImageContainer.addEventListener('click', () => {
             const currentImageSrc = mainProductImage.src;
             const startIndex = galleryItems.findIndex(item => item.src === currentImageSrc);
-
             lightGallery(mainImageContainer, {
                 dynamic: true,
                 dynamicEl: galleryItems,
                 index: startIndex !== -1 ? startIndex : 0,
-                plugins: [lgZoom, lgThumbnail], // تأكد من إزالة التعليق هنا
+                plugins: [lgZoom, lgThumbnail],
                 closable: true,
                 controls: true,
                 loop: true,
@@ -345,23 +491,112 @@
         });
 
         // --- وظيفة إضافة المنتج إلى السلة (SweetAlert) ---
-        const form = document.querySelector('.add-to-cart-form');
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const res = await fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
+        const cartForms = document.querySelectorAll('.add-to-cart-form');
+        cartForms.forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire({ title: 'تمت الإضافة!', text: data.message, icon: 'success', timer: 1500, showConfirmButton: false });
+                } else {
+                    Swal.fire('خطأ', data.message || 'حدث خطأ.', 'error');
+                }
             });
-            const data = await res.json();
-            if (data.success) {
-                Swal.fire({ title: 'تمت الإضافة!', text: data.message, icon: 'success', timer: 1500, showConfirmButton: false });
-            } else {
-                Swal.fire('خطأ', data.message || 'حدث خطأ.', 'error');
-            }
         });
+        
+        // --- خاص ب تقييمات المستخدم (AJAX و SweetAlert) ---
+        const ratingForm = document.getElementById('rating-form');
+        if (ratingForm) {
+            const stars = document.querySelectorAll('.rating-form-container .stars .fa-star-o, .rating-form-container .stars .fa-star');
+            const selectedRatingInput = document.getElementById('selected-rating');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = this.dataset.value;
+                    selectedRatingInput.value = value;
+                    stars.forEach(s => {
+                        if (s.dataset.value <= value) {
+                            s.classList.replace('fa-star-o', 'fa-star');
+                            s.classList.add('checked');
+                        } else {
+                            s.classList.replace('fa-star', 'fa-star-o');
+                            s.classList.remove('checked');
+                        }
+                    });
+                });
+            });
+
+            ratingForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const rating = selectedRatingInput.value;
+                const reviewText = document.getElementById('review-text').value;
+
+                if (!rating) {
+                    Swal.fire('خطأ', 'يرجى اختيار عدد النجوم.', 'error');
+                    return;
+                }
+
+                const productId = window.location.pathname.split('/').pop();
+
+                try {
+                    const response = await fetch(`/product/${productId}/rate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ rating: rating, review_text: reviewText })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('تم!', data.message, 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('خطأ', data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('خطأ', 'حدث خطأ في الشبكة.', 'error');
+                }
+            });
+        }
     });
 </script>
 
+<!-- ظهور او اخفاء التعليقات -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... (الكود السابق) ...
+
+        // --- وظيفة عرض وإخفاء المراجعات ---
+        const showMoreBtn = document.getElementById('show-more-reviews');
+        const hiddenReviews = document.getElementById('hidden-reviews');
+
+        if (showMoreBtn && hiddenReviews) {
+            showMoreBtn.addEventListener('click', function() {
+                // تحقق مما إذا كانت المراجعات المخفية مرئية حاليًا أم لا
+                const isHidden = hiddenReviews.classList.contains('d-none');
+
+                if (isHidden) {
+                    // إذا كانت مخفية، قم بإظهارها
+                    hiddenReviews.classList.remove('d-none');
+                    showMoreBtn.textContent = 'إخفاء المراجعات';
+                } else {
+                    // إذا كانت مرئية، قم بإخفائها
+                    hiddenReviews.classList.add('d-none');
+                    // قم بالتمرير إلى أعلى الصفحة (أو إلى قسم المراجعات)
+                    window.scrollTo({
+                        top: hiddenReviews.offsetTop - 100, // يمكنك تعديل القيمة حسب الحاجة
+                        behavior: 'smooth'
+                    });
+                    showMoreBtn.textContent = 'عرض جميع المراجعات';
+                }
+            });
+        }
+    });
+</script>
 {% include 'footer.html' %}

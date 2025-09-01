@@ -242,8 +242,20 @@ cursor = conn.cursor()
 # );''')
 # conn.commit()
 
-
-
+# خاص ب تقييمات المنتج من قبل المستخدم
+# cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS product_ratings (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         product_id INTEGER NOT NULL,
+#         user_id INTEGER NOT NULL,
+#         rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+#         review_text TEXT,
+#         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#         FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE,
+#         FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+#         -- لمنع المستخدم من تقييم نفس المنتج أكثر من مرة
+#         UNIQUE(product_id, user_id)
+# );''')
 
 # cursor.execute('''
 #     CREATE TABLE payment_methods (
@@ -376,12 +388,12 @@ cursor = conn.cursor()
 # newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
 # print(newdata)
 
-cursor.execute("SELECT * FROM cust_addresses")  # استعلام عن كل البيانات
-rows = cursor.fetchall()  # جلب جميع الصفوف
-print("البيانات الموجودة في قاعدة البيانات:", rows)
+# cursor.execute("SELECT * FROM cust_addresses")  # استعلام عن كل البيانات
+# rows = cursor.fetchall()  # جلب جميع الصفوف
+# print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-for row in rows:
-    print(row)
+# for row in rows:
+#     print(row)
 
 # cursor.execute('''ALTER TABLE orders ADD COLUMN payment_method INTEGER ;''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_new BOOLEAN DEFAULT TRUE;''')
@@ -392,12 +404,12 @@ for row in rows:
 # cursor.execute('DROP TABLE IF EXISTS Order_Items')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-# tables = cursor.fetchall()  # جلب النتائج
-# # print("الجداول الموجودة في قاعدة البيانات:", tables)
+cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+tables = cursor.fetchall()  # جلب النتائج
+# print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-# newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
-# print(newdata)
+newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
+print(newdata)
 
 
 # cursor.execute("PRAGMA table_info(orders);")

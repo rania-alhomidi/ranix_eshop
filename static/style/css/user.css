@@ -725,7 +725,7 @@ a:hover {
         }
         
         .btn-primary:hover {
-            background: #3a5bd9;
+            background:var(--secondary-color);
         }
         
         /* وسائط الاستعلام للتجاوب */

@@ -230,10 +230,13 @@ def show_products_by_category(category_id):
                             )
 
 
+# ... (الكود السابق) ...
+
 @product_bp.route('/product/<int:product_id>', methods=['GET'])
 def product_details(product_id):
     conn = get_db_connection()
 
+    # جلب تفاصيل المنتج (الكود الحالي لديك)
     product = conn.execute('''
         SELECT
             p.id,
@@ -259,47 +262,52 @@ def product_details(product_id):
     if product is None:
         return "المنتج غير موجود", 404
 
+    # جلب جميع التقييمات لهذا المنتج
+    ratings = conn.execute('''
+        SELECT 
+            r.rating,
+            r.review_text,
+            r.created_at,
+            u.name AS user_name
+        FROM product_ratings r
+        JOIN user u ON r.user_id = u.id
+        WHERE r.product_id = ?
+        ORDER BY r.created_at DESC
+    ''', (product_id,)).fetchall()
+
+    # حساب متوسط التقييم وعدد التقييمات الإجمالي
+    avg_rating_row = conn.execute(
+        'SELECT AVG(rating) AS avg_rating, COUNT(id) AS total_ratings FROM product_ratings WHERE product_id = ?',
+        (product_id,)
+    ).fetchone()
+    
+    avg_rating = round(avg_rating_row['avg_rating'], 1) if avg_rating_row['avg_rating'] else 0
+    total_ratings = avg_rating_row['total_ratings']
+
     product_images = conn.execute('''
         SELECT * FROM product_image WHERE product_id = ? ORDER BY is_main DESC
     ''', (product_id,)).fetchall()
 
-# استعلام محسن للمنتجات المشابهة
     related_products = conn.execute('''
-        SELECT 
-            p.id, 
-            p.name, 
-            COALESCE(pi.image_path, 'uploads/products/default_product.jpg') AS image, 
-            pr.profit_price,
-            -- معيار التشابه: نفس القسم + نفس نطاق السعر تقريبًا (±20%)
-            (CASE 
-                WHEN p.category_id = (SELECT category_id FROM product WHERE id = ?) THEN 1 ELSE 0 
-            END) * 2 +
-            (CASE 
-                WHEN pr.profit_price BETWEEN (SELECT pr2.profit_price * 0.8 FROM prices pr2 JOIN product p2 ON p2.price_id = pr2.id WHERE p2.id = ?)
-                                        AND (SELECT pr2.profit_price * 1.2 FROM prices pr2 JOIN product p2 ON p2.price_id = pr2.id WHERE p2.id = ?) THEN 1 
-                ELSE 0 
-            END) AS similarity_score
-        FROM product p
-        LEFT JOIN prices pr ON p.price_id = pr.id
-        -- انضم لجلب الصورة الرئيسية للمنتج
-        LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.is_main = 1
-        WHERE p.id != ?
-        -- رتب النتائج بناء على درجة التشابه (الأعلى أولاً) ثم بشكل عشوائي قليلاً للتنويع
-        ORDER BY similarity_score DESC, RANDOM()
-        LIMIT 4
-    ''', (product_id, product_id, product_id, product_id)).fetchall()
-    # *** هنا نمرر الأقسام الرئيسية للشريط ***
+    SELECT * FROM product
+    WHERE id != ? AND category_id = (SELECT category_id FROM product WHERE id = ?)
+    LIMIT 4
+''', (product_id, product_id)).fetchall()
+    
     main_categories_for_navbar = get_main_categories_for_navbar()
-
     conn.close()
 
+    # تمرير البيانات الجديدة إلى القالب
     return render_template(
         'shop-details.html',
         product=product,
         product_images=product_images,
         related_products=list(related_products),
         quantity=product['quantity'],
-        main_categories=main_categories_for_navbar # <--- تم إضافة هذا
+        main_categories=main_categories_for_navbar,
+        ratings=ratings,           # قائمة بالتقييمات
+        avg_rating=avg_rating,     # متوسط التقييم
+        total_ratings=total_ratings  # إجمالي عدد التقييمات
     )
 
 @product_bp.route('/show_product1', methods=['GET'])
@@ -343,3 +351,66 @@ def show_product1(): # هذه هي دالة عرض المنتجات المميز
                             liked_products=liked_products,
                             main_categories=main_categories_for_navbar # <--- تم إضافة هذا
                             )
+
+
+# تقييمات المستخدم
+
+@product_bp.route('/product/<int:product_id>/rate', methods=['POST'])
+def add_rating(product_id):
+    # التأكد من أن المستخدم مسجل الدخول
+    user_id = request.cookies.get('user_auth')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'يجب تسجيل الدخول لإضافة تقييم.'}), 401
+
+    data = request.get_json()
+    rating = data.get('rating')
+    review_text = data.get('review_text', '')
+
+    if not rating:
+        return jsonify({'success': False, 'message': 'التقييم مطلوب.'}), 400
+
+    conn = get_db_connection()
+    try:
+        # التحقق مما إذا كان المستخدم قد قام بالتقييم من قبل
+        existing_rating = conn.execute(
+            'SELECT 1 FROM product_ratings WHERE product_id = ? AND user_id = ?',
+            (product_id, user_id)
+        ).fetchone()
+
+        if existing_rating:
+            # يمكن أن تسمح بتحديث التقييم بدلاً من منعه
+            conn.execute(
+                'UPDATE product_ratings SET rating = ?, review_text = ?, created_at = CURRENT_TIMESTAMP WHERE product_id = ? AND user_id = ?',
+                (rating, review_text, product_id, user_id)
+            )
+            message = 'تم تحديث تقييمك بنجاح!'
+        else:
+            conn.execute(
+                'INSERT INTO product_ratings (product_id, user_id, rating, review_text) VALUES (?, ?, ?, ?)',
+                (product_id, user_id, rating, review_text)
+            )
+            message = 'تم إضافة تقييمك بنجاح!'
+        
+        conn.commit()
+        
+        # إعادة حساب متوسط التقييمات وعددها
+        avg_rating_row = conn.execute(
+            'SELECT AVG(rating) AS avg_rating, COUNT(id) AS total_ratings FROM product_ratings WHERE product_id = ?',
+            (product_id,)
+        ).fetchone()
+        
+        avg_rating = round(avg_rating_row['avg_rating'], 1) if avg_rating_row['avg_rating'] else 0
+        total_ratings = avg_rating_row['total_ratings']
+        
+    except sqlite3.Error as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'خطأ في قاعدة البيانات: {str(e)}'}), 500
+    finally:
+        conn.close()
+
+    return jsonify({
+        'success': True,
+        'message': message,
+        'avg_rating': avg_rating,
+        'total_ratings': total_ratings
+    })
