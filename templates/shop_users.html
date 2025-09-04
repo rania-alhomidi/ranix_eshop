@@ -1,7 +1,4 @@
-<!-- shop_users.html -->
-
 {% include 'header.html'%}
-
 
 <div class="modern-products">
     <div class="container">
@@ -12,15 +9,16 @@
 
             <div class="col-6 col-lg-3">
                 <div class="modern-card">
-                    
+
                     {% if product.featured %}
                     <div class="featured-badge">جديد</div>
                     {% endif %}
+
                     <button class="like-btn {% if product.id in liked_products %}liked{% endif %}"
                         data-product-id="{{ product.id }}">
                         <i class="fa fa-heart"></i>
                     </button>
-                    
+
                     <a href="{{ url_for('product.product_details', product_id=product.id) }}" class="modern-card-link">
                         <div class="modern-img-container">
                             {% if product.image %}
@@ -35,6 +33,17 @@
                         <div class="modern-card-body">
                             <h5 class="modern-product-title">{{ product.name }}</h5>
 
+                            {% if product.avg_rating %}
+                            <div class="rating-stars mb-2">
+                                {% set full_stars = product.avg_rating | int %}
+                                {% for i in range(full_stars) %}
+                                <i class="fa fa-star text-warning"></i>
+                                {% endfor %}
+                                {% if product.avg_rating > full_stars %}
+                                <i class="fa fa-star-half-alt text-warning"></i>
+                                {% endif %}
+                            </div>
+                            {% endif %}
 
                             <p class="modern-product-price">
                                 ر.ي{{ product.profit_price }}
@@ -60,8 +69,8 @@
                                 </a>
                             </div>
                         </div>
+                    </a>
                 </div>
-                </a>
             </div>
             {% endif %}
             {% endfor %}

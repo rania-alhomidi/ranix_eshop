@@ -191,7 +191,7 @@ def show_products_by_category(category_id):
 
         conn.execute('UPDATE category SET view_count = view_count + 1 WHERE id = ?', (category_id,))
         conn.commit()
-
+# في دالة show_products_by_category
         products = conn.execute('''
             SELECT
                 p.id,
@@ -200,7 +200,9 @@ def show_products_by_category(category_id):
                 p.description,
                 pr.profit_price,
                 pr.original_price,
-                p.featured
+                p.featured,
+                -- ✅ إضافة حقل متوسط التقييم ✅
+                (SELECT AVG(rating) FROM product_ratings WHERE product_id = p.id) AS avg_rating
             FROM product p
             LEFT JOIN prices pr ON p.price_id = pr.id
             WHERE p.category_id = ?
@@ -289,10 +291,19 @@ def product_details(product_id):
     ''', (product_id,)).fetchall()
 
     related_products = conn.execute('''
-    SELECT * FROM product
-    WHERE id != ? AND category_id = (SELECT category_id FROM product WHERE id = ?)
-    LIMIT 4
-''', (product_id, product_id)).fetchall()
+        SELECT 
+            p.id, 
+            p.name, 
+            COALESCE(p.image, 'static/uploads/products/default_product.jpg') AS image,
+            pr.profit_price,
+            (SELECT AVG(rating) FROM product_ratings WHERE product_id = p.id) AS avg_rating
+        FROM product p
+        LEFT JOIN prices pr ON p.price_id = pr.id
+        WHERE 
+            p.id != ? AND 
+            p.category_id = (SELECT category_id FROM product WHERE id = ?)
+        LIMIT 4
+    ''', (product_id, product_id)).fetchall()
     
     main_categories_for_navbar = get_main_categories_for_navbar()
     conn.close()
@@ -302,19 +313,21 @@ def product_details(product_id):
         'shop-details.html',
         product=product,
         product_images=product_images,
-        related_products=list(related_products),
+        related_products=related_products, # ✅ تم تعديل هذا ✅
         quantity=product['quantity'],
         main_categories=main_categories_for_navbar,
-        ratings=ratings,           # قائمة بالتقييمات
-        avg_rating=avg_rating,     # متوسط التقييم
-        total_ratings=total_ratings  # إجمالي عدد التقييمات
+        ratings=ratings,
+        avg_rating=avg_rating,
+        total_ratings=total_ratings
     )
+
 
 @product_bp.route('/show_product1', methods=['GET'])
 def show_product1(): # هذه هي دالة عرض المنتجات المميزة (ربما "الكل" أو "منتجات مميزة")
     user_id = request.cookies.get('user_auth')
     conn = get_db_connection()
 
+    # في دالة show_product1
     products = conn.execute('''
         SELECT
             p.id,
@@ -325,7 +338,9 @@ def show_product1(): # هذه هي دالة عرض المنتجات المميز
             pr.profit_price,
             s.quantity,
             c.name AS category,
-            p.featured
+            p.featured,
+            -- ✅ إضافة حقل متوسط التقييم ✅
+            (SELECT AVG(rating) FROM product_ratings WHERE product_id = p.id) AS avg_rating
         FROM product p
         LEFT JOIN prices pr ON p.price_id = pr.id
         LEFT JOIN stock s ON p.stock_id = s.id

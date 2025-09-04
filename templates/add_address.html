@@ -2,9 +2,10 @@
 
 {% include 'header_shop.html' %}
 
+<div class="cart-summary">
 
     <header>
-        <h1>إضافة عنوان جديد</h1>
+        إضافة عنوان جديد
     </header>
 
     <main>
@@ -19,39 +20,42 @@
             <div class="form-group">
                 <label for="recipient_phone">رقم هاتف المستلم:</label>
                 <input type="tel" id="recipient_phone" name="recipient_phone"
-                       value="{{ recipient_phone if recipient_phone is defined else '' }}" placeholder="مثال: 771234567"
-                       required>
+                       value="{{ recipient_phone if recipient_phone is defined else '' }}" 
+                       placeholder="مثال: 771234567" required>
             </div>
 
             <div class="form-group">
                 <label for="address_type">نوع العنوان:</label>
                 <input type="text" id="address_type" name="address_type"
-                       value="{{ address_type if address_type is defined else '' }}" placeholder="مثلاً: منزل، عمل، آخر"
-                       required>
+                       value="{{ address_type if address_type is defined else '' }}" 
+                       placeholder="مثلاً: منزل، عمل، آخر" required>
             </div>
 
             <div class="form-group">
                 <label for="city">المدينة:</label>
-                <input type="text" id="city" name="city" value="{{ city if city is defined else '' }}"
-                       placeholder="مثلاً: صنعاء، عدن" required>
+                <input type="text" id="city" name="city" 
+                       value="{{ city if city is defined else '' }}"
+                       placeholder="مثلاً: تعز ، عدن" required>
             </div>
 
             <div class="form-group">
                 <label for="region">المنطقة/الحي:</label>
-                <input type="text" id="region" name="region" value="{{ region if region is defined else '' }}"
-                       placeholder="مثلاً: السنينة، الستين" required>
+                <input type="text" id="region" name="region" 
+                       value="{{ region if region is defined else '' }}"
+                       placeholder="مثلاً: الاخوه ، التحرير" required>
             </div>
 
             <div class="form-group">
                 <label for="full_address_description">الوصف التفصيلي للعنوان:</label>
                 <textarea id="full_address_description" name="full_address_description" rows="4"
-                          placeholder="الشارع، رقم المبنى، علامات مميزة (بجوار المسجد الفلاني)"
-                          required>{{ full_address_description if full_address_description is defined else '' }}</textarea>
+                          placeholder="الشارع، رقم المبنى، علامات مميزة (بجوار المسجد الفلاني)" required>
+                          {{ full_address_description if full_address_description is defined else '' }}
+                </textarea>
             </div>
 
             <div class="form-group checkbox-group">
-                <input type="checkbox" id="is_default" name="is_default" {% if is_default is defined and is_default %}
-                       checked {% endif %}>
+                <input type="checkbox" id="is_default" name="is_default"
+                       {% if is_default is defined and is_default %} checked {% endif %}>
                 <label for="is_default">تعيين كعنوان افتراضي</label>
             </div>
 
@@ -63,5 +67,7 @@
     <footer>
         <p>&copy; 2025 متجر Rezza. كل الحقوق محفوظة.</p>
     </footer>
-</div>
+
+</div> <!-- ✅ إغلاق الحاوية -->
+
 {% include 'footer.html' %}

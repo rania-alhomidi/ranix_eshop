@@ -147,28 +147,71 @@ def get_brands():
         conn.close()
     return jsonify(brands)
 
+
+
 # نقطة نهاية لاقتراحات البحث التلقائية
-@search_bp.route('/suggestions', methods=['GET'])
+@search_bp.route('/api/search_suggestions', methods=['GET'])
 def get_suggestions():
-    term = request.args.get('term', '').strip()
+    term = request.args.get('q', '').strip()
     conn = get_db_connection()
     suggestions = []
+    
     if term:
         try:
-            # البحث عن أسماء المنتجات والفئات التي تبدأ بالكلمة المدخلة
-            cursor_products = conn.execute("SELECT DISTINCT name FROM product WHERE name LIKE ? LIMIT 5", (f'{term}%',))
-            suggestions.extend([row['name'] for row in cursor_products.fetchall()])
+            # 1. البحث عن أسماء المنتجات والفئات التي تحتوي على الكلمة المدخلة
+            # هذا بحث أوسع وأكثر فعالية
+            product_results = conn.execute(
+                "SELECT DISTINCT name FROM product WHERE name LIKE ? LIMIT 5",
+                (f'%{term}%',)
+            ).fetchall()
+            suggestions.extend([row['name'] for row in product_results])
             
-            cursor_categories = conn.execute("SELECT DISTINCT name FROM category WHERE name LIKE ? LIMIT 5", (f'{term}%',))
-            suggestions.extend([row['name'] for row in cursor_categories.fetchall()])
+            category_results = conn.execute(
+                "SELECT DISTINCT name FROM category WHERE name LIKE ? LIMIT 5",
+                (f'%{term}%',)
+            ).fetchall()
+            suggestions.extend([row['name'] for row in category_results])
             
-            # إزالة التكرارات والحفاظ على عدد محدود
+            # 2. البحث في سجل البحث السابق للمستخدمين
+            history_results = conn.execute(
+                "SELECT query FROM search_history WHERE query LIKE ? GROUP BY query ORDER BY COUNT(query) DESC LIMIT 5",
+                (f'%{term}%',)
+            ).fetchall()
+            suggestions.extend([row['query'] for row in history_results])
+
+            # 3. إزالة التكرارات والحفاظ على عدد محدود
             suggestions = list(set(suggestions))[:7] # يمكن ضبط العدد
             suggestions.sort() # ترتيب أبجدي للاقتراحات
             
         except sqlite3.Error as e:
             print(f"Database error: {e}")
+            return jsonify([])
         finally:
             conn.close()
+            
     return jsonify(suggestions)
 
+
+
+# مسار لتتبع عمليات البحث (لتحسين الاقتراحات مستقبلاً)
+@search_bp.route('/track_search', methods=['POST'])
+def track_search():
+    user_id = request.cookies.get('user_auth') or 'guest'
+    query = request.json.get('query', '')
+    
+    if not query:
+        return jsonify({'success': False, 'message': 'Invalid query'}), 400
+
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            "INSERT INTO search_history (user_id, query, created_at) VALUES (?, ?, ?)",
+            (user_id, query, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        )
+        conn.commit()
+        return jsonify({'success': True})
+    except sqlite3.Error as e:
+        print(f"Error tracking search: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        conn.close()

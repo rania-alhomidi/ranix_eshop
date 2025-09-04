@@ -71,6 +71,25 @@ a:hover {
     padding-bottom: 70px; /* لتجنب تداخل المحتوى مع الفوتر الثابت */
 }
 
+.btn-outline-primary {
+    color: #ba4ac2;           /* لون النص */
+    border-color: #ba4ac2;    /* لون الإطار */
+}
+
+.btn-outline-primary:hover {
+    color: #fff;              /* لون النص عند المرور */
+    background-color: #ba4ac2; /* خلفية الزر */
+    border-color: #ba4ac2;    /* الإطار */
+}
+
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    box-shadow: 0 0 0 0.25rem rgba(186, 74, 194, 0.4); /* ظل عند التركيز */
+    background-color: #ba4ac2;
+    border-color: #ba4ac2;
+    color: #fff;
+}
+
 /* ---------------------------------------------------- */
 /* تنسيقات خاصة بصفحة 'index.html' - بدء */
 /* هذه التنسيقات تنطبق على سلايدر الهيرو، أقسام التصنيفات، والأقسام المميزة.

@@ -18,16 +18,7 @@
         <!-- فلترة البحث (اختياري) -->
         <div class="row mb-4">
             <div class="col-md-6">
-                <form action="{{ url_for('search_bp.search_products') }}" method="GET" class="form-inline">
-                    <div class="input-group w-100">
-                        <input type="text" name="q" class="form-control" placeholder="ابحث مجدداً..." value="{{ search_query or '' }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+               
             </div>
             <div class="col-md-6 text-left">
                 <select class="form-control sort-select" onchange="window.location.href=this.value">

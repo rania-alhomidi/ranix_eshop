@@ -138,107 +138,6 @@
         font-weight: bold;
     }
     
-    /* أنماط قسم التقييمات والمراجعات */
-    .rating-form-container {
-        background-color: #f8f9fa;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-    .rating-form-container h4 {
-        margin-bottom: 1.5rem;
-        font-weight: bold;
-        color: #333;
-    }
-    .rating-form-container .stars {
-        font-size: 1.5rem;
-        color: #ccc;
-        cursor: pointer;
-    }
-    .rating-form-container .stars .fa-star,
-    .rating-form-container .stars .checked {
-        color: #ffc107;
-    }
-    .review-item {
-        background-color: #fff;
-        padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        margin-bottom: 1.5rem;
-    }
-    .review-item strong {
-        color: #2c3e50;
-    }
-    .review-item small {
-        margin-right: auto;
-    }
-    .reviews-section h3 {
-        margin-bottom: 2rem;
-        font-weight: bold;
-        color: #333;
-    }
-
-    /* أنماط قسم المنتجات المشابهة */
-    .related-products-section {
-        background-color: #f8f9fa;
-        border-radius: 15px;
-    }
-    .related-products-section .product-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .related-products-section .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    }
-    .related-products-section .card-img-top {
-        padding: 15px;
-    }
-
-
-    .product-rating .fa-star.checked,
-.product-rating .fa-star-half-o.checked {
-    color: #FFD700; /* اللون الذهبي */
-}
-
-/* يمكنك استخدام هذا الكود أيضًا إذا لم ينجح الكود السابق */
-.product-rating .checked {
-    color: #FFD700 !important;
-}
-
-.reviews-section .rating-stars .fa-star {
-    color: #ffc107; /* اللون الذهبي للنجوم الممتلئة */
-}
-
-
-/* أنماط النجوم الذهبية (التي تم تحديدها أو تقييمها) */
-.product-rating .fa-star.checked,
-.product-rating .fa-star-half-o.checked,
-.reviews-section .rating-stars .fa-star {
-    color: #FFD700; /* اللون الذهبي */
-}
-
-/* أنماط النجوم الفارغة (التي لم يتم تحديدها أو تقييمها) - اجعلها بيضاء */
-.product-rating .fa-star-o,
-.reviews-section .rating-stars .fa-star-o {
-    color: #dcd9d9; /* اللون الأبيض */
-}
-
-.btn-primary-alt {
-    background-color: #ba4ac2;
-    color: #fff;
-    border-radius: 5px;
-    padding: 10px 20px;
-    border: none;
-    transition: background-color 0.3s ease;
-}
-
-.btn-primary-alt:hover {
-    background-color: #a03cbb;
-}
-
-.d-none {
-    display: none;
-}
 
 </style>
 
@@ -385,7 +284,7 @@
             {% endfor %}
         </ul>
         <div class="text-center mt-3">
-            <button id="show-more-reviews" class="btn btn-primary-alt">عرض جميع المراجعات ({{ ratings | length - 5 }})</button>
+            <button id="show-more-reviews" class="btn btn-outline-primary alt">عرض جميع المراجعات ({{ ratings | length - 5 }})</button>
         </div>
         {% endif %}
 
@@ -396,6 +295,7 @@
         </div>
     </div>
 </div>
+
 <section class="modern-products py-5" style="background-color: #f8f9fa; border-radius: 15px;">
     <div class="container">
         <h3 class="modern-title text-center mb-4">منتجات قد تعجبك أيضًا</h3>
@@ -403,10 +303,6 @@
             {% for related_product in related_products %}
             <div class="col-6 col-lg-3 mb-4">
                 <div class="modern-card">
-                    <button class="like-btn" data-product-id="{{ related_product.id }}">
-                        <i class="fa fa-heart"></i>
-                    </button>
-                    
                     <a href="{{ url_for('product.product_details', product_id=related_product.id) }}" class="modern-card-link">
                         <div class="modern-img-container">
                             <img src="{{ url_for('static', filename=related_product.image.replace('static/', '')) }}"
@@ -414,21 +310,29 @@
                         </div>
                         <div class="modern-card-body">
                             <h5 class="modern-product-title">{{ related_product.name }}</h5>
-                            <p class="modern-product-price">ر.ي{{ related_product.profit_price }}</p>
+                            
+                            {% if product.avg_rating %}
+                            <div class="rating-stars mb-2">
+                                {% set full_stars = product.avg_rating | int %}
+                                {% for i in range(full_stars) %}
+                                <i class="fa fa-star text-warning"></i>
+                                {% endfor %}
+                                {% if product.avg_rating > full_stars %}
+                                <i class="fa fa-star-half-alt text-warning"></i>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <p class="modern-product-price">ر.ي {{ related_product.profit_price }}</p>
+
                             <div class="modern-btn-group">
                                 <form class="add-to-cart-form d-inline" method="POST"
                                     action="{{ url_for('cart.add_to_cart', product_id=related_product.id) }}">
-                                    <input type="hidden" name="name" value="{{ related_product.name }}">
-                                    <input type="hidden" name="price" value="{{ related_product.profit_price }}">
-                                    <input type="hidden" name="image_url" value="{{ related_product.image }}">
-                                    <input type="hidden" name="description" value="{{ related_product.description }}">
-                                    <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="modern-btn modern-btn-primary">
                                         <i class="fa fa-shopping-cart"></i>
                                     </button>
                                 </form>
-                                <a href="{{ url_for('product.product_details', product_id=related_product.id) }}"
-                                    class="modern-btn modern-btn-secondary">
+                                <a href="{{ url_for('product.product_details', product_id=related_product.id) }}" class="modern-btn modern-btn-secondary">
                                     <i class="fa fa-info-circle"></i>
                                 </a>
                             </div>

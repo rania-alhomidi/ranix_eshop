@@ -8,6 +8,25 @@
                 <i class="bi bi-plus-circle"></i> إضافة منتج
             </a>
         </div>
+        
+        <div class="d-flex justify-content-end mb-3">
+            <div class="btn-group" role="group" aria-label="Product filters">
+                <a href="{{ url_for('admin.show_product', filter='all') }}" 
+                   class="btn {% if filter_type == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                   الكل
+                </a>
+                <a href="{{ url_for('admin.show_product', filter='featured') }}" 
+                   class="btn {% if filter_type == 'featured' %}btn-primary{% else %}btn-outline-warning{% endif %}">
+                   المعروضة
+                </a>
+                <a href="{{ url_for('admin.show_product', filter='hidden') }}" 
+                   class="btn {% if filter_type == 'hidden' %}btn-primary{% else %}btn-outline-danger{% endif %}">
+                   المخفية
+                </a>
+            </div>
+        </div>
+
+       
 
         <div class="card shadow">
             <div class="card-body">
@@ -80,11 +99,11 @@
                                 
                        <!-- ... داخل حلقة التكرار في show_product.html ... -->
     <td>
-        <div class="d-grid gap-2 d-md-block">
-            <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i> تعديل</a>
-            <a href="{{ url_for('admin.product_details_admin', product_id=product.id) }}" class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i> تفاصيل</a>  <!-- رابط جديد -->
+        <div class="d-grid gap-2 ">
+            <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i> تعديل</a>
+            <a href="{{ url_for('admin.product_details_admin', product_id=product.id) }}" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i> تفاصيل</a>  <!-- رابط جديد -->
             <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من الحذف؟');">
-                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> حذف</button>
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> حذف</button>
             </form>
         </div>
     </td>

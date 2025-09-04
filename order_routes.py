@@ -676,6 +676,8 @@ def update_order_status(order_id):
         }), 500
     finally:
         conn.close()
+
+# اشعارات المستخدم
 # اشعارات المستخدم
 @order_bp.route('/notifications')
 def user_notifications():
@@ -683,6 +685,18 @@ def user_notifications():
     if not user_id:
         return redirect(url_for('user.login'))
     
+    conn = get_db_connection()
+    try:
+        # تحديث حالة الإشعارات غير المقروءة إلى مقروءة
+        conn.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0", (user_id,))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Error marking notifications as read: {e}")
+    finally:
+        conn.close()
+
+    # الآن استرجع الإشعارات بعد التحديث
     notifications = get_user_notifications(user_id)
     return render_template('notifications.html', notifications=notifications)
 

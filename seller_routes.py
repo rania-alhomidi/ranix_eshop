@@ -47,7 +47,8 @@ def seller_products(seller_id):
             pr.original_price, pr.profit_price,
             s.quantity, c.name AS category,
             sllr.name AS seller, sa.address AS address,
-            p.featured, p.seller_id
+            p.featured, p.seller_id,
+            (SELECT AVG(rating) FROM product_ratings WHERE product_id = p.id) AS avg_rating
         FROM product p
         LEFT JOIN prices pr ON p.price_id = pr.id
         LEFT JOIN stock s ON p.stock_id = s.id

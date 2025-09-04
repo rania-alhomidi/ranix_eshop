@@ -200,10 +200,6 @@ cursor = conn.cursor()
 
 
 
-
-
-
-
 # اعلانات
 # cursor.execute('''
 #     CREATE TABLE IF NOT EXISTS ads (
@@ -256,6 +252,16 @@ cursor = conn.cursor()
 #         -- لمنع المستخدم من تقييم نفس المنتج أكثر من مرة
 #         UNIQUE(product_id, user_id)
 # );''')
+
+
+# البحث
+cursor.execute('''CREATE TABLE search_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT, -- يمكن أن يكون فارغًا للزوار
+    query TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);''')
+
 
 # cursor.execute('''
 #     CREATE TABLE payment_methods (

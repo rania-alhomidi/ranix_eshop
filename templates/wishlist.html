@@ -219,6 +219,8 @@
                     <div class="modern-card">
                        
                         <div class="modern-img-container">
+                                                <a href="{{ url_for('product.product_details', product_id=product.id) }}" class="modern-card-link">
+
                             <img src="{{ url_for('static', filename=product.image.replace('static/', '')) }}"
                             alt="{{ product.name }}" class="modern-img">
                         </div>
@@ -257,6 +259,7 @@
                             </div>
                         </div>
                     </div>
+                </a>
                 </div>
                 {% endfor %}
             {% else %}

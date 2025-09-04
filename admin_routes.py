@@ -470,10 +470,15 @@ def product_details_admin(product_id):
 
 
 
+
+
 @admin_bp.route('/show_product', methods=['GET'])
 def show_product():
+    # الحصول على معلمة الفلترة من الرابط، القيمة الافتراضية هي 'all'
+    filter_type = request.args.get('filter', 'all')
+    
     conn = get_db_connection()
-    products = conn.execute('''
+    query = '''
         SELECT
             p.id,
             p.name,
@@ -494,11 +499,21 @@ def show_product():
         LEFT JOIN category c ON p.category_id = c.id
         LEFT JOIN sellers sllr ON p.seller_id = sllr.id
         LEFT JOIN seller_address sa ON sllr.SAddress_id = sa.id
-        ORDER BY p.id DESC
-    ''').fetchall()
+    '''
+    
+    # إضافة شرط الفلترة إلى الاستعلام
+    if filter_type == 'featured':
+        query += ' WHERE p.featured = 1'
+    elif filter_type == 'hidden':
+        query += ' WHERE p.featured = 0'
+        
+    query += ' ORDER BY p.id DESC'
+    
+    products = conn.execute(query).fetchall()
     conn.close()
-    return render_template('admin/show_product.html', products=products)
-
+    
+    # تمرير معلمة الفلترة إلى القالب
+    return render_template('admin/show_product.html', products=products, filter_type=filter_type)
 
 @admin_bp.route('/toggle_featured/<int:product_id>/<int:status>')
 def toggle_featured(product_id, status):

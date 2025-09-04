@@ -128,8 +128,9 @@
                 <i class="fas fa-heart"></i>
             </a> -->
         </div>
-   <a class="nav-link position-relative {% if unread_notifications_count > 0 %}has-notifications{% endif %}" 
-   href="{{ url_for('order.user_notifications') }}" id="navbarNotifications">
+
+<a class="nav-link position-relative {% if unread_notifications_count > 0 %}has-notifications{% endif %}" 
+    href="{{ url_for('order.user_notifications') }}" id="navbarNotifications">
     <i class="fas fa-bell"></i>
     {% if unread_notifications_count > 0 %}
     <span id="navbar-notification-count"
