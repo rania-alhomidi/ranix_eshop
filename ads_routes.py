@@ -3,6 +3,7 @@ import sqlite3
 from datetime import datetime, timedelta
 import os
 from werkzeug.utils import secure_filename
+from employee_routes import login_required_employee, role_required_employee
 
 ads_bp = Blueprint('ads', __name__)
 
@@ -37,6 +38,8 @@ def track_impression(ad_id):
 
 # Endpoint to track clicks
 @ads_bp.route('/track_click/<int:ad_id>', methods=['POST'])
+@login_required_employee
+@role_required_employee(['super_admin', 'product_and_ads_manager'])
 def track_click(ad_id):
     conn = get_db_connection()
     try:
@@ -51,6 +54,8 @@ def track_click(ad_id):
 
 
 @ads_bp.route('/management')
+@login_required_employee
+@role_required_employee(['super_admin', 'product_and_ads_manager'])
 def ads_management():
     conn = get_db_connection()
     ads = conn.execute('''
@@ -67,6 +72,8 @@ def ads_management():
     return render_template('admin/admin_ads_management.html', ads=ads, sellers=sellers)
 
 @ads_bp.route('/add', methods=['POST'])
+@login_required_employee
+@role_required_employee(['super_admin', 'product_and_ads_manager'])
 def add_ad():
     seller_id = request.form.get('seller_id')
     title = request.form.get('title')
@@ -110,6 +117,8 @@ def add_ad():
     return redirect(url_for('ads.ads_management'))
 
 @ads_bp.route('/toggle/<int:ad_id>')
+@login_required_employee
+@role_required_employee(['super_admin', 'product_and_ads_manager'])
 def toggle_ad(ad_id):
     conn = get_db_connection()
     try:
@@ -130,6 +139,8 @@ def toggle_ad(ad_id):
     return redirect(url_for('ads.ads_management'))
 
 @ads_bp.route('/delete/<int:ad_id>')
+@login_required_employee
+@role_required_employee(['super_admin', 'product_and_ads_manager'])
 def delete_ad(ad_id):
     conn = get_db_connection()
     try:
@@ -153,6 +164,8 @@ def delete_ad(ad_id):
     return redirect(url_for('ads.ads_management'))
 
 @ads_bp.route('/stats')
+@login_required_employee
+@role_required_employee(['super_admin', 'product_and_ads_manager'])
 def ads_stats():
     conn = get_db_connection()
     
@@ -182,11 +195,10 @@ def ads_stats():
 
 # ... (الجزء العلوي من ملف ads_bp.py)
 
-from datetime import datetime
-import os
-from werkzeug.utils import secure_filename
 
 @ads_bp.route('/edit/<int:ad_id>', methods=['GET', 'POST'])
+@login_required_employee
+@role_required_employee(['super_admin', 'product_and_ads_manager'])
 def edit_ad(ad_id):
     conn = get_db_connection()
     ad = conn.execute('SELECT * FROM ads WHERE id = ?', (ad_id,)).fetchone()

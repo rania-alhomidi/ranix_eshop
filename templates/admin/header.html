@@ -45,7 +45,46 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style/css/font-awesome.min.css') }}">
   <!-- Template Main CSS File -->
   <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
+<!-- حل مشكلة القوائم في ملف واحد -->
+<script>
+// CSS فوري لمنع الإخفاء
+const fixStyles = `
+    .sidebar-menu,
+    .menu-item,
+    .menu-item * {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+    }
+    
+    .hidden, .d-none, .collapse, .invisible {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    [style*="display: none"],
+    [style*="visibility: hidden"],
+    [style*="opacity: 0"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+`;
 
+// إضافة CSS فوري
+const style = document.createElement('style');
+style.textContent = fixStyles;
+document.head.appendChild(style);
+
+// تحميل الإصلاح الرئيسي
+document.addEventListener('DOMContentLoaded', function() {
+    const script = document.createElement('script');
+    script.src = "{{ url_for('static', filename='js/menu-fix.js') }}";
+    document.body.appendChild(script);
+});
+</script>
 </head>
 
 <body>
@@ -70,13 +109,26 @@
 
     <!-- <nav class="header-nav ms-auto"> -->
       <nav class="navbar">
-  
-  
-    <div class=" pro-info nav-item dropdown drop  p-0 d-flex "> 
-      <a class="info nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-<!-- عرض اسم المستخدم -->
-      </a>
+  <!-- عرض نوع المستخدم ومساره -->
 
+  <div class="user-info" style="padding: 10px; background: #f8f9fa; border-bottom: 1px solid #ddd;">
+            <small>
+                <strong>نوع المستخدم:</strong> {{ user_type }} | 
+                <strong>الدور:</strong> {{ user_role }} | 
+                <strong>الصفحة الحالية:</strong> {{ current_page }}
+            </small>
+        </div>
+  <div class=" pro-info nav-item dropdown drop  p-0 d-flex "> 
+<a class="info nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    {% if session['admin_username'] %}
+        <span>{{ session['admin_username'] }}</span>
+    {% elif session['employee_username'] %}
+        <span>{{ session['employee_username'] }}</span>
+        {% else %}
+        
+        <span>Guest</span>
+    {% endif %}
+</a>
       <ul class="dropdown-menu me-3">
         <li> 
          <a href="{{ url_for('admin.profile') }}"><i class='bi bi-person'></i>Profile</a>
@@ -86,9 +138,15 @@
           <a href="{{ url_for('product.index') }}"><i class='bi bi-eye'></i>View Page</a>
         </li>
   
-        <li>
-          <a href="{{ url_for('user.logout') }}"><i class='bi bi-unlock'></i>Logout</a>
-        </li>
+      <!-- <li> -->
+  <!-- {% if session['admin_logged_in'] %}
+      <a href="{{ url_for('auth.admin_logout') }}"><i class='bi bi-unlock'></i>Logout</a>
+  {% elif session['employee_role'] %}
+      <a href="{{ url_for('employee.logout') }}"><i class='bi bi-unlock'></i>Logout</a>
+  {% else %}
+      <a href="{{ url_for('auth.admin_login') }}"><i class='bi bi-unlock'></i>Login</a>
+  {% endif %}
+</li> -->
   
       </ul>
     </div>
@@ -96,97 +154,267 @@
     </nav><!-- End Icons Navigation -->
 
   </header><!-- End Header -->
-
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
-
+<aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
-
-      <li class="nav-item">
-        <a class="nav-link " href="{{url_for('admin.home')}}">
-          <i class="bi bi-grid"></i>
-          <span>Dashboard</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
-
-      <li class="nav-heading">Pages</li>
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{{ url_for('admin.show_product')}}">
-          <i class="bi bi-card-list"></i>
-          <span>إضافة منتج</span>
-        </a>
-        </li>
-      
         <li class="nav-item">
-  <a class="nav-link collapsed" href="{{ url_for('admin.categories')}}"> 
-    <i class="bi bi-card-list"></i>
-    <span>إضافه قسم</span>
-  </a>
-</li>
-
-<!-- start manage  members -->  
-        <li class="nav-item">
-        <a class="nav-link collapsed" href="{{url_for('admin.show_seller')}}">
-          <i class="bi bi-card-list"></i>
-          <span>البائعين</span>
-        </a>
+            <!-- <a class="nav-link " href="{% if user_type == 'admin' %}{{ url_for('admin.home') }}{% else %}{{ url_for('employee.dashboard') }}{% endif %}"> -->
+                <i class="bi bi-grid"></i>
+                <span>Dashboard</span>
+            </a>
         </li>
-        <!-- End  manage members -->  
+        <li class="nav-heading">Pages</li>
 
+        {% if user_type == 'admin' %}
+            {% if session['admin_role'] in ['super_admin', 'product_and_ads_manager'] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.show_product') }}">
+                        <i class="bi bi-card-list"></i>
+                        <span>إدارة المنتجات</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.categories') }}">
+                        <i class="bi bi-card-list"></i>
+                        <span>إضافة قسم</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('ads.ads_management') }}">
+                        <i class="bi bi-person"></i>
+                        <span>الاعلانات</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if session['admin_role'] in ['super_admin', 'seller_manager'] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.show_seller') }}">
+                        <i class="bi bi-card-list"></i>
+                        <span>البائعين</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if session['admin_role'] in ['super_admin', 'order_manager'] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.users') }}">
+                        <i class="bi bi-card-list"></i>
+                        <span>العملاء</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('order.admin_orders') }}">
+                        <i class="bi bi-card-list"></i>
+                        <span>إدارة الطلبات</span>
+                    </a>
+                </li>
+            {% endif %}
+        {% endif %}
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{{url_for('admin.users')}}">
-          <i class="bi bi-card-list"></i>
-          <span>العملاء</span>
-        </a>
-      </li><!-- End Register Page Nav -->  
-
-      <li class="nav-item">
-       
-        <a class="nav-link collapsed" href="{{ url_for('order.admin_orders') }}">
-          <i class="bi bi-card-list"></i>
-          <span>إدارة الطلبات</span>
-        </a>
-      </li><!-- End Register Page Nav -->  
-       
-     
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{{url_for('ads.ads_management')}}">
-          <i class="bi bi-person"></i>
-          <span>الاعلانات</span>
-        </a>
-      </li>
-      <!-- End Profile Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="signup.html">
-          <i class="bi bi-card-list"></i>
-          <span>Register</span>
-        </a>
-      </li><!-- End Register Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="signin.html">
-          <i class="bi bi-box-arrow-in-right"></i>
-          <span>signin</span>
-        </a>
-      </li><!-- End Login Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="logout.html">
-          <i class="bi bi-box-arrow-in-left"></i>
-          <span>Sign out</span>
-        </a>
-      </li><!-- End Login Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-error-404.html">
-          <i class="bi bi-dash-circle"></i>
-          <span>Error 404</span>
-        </a>
-      </li><!-- End Error 404 Page Nav -->
-
+        {% if user_type == 'employee' %}
+            {% if session['employee_role'] in ['super_admin', 'seller_manager'] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('employee.add_employee') }}">
+                        <i class="bi bi-person-plus"></i>
+                        <span>إضافة موظف</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if session['employee_role'] in ['super_admin', 'product_and_ads_manager'] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('employee.add_product') }}">
+                        <i class="bi bi-box"></i>
+                        <span>إضافة منتج</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('ads.ads_management') }}">
+                        <i class="bi bi-bullhorn"></i>
+                        <span>إدارة الإعلانات</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if session['employee_role'] in ['super_admin', 'order_manager'] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('order.admin_orders') }}">
+                        <i class="bi bi-truck"></i>
+                        <span>إدارة الطلبات</span>
+                    </a>
+                </li>
+            {% endif %}
+        {% endif %}
     </ul>
+</aside>
 
-  </aside><!-- End Sidebar-->
+<script>// حل مشكلة إخفاء القوائم - ملف واحد
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('بدء إصلاح القوائم...');
+    
+    // 1. منع جميع محاولات الإخفاء
+    const originalFunctions = {
+        hide: HTMLElement.prototype.hide,
+        addClass: HTMLElement.prototype.classList.add,
+        css: HTMLElement.prototype.style.setProperty
+    };
+    
+    // تجاوز دالة hide
+    HTMLElement.prototype.hide = function() {
+        if (this.classList.contains('menu-item') || 
+            this.classList.contains('sidebar-menu') ||
+            this.closest('.menu-item') || 
+            this.closest('.sidebar-menu')) {
+            console.log('تم منع إخفاء عنصر قائمة:', this);
+            this.style.display = 'block';
+            this.style.visibility = 'visible';
+            this.style.opacity = '1';
+            return this;
+        }
+        return originalFunctions.hide.apply(this, arguments);
+    };
+    
+    // تجاوز إضافة classes التي تخفي العناصر
+    const originalAddClass = DOMTokenList.prototype.add;
+    DOMTokenList.prototype.add = function() {
+        const element = this._element || this[0]?.parentElement;
+        if (element && (element.classList.contains('menu-item') || 
+                        element.classList.contains('sidebar-menu') ||
+                        element.closest('.menu-item') || 
+                        element.closest('.sidebar-menu'))) {
+            const badClasses = ['hidden', 'd-none', 'collapse', 'invisible'];
+            for (let className of arguments) {
+                if (badClasses.includes(className)) {
+                    console.log('تم منع إضافة class مخفي:', className);
+                    return; // لا تضيف class التخفي
+                }
+            }
+        }
+        return originalAddClass.apply(this, arguments);
+    };
+    
+    // 2. إعادة إظهار جميع القوائم المخفية
+    function showAllMenus() {
+        const menus = document.querySelectorAll('.sidebar-menu, .menu-item');
+        menus.forEach(menu => {
+            menu.style.display = 'block';
+            menu.style.visibility = 'visible';
+            menu.style.opacity = '1';
+            menu.classList.remove('hidden', 'd-none', 'collapse', 'invisible');
+        });
+    }
+    
+    // 3. إصلاح event listeners السيئة
+    function fixEventListeners() {
+        const menuLinks = document.querySelectorAll('.menu-item a, .sidebar-menu a');
+        menuLinks.forEach(link => {
+            // إزالة جميع event listeners الحالية
+            const newLink = link.cloneNode(true);
+            link.parentNode.replaceChild(newLink, link);
+            
+            // إضافة event listener جديدة آمنة
+            newLink.addEventListener('click', function(e) {
+                e.stopPropagation(); // منع انتشار الحدث
+                e.stopImmediatePropagation(); // منع التنفيذات الأخرى
+                
+                // التنقل الطبيعي فقط
+                console.log('تنقل آمن إلى:', this.href);
+            });
+        });
+    }
+    
+    // 4. التشغيل المستمر
+    showAllMenus();
+    fixEventListeners();
+    
+    // تشغيل كل ثانية للتأكد
+    setInterval(() => {
+        showAllMenus();
+        
+        // منع Bootstrap من إضافة classes مخفية
+        document.querySelectorAll('.menu-item, .sidebar-menu').forEach(item => {
+            item.classList.remove('hidden', 'd-none', 'collapse', 'invisible');
+            item.style.display = 'block';
+            item.style.visibility = 'visible';
+            item.style.opacity = '1';
+        });
+    }, 1000);
+    
+    // 5. حل خاص للصفحات المشكلة (العملاء، الإعلانات، الطلبات)
+    const problemPages = ['customers', 'ads', 'orders'];
+    const currentPath = window.location.pathname;
+    
+    if (problemPages.some(page => currentPath.includes(page))) {
+        console.log('الصفحة المشكلة detected - تطبيق الحل القوي');
+        
+        // الحل النووي: إزالة جميع event listeners
+        const menuElements = document.querySelectorAll('.menu-item, .sidebar-menu, .menu-item *');
+        menuElements.forEach(element => {
+            const newElement = element.cloneNode(true);
+            element.parentNode.replaceChild(newElement, element);
+        });
+        
+        // منع JavaScript تماماً من التعديل على القوائم
+        Object.defineProperty(HTMLElement.prototype, 'style', {
+            get: function() {
+                if (this.classList.contains('menu-item') || 
+                    this.classList.contains('sidebar-menu') ||
+                    this.closest('.menu-item') || 
+                    this.closest('.sidebar-menu')) {
+                    console.log('تم منع تعديل الستايل لعنصر القائمة');
+                    return { 
+                        setProperty: function() {} // لا تفعل شيء
+                    };
+                }
+                return this._style || {};
+            }
+        });
+    }
+    
+    console.log('تم تحميل إصلاح القوائم بنجاح');
+});
+
+// حل إضافي لـ jQuery إذا كان مستخدماً
+if (typeof jQuery !== 'undefined') {
+    jQuery(document).ready(function($) {
+        console.log('بدء إصلاح القوائم لـ jQuery');
+        
+        // حفظ الدوال الأصلية
+        const originalHide = $.fn.hide;
+        const originalAddClass = $.fn.addClass;
+        
+        // تجاوز دالة hide
+        $.fn.hide = function() {
+            if (this.is('.menu-item, .sidebar-menu, .menu-item *')) {
+                console.log('jQuery: تم منع إخفاء القوائم');
+                return this.show().css({
+                    display: 'block',
+                    visibility: 'visible',
+                    opacity: '1'
+                });
+            }
+            return originalHide.apply(this, arguments);
+        };
+        
+        // تجاوز دالة addClass
+        $.fn.addClass = function() {
+            if (this.is('.menu-item, .sidebar-menu, .menu-item *')) {
+                const classes = arguments[0];
+                const badClasses = ['hidden', 'd-none', 'collapse', 'invisible'];
+                
+                if (badClasses.some(badClass => classes.includes(badClass))) {
+                    console.log('jQuery: تم منع إضافة class مخفي');
+                    return this.removeClass(badClasses.join(' '));
+                }
+            }
+            return originalAddClass.apply(this, arguments);
+        };
+        
+        // إصلاح event listeners في jQuery
+        $('.menu-item a, .sidebar-menu a').off('click').on('click', function(e) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            console.log('jQuery: تنقل آمن');
+            return true;
+        });
+    });
+}
+
+
+</script>

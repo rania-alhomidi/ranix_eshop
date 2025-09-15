@@ -364,8 +364,8 @@
         <h1>لوحة التحكم</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('admin.home') }}">الرئيسية</a></li>
-                <li class="breadcrumb-item active">لوحة التحكم</li>
+                <!-- <li class="breadcrumb-item"><a href="{{ url_for('admin.home') }}">الرئيسية</a></li> -->
+                <!-- <li class="breadcrumb-item active">لوحة التحكم</li> -->
             </ol>
         </nav>
     </div>
@@ -375,6 +375,8 @@
 
             <div class="col-lg-8">
                 <div class="row">
+                    {% if user_type == 'admin' and session.get('admin_role') in ['super_admin', 'order_manager'] %}
+
                     <div class="col-md-8 col-lg-4 mb-4">
                         <a href="{{ url_for('order.admin_orders') }}" class="card stat-card orders-card">
                             <div class="card-body">
@@ -440,6 +442,9 @@
                             </div>
                         </a>
                     </div>
+                    {% endif %}
+                    {% if user_type == 'admin' and session.get('admin_role') in ['super_admin', 'seller_manager'] %}
+
                     <div class="col-md-6 col-lg-4 mb-4">
                         <a href="{{ url_for('admin.show_seller') }}" class="card stat-card sellers-card">
                             <div class="card-body">
@@ -456,6 +461,10 @@
                             </div>
                         </a>
                     </div>
+                    {% endif %}
+                    {% if user_type == 'admin' and session.get('admin_role') in ['super_admin',
+                    'product_and_ads_manager'] %}
+
                     <div class="col-md-6 col-lg-4 mb-4">
                         <a href="{{ url_for('admin.show_product') }}" class="card stat-card products-card">
                             <div class="card-body">
@@ -472,6 +481,7 @@
                             </div>
                         </a>
                     </div>
+
                     <div class="col-md-6 col-lg-4 mb-4">
                         <a href="{{ url_for('admin.categories', filter='sub') }}"
                             class="card stat-card subcategories-card">
@@ -509,7 +519,7 @@
                 </div>
 
 
-
+                {% endif %}
                 <div class="col-lg-12 mt-4">
                     <div class="card top-products">
                         <div class="card-header">
@@ -546,12 +556,15 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="product-img">
-                                                       {% if product.image %}
-                                        {% set image_path_no_static = product.image.replace('static/', '', 1) %}
-                                        <img src="{{ url_for('static', filename=image_path_no_static) }}" alt="صورة {{ product.name }}" width="100" class="">
-                                    {% else %}
-                                        <span class="text-muted">لا توجد صورة</span>
-                                    {% endif %}  </div>
+                                                        {% if product.image %}
+                                                        {% set image_path_no_static = product.image.replace('static/',
+                                                        '', 1) %}
+                                                        <img src="{{ url_for('static', filename=image_path_no_static) }}"
+                                                            alt="صورة {{ product.name }}" width="100" class="">
+                                                        {% else %}
+                                                        <span class="text-muted">لا توجد صورة</span>
+                                                        {% endif %}
+                                                    </div>
                                                     <div class="ms-3">
                                                         <a href="#" class="product-name fw-bold">{{ product.product_name
                                                             }}</a>
@@ -579,20 +592,20 @@
                 </div>
             </div>
         </div>
-      <div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title">تقرير المبيعات</h5>
-        <div id="salesChart" style="height: 300px;"></div>
-    </div>
-</div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">تقرير المبيعات</h5>
+                <div id="salesChart" style="height: 300px;"></div>
+            </div>
+        </div>
 
-<div class="col-lg-4">
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">النشاط الأخير</h5>
-            <div class="activity-feed">
-                {% if latest_activities %}
-                    {% for activity in latest_activities %}
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">النشاط الأخير</h5>
+                    <div class="activity-feed">
+                        {% if latest_activities %}
+                        {% for activity in latest_activities %}
                         <div class="feed-item">
                             <div class="feed-time">
                                 {{ activity.timestamp }}
@@ -602,58 +615,58 @@
                                 <span>{{ activity.description }}</span>
                             </div>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-center text-muted">لا يوجد نشاط حديث لعرضه.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">نظرة سريعة</h5>
-            <div class="quick-stats">
-                <div class="stat-item">
-                    <div class="stat-icon bg-success">
-                        <i class="bi bi-list-task"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-title">الأقسام</div>
-                        <div class="stat-value">{{ total_categories }}</div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon bg-warning">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-title">المنتجات</div>
-                        <div class="stat-value">{{ total_products }}</div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon bg-info">
-                        <i class="bi bi-shop"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-title">البائعين</div>
-                        <div class="stat-value">{{ total_sellers }}</div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon bg-primary">
-                        <i class="bi bi-people"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-title">العملاء</div>
-                        <div class="stat-value">{{ total_customers }}</div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="text-center text-muted">لا يوجد نشاط حديث لعرضه.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">نظرة سريعة</h5>
+                    <div class="quick-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon bg-success">
+                                <i class="bi bi-list-task"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-title">الأقسام</div>
+                                <div class="stat-value">{{ total_categories }}</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon bg-warning">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-title">المنتجات</div>
+                                <div class="stat-value">{{ total_products }}</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon bg-info">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-title">البائعين</div>
+                                <div class="stat-value">{{ total_sellers }}</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon bg-primary">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-title">العملاء</div>
+                                <div class="stat-value">{{ total_customers }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <div class="col-lg-4">
             <div class="card mb-4">
@@ -692,7 +705,7 @@
                 </div>
             </div>
 
- 
+
         </div>
         </div>
     </section>
@@ -766,95 +779,95 @@
     });
 
 
-    document.addEventListener('DOMContentLoaded', function() {
-    // Get the DOM element for the chart
-    const chartDom = document.getElementById('salesChart');
-    if (!chartDom) {
-        console.error('Could not find the salesChart element.');
-        return;
-    }
-
-    // Initialize the ECharts instance
-    const myChart = echarts.init(chartDom);
-
-    // Function to fetch data and render the chart
-    async function fetchAndRenderChart() {
-        try {
-            // Fetch data from the Flask route
-            const response = await fetch('/admin/sales_data');
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-
-            // Prepare the data for the chart
-            const dates = data.map(item => item.order_date);
-            const sales = data.map(item => item.total_sales);
-
-            // Set the chart options
-            const option = {
-                title: {
-                    text: 'مبيعات يومية',
-                    subtext: 'إجمالي المبيعات حسب اليوم'
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    formatter: function(params) {
-                        const param = params[0];
-                        return `اليوم: ${param.name}<br/>المبيعات: ${param.value} ر.ي`;
-                    }
-                },
-                xAxis: {
-                    type: 'category',
-                    data: dates,
-                    axisLabel: {
-                        rotate: 45 // Rotate labels for better readability
-                    }
-                },
-                yAxis: {
-                    type: 'value',
-                    // name: 'إجمالي المبيعات (ريال يمني)'
-                },
-                series: [{
-                    name: 'إجمالي المبيعات',
-                    type: 'line',
-                    data: sales,
-                    smooth: true,
-                    lineStyle: {
-                        color: '#4a90e2' // Blue line color
-                    },
-                    itemStyle: {
-                        color: '#4a90e2'
-                    },
-                    areaStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0,
-                            color: 'rgba(74, 144, 226, 0.5)'
-                        }, {
-                            offset: 1,
-                            color: 'rgba(74, 144, 226, 0)'
-                        }])
-                    }
-                }]
-            };
-
-            // Render the chart with the options
-            myChart.setOption(option);
-            
-        } catch (error) {
-            console.error('Error fetching or rendering chart:', error);
-            chartDom.innerHTML = '<p class="text-danger text-center">فشل في تحميل بيانات المبيعات.</p>';
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the DOM element for the chart
+        const chartDom = document.getElementById('salesChart');
+        if (!chartDom) {
+            console.error('Could not find the salesChart element.');
+            return;
         }
-    }
 
-    // Call the function to fetch and render the chart
-    fetchAndRenderChart();
+        // Initialize the ECharts instance
+        const myChart = echarts.init(chartDom);
 
-    // Handle window resizing to make the chart responsive
-    window.addEventListener('resize', function() {
-        myChart.resize();
+        // Function to fetch data and render the chart
+        async function fetchAndRenderChart() {
+            try {
+                // Fetch data from the Flask route
+                const response = await fetch('/admin/sales_data');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+
+                // Prepare the data for the chart
+                const dates = data.map(item => item.order_date);
+                const sales = data.map(item => item.total_sales);
+
+                // Set the chart options
+                const option = {
+                    title: {
+                        text: 'مبيعات يومية',
+                        subtext: 'إجمالي المبيعات حسب اليوم'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: function (params) {
+                            const param = params[0];
+                            return `اليوم: ${param.name}<br/>المبيعات: ${param.value} ر.ي`;
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        axisLabel: {
+                            rotate: 45 // Rotate labels for better readability
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        // name: 'إجمالي المبيعات (ريال يمني)'
+                    },
+                    series: [{
+                        name: 'إجمالي المبيعات',
+                        type: 'line',
+                        data: sales,
+                        smooth: true,
+                        lineStyle: {
+                            color: '#4a90e2' // Blue line color
+                        },
+                        itemStyle: {
+                            color: '#4a90e2'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(74, 144, 226, 0.5)'
+                            }, {
+                                offset: 1,
+                                color: 'rgba(74, 144, 226, 0)'
+                            }])
+                        }
+                    }]
+                };
+
+                // Render the chart with the options
+                myChart.setOption(option);
+
+            } catch (error) {
+                console.error('Error fetching or rendering chart:', error);
+                chartDom.innerHTML = '<p class="text-danger text-center">فشل في تحميل بيانات المبيعات.</p>';
+            }
+        }
+
+        // Call the function to fetch and render the chart
+        fetchAndRenderChart();
+
+        // Handle window resizing to make the chart responsive
+        window.addEventListener('resize', function () {
+            myChart.resize();
+        });
     });
-});
 
 
 </script>

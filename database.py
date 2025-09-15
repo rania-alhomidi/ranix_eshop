@@ -255,12 +255,72 @@ cursor = conn.cursor()
 
 
 # البحث
-cursor.execute('''CREATE TABLE search_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT, -- يمكن أن يكون فارغًا للزوار
-    query TEXT NOT NULL,
-    created_at TEXT NOT NULL
-);''')
+# cursor.execute('''CREATE TABLE search_history (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     user_id TEXT, -- يمكن أن يكون فارغًا للزوار
+#     query TEXT NOT NULL,
+#     created_at TEXT NOT NULL
+# );''')
+
+
+
+# -- 1. جدول الأدوار (Admin Roles)
+# -- يحدد الأدوار المتاحة في لوحة التحكم (مثل: المدير العام، مدير المنتجات).
+# -- كل موظف سيتم ربطه بأحد هذه الأدوار.
+# --
+# cursor.execute('''CREATE TABLE IF NOT EXISTS admin_roles (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name TEXT UNIQUE NOT NULL
+# );''')
+
+# --
+# -- 2. جدول المستخدمين الأدمن (Admin Users)
+# -- يحتوي على بيانات تسجيل الدخول للموظفين في لوحة التحكم.
+# -- يتم ربطه بجدول الأدوار عبر 'role_id'.
+
+
+# cursor.execute('''CREATE TABLE IF NOT EXISTS admin_users (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name TEXT NOT NULL,
+#     email TEXT UNIQUE NOT NULL,
+#     password TEXT NOT NULL,
+#     role_id INTEGER NOT NULL,
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (role_id) REFERENCES admin_roles(id)
+# );''')
+
+
+# -- 3. جدول الصلاحيات (Admin Permissions)
+# -- يحدد كل صلاحية محددة ومتاحة في النظام (مثل: إضافة منتج، حذف بائع).
+# -- هذا الجدول يمنح مرونة كبيرة في إدارة الصلاحيات.
+
+# cursor.execute('''CREATE TABLE IF NOT EXISTS admin_permissions (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     permission_name TEXT UNIQUE NOT NULL
+# );''')
+
+
+# -- 4. جدول ربط الأدوار بالصلاحيات (Role Permissions)
+# -- يربط كل دور بمجموعة من الصلاحيات.
+# -- على سبيل المثال، يمكن ربط دور "مدير المنتجات" بصلاحيتي "إضافة منتج" و"إدارة الأقسام".
+
+# cursor.execute('''CREATE TABLE IF NOT EXISTS role_permissions (
+#     role_id INTEGER NOT NULL,
+#     permission_id INTEGER NOT NULL,
+#     PRIMARY KEY (role_id, permission_id),
+#     FOREIGN KEY (role_id) REFERENCES admin_roles(id) ON DELETE CASCADE,
+#     FOREIGN KEY (permission_id) REFERENCES admin_permissions(id) ON DELETE CASCADE
+# );''')
+
+# cursor.execute('''CREATE TABLE IF NOT EXISTS employees (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     username TEXT NOT NULL UNIQUE,
+#     password_hash TEXT NOT NULL,
+#     role TEXT NOT NULL
+# );''')
+
+
+
 
 
 # cursor.execute('''
@@ -327,11 +387,6 @@ cursor.execute('''CREATE TABLE search_history (
 
 
 
-
-
-
-
-
 # # إنشاء جدول اشتراكات النشرة البريدية
 # cursor.execute('''
 # CREATE TABLE IF NOT EXISTS NewsletterSubscriptions (
@@ -379,9 +434,48 @@ cursor.execute('''CREATE TABLE search_history (
 # );
 # ''')
 
+# الصلاحيات
+
+# cursor.execute('''INSERT INTO admin_roles (name) VALUES
+# ('super_admin'),
+# ('product_and_ads_manager'), -- اسم معدل ليتناسب مع صلاحياته
+# ('order_manager'),
+# ('seller_manager'); -- اسم جديد;''')
+
+# cursor.execute('''INSERT INTO admin_permissions (permission_name) VALUES
+# ('manage_products'),
+# ('manage_ads'), -- هذه هي الصلاحية الصحيحة
+# ('manage_orders'),
+# ('manage_sellers'),
+# ('manage_all'); -- صلاحية شاملة للمدير العام;''')
+
+# cursor.execute('''INSERT INTO role_permissions (role_id, permission_id) VALUES
+# (1, 1), (1, 2), (1, 3), (1, 4), (1, 5); -- ID 1 هو المدير العام، وID 1-5 هي كل الصلاحيات
+# ''')
+
+# cursor.execute('''
+# INSERT INTO role_permissions (role_id, permission_id) VALUES
+# (2, 1), -- ID 2 هو مدير المنتجات، وID 1 هي صلاحية إدارة المنتجات
+# (2, 2);
+# ''')
+
+# cursor.execute('''
+# INSERT INTO role_permissions (role_id, permission_id) VALUES
+# (3, 3); -- ID 3 هو مدير الطلبات، و ID 3 هي صلاحية إدارة الطلبات
+
+# ''')
 
 
+# cursor.execute('''
+# INSERT INTO admin_users (name, email, password, role_id) VALUES ('رانيا حميد', 'rania90rania@gmail.com', '5731', 1);''')
 # # استعلام لاستعراض الجداول الموجودة في قاعدة البيانات
+
+
+# cursor.execute('''
+# INSERT INTO employees (username, password_hash, role) VALUES ('sagedah', '2190', 'product_and_ads_manager');''')
+
+
+
 
 # cursor.execute("UPDATE product SET featured = 0 WHERE featured IS NULL;")  
 # cursor.execute("SELECT * FROM sellers")  # استعلام عن كل البيانات
@@ -394,14 +488,14 @@ cursor.execute('''CREATE TABLE search_history (
 # newdata = pd.DataFrame(rows)#استخدمه في قاعده بيانات موقعي
 # print(newdata)
 
-# cursor.execute("SELECT * FROM cust_addresses")  # استعلام عن كل البيانات
-# rows = cursor.fetchall()  # جلب جميع الصفوف
-# print("البيانات الموجودة في قاعدة البيانات:", rows)
+cursor.execute("SELECT * FROM employees")  # استعلام عن كل البيانات
+rows = cursor.fetchall()  # جلب جميع الصفوف
+print("البيانات الموجودة في قاعدة البيانات:", rows)
 
-# for row in rows:
-#     print(row)
+for row in rows:
+    print(row)
 
-# cursor.execute('''ALTER TABLE orders ADD COLUMN payment_method INTEGER ;''')
+# cursor.execute('''ALTER TABLE admin_users ADD COLUMN role TEXT NOT NULL DEFAULT 'user';''')
 # cursor.execute('''ALTER TABLE product ADD COLUMN is_new BOOLEAN DEFAULT TRUE;''')
 # cursor.execute('''ALTER TABLE category ADD COLUMN view_count INTEGER DEFAULT 0;''')
 # cursor.execute('''INSERT INTO product (name, image, description, quantity, category_id, seller_id, address_id, price_id, stock_id)
@@ -410,12 +504,12 @@ cursor.execute('''CREATE TABLE search_history (
 # cursor.execute('DROP TABLE IF EXISTS Order_Items')  # استبدل 'table_name' باسم الجدول الذي تريد حذفه
 # cursor.execute("ALTER TABLE sellers RENAME COLUMN id TO seller_id;")
 
-cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-tables = cursor.fetchall()  # جلب النتائج
-# print("الجداول الموجودة في قاعدة البيانات:", tables)
+# cursor.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+# tables = cursor.fetchall()  # جلب النتائج
+# # print("الجداول الموجودة في قاعدة البيانات:", tables)
 
-newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
-print(newdata)
+# newdata = pd.DataFrame(tables)#استخدمه في قاعده بيانات موقعي
+# print(newdata)
 
 
 # cursor.execute("PRAGMA table_info(orders);")
