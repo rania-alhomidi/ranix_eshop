@@ -198,9 +198,6 @@
             }
         }
     </style>
-</head>
-<body>
-    {% include 'header_shop.html' %}
 
     <div class="container py-5">
         <div class="order-details-container">
@@ -255,31 +252,46 @@
                 <div class="divider"></div>
                 
                 <h4 class="section-title">المنتجات في الطلب</h4>
-                
-                <div class="products-list">
-                    {% for item in items %}
-                    <div class="product-card">
-                        <div class="product-info">
-                        {% if item.product_image %}
-{% set image_path_clean = item.product_image %}
-<img src="{{ url_for('static', filename=image_path_clean) }}" alt="صورة {{ item.product_name }}"
-    width="70" class="img-thumbnail">
+                
+<div class="products-list">
+    {% for item in items %}
+    <a href="{{ url_for('product.product_details', product_id=item.product_id) }}" 
+         class="product-name" 
+         style="text-decoration: none; color: inherit;">
+    <div class="product-card">
+     {% if item.product_image %}
+    {% set raw_image_path = item.product_image %}
+
+    {% if raw_image_path.startswith('static/') %}
+        {% set final_image_path = raw_image_path[7:] %}
+    {% else %}
+        {% set final_image_path = raw_image_path %}
+    {% endif %}
+
+    <!-- <p style="font-size: 10px; color: red;">المسار الفعلي: {{ final_image_path }}</p> -->
+
+    <img src="{{ url_for('static', filename=final_image_path) }}" 
+        alt="صورة {{ item.product_name }}"
+        class="product-image">
 {% else %}
-<span class="text-muted">لا توجد صورة</span>
+    <div class="product-image d-flex align-items-center justify-content-center text-muted border">لا صورة</div>
 {% endif %}
-                        
-                            <h5 class="product-name">{{ item.product_name }}</h5>
-                            <div class="product-meta">
-                                <span>الكمية: {{ item.quantity }}</span> | 
-                                <span>سعر الوحدة: {{ item.price }} ر.س</span>
-                            </div>
-                        </div>
-                        <div class="product-price">
-                            {{ item.quantity * item.price }} ر.س
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+        <div class="product-info">
+          
+                <h5 class="mb-1">{{ item.product_name }}</h5>
+                
+                <div class="product-meta">
+                    <span>الكمية: {{ item.quantity }}</span> | 
+                <span>سعر الوحدة: {{ item.price }} ر.س</span>
+            </div>
+        </div>
+        <div class="product-price">
+            {{ (item.quantity * item.price) | round(2) }} ر.س
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</a>
                 
                 <div class="text-start mt-4">
                     <a href="{{ url_for('order.my_orders') }}" class="btn btn-back">

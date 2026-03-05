@@ -108,47 +108,47 @@ def view_cart():
 # تذكر أن تطبق نفس التعديل على استعلام SQL في دالة add_to_cart أيضًا!
 # الكود أدناه يوضح تعديل add_to_cart:
 
-@cart_bp.route('/add_to_cart/<int:product_id>', methods=['POST','GET'])
+@cart_bp.route('/add_to_cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
-    user_key = get_current_user_key()
+    user_key = get_current_user_key() 
 
     try:
         conn = get_db_connection()
         product_db_info = conn.execute(
             """
-            SELECT
-                p.name,
-                pr.profit_price as price,
-                pi.image_path as image -- *** التعديل هنا أيضاً ***
-            FROM
+            SELECT 
+                p.name, 
+                pr.original_price as price, 
+                p.image 
+            FROM 
                 product p
-            JOIN
+            JOIN 
                 prices pr ON p.price_id = pr.id
-            LEFT JOIN
-                product_image pi ON p.id = pi.product_id AND pi.is_main = TRUE
-            WHERE
+            WHERE 
                 p.id = ?
-            """,
+            """, 
             (product_id,)
         ).fetchone()
         conn.close()
 
         if not product_db_info:
-            return jsonify({'success': False, 'message': "المنتج غير موجود أو سعره غير محدد."}), 404
+            # نُرجع JSON بدلاً من Flash و redirect
+            return jsonify({'success': False, 'message': "المنتج غير موجود أو سعره غير محدد."}), 404 
 
         name = product_db_info['name']
         price = float(product_db_info['price'])
-        # التعامل مع حالة عدم وجود مسار صورة رئيسية للمنتج عند الإضافة
-        image = product_db_info['image'] if product_db_info['image'] else 'uploads/products/default_product.jpg'
+        image = product_db_info['image']
 
         quantity_str = request.form.get('quantity', '1')
         quantity = int(quantity_str)
 
         if quantity <= 0:
+            # نُرجع JSON بدلاً من Flash و redirect
             return jsonify({'success': False, 'message': "الكمية يجب أن تكون موجبة."}), 400
 
-    except (ValueError, TypeError, Exception) as e: # أضف Exception لالتقاط أخطاء DB
-        print(f"Error converting price/quantity or DB query for product_id {product_id}: {e}")
+    except (ValueError, TypeError) as e:
+        print(f"Error converting price/quantity for product_id {product_id}: {e}")
+        # نُرجع JSON بدلاً من Flash و redirect
         return jsonify({'success': False, 'message': f"بيانات المنتج غير صالحة. خطأ: {e}"}), 400
 
     product_item = {
@@ -156,7 +156,7 @@ def add_to_cart(product_id):
         'name': name,
         'price': price,
         'quantity': quantity,
-        'image': image # استخدام المسار الصحيح أو الافتراضي
+        'image': image
     }
 
     all_carts_cookie = request.cookies.get('all_user_carts')
@@ -167,28 +167,24 @@ def add_to_cart(product_id):
     found = False
     for item in current_user_cart:
         if item.get('product_id') == product_id:
-            item['quantity'] = item.get('quantity', 0) + quantity
-            # تحديث معلومات المنتج في السلة حتى لو كان موجودًا (للتأكد من أحدث سعر وصورة)
-            item['name'] = name
-            item['price'] = price
-            item['image'] = image
+            item['quantity'] = item.get('quantity', 0) + quantity 
             found = True
             break
     if not found:
         current_user_cart.append(product_item)
-
+    
     all_user_carts[user_key] = current_user_cart
 
+    # إنشاء استجابة make_response لتعيين الكوكي
     response = make_response(jsonify({
-        'success': True,
+        'success': True, 
         'message': f"تم إضافة {quantity} من {name} إلى سلة التسوق.",
-        'total_items_count': sum(item['quantity'] for item in current_user_cart)
+        'total_items_count': sum(item['quantity'] for item in current_user_cart) # لإعطاء تحديث فوري لعدد العناصر في السلة
     }))
-
+    
     expires = datetime.now() + timedelta(days=7)
-    # تأكد من أن secure=True فقط إذا كنت تستخدم HTTPS في الإنتاج
-    response.set_cookie('all_user_carts', json.dumps(all_user_carts), expires=expires, httponly=True, samesite='Lax')
-
+    response.set_cookie('all_user_carts', json.dumps(all_user_carts), expires=expires, httponly=True, secure=True, samesite='Lax') 
+    
     return response
 
 # ... (بقية الكود لدالتي update_cart و clear_cart) ...

@@ -63,58 +63,81 @@
         </select>
         <button onclick="toggleAddressSelect();" class="btn btn-secondary">إلغاء</button>
     </div>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 
-    <script>
-        // دالة لتبديل عرض قائمة العناوين المنسدلة
-        function toggleAddressSelect() {
-            var container = document.getElementById('address-select-container');
-            if (container.style.display === 'none') {
-                container.style.display = 'block';
-            } else {
-                container.style.display = 'none';
-            }
-        }
+    <script>
+        // دالة لتبديل عرض قائمة العناوين المنسدلة
+        function toggleAddressSelect() {
+            var container = document.getElementById('address-select-container');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
 
-        // دالة لتحديث تفاصيل العنوان في الواجهة الأمامية
-        function updateAddressUI(address) {
-            document.getElementById('recipient-name').innerText = address.recipient_name;
-            document.getElementById('recipient-phone').innerText = address.recipient_phone;
-            document.getElementById('address-type').innerText = address.address_type;
-            document.getElementById('address-city').innerText = address.city;
-            document.getElementById('address-region').innerText = address.region;
-            document.getElementById('full-address-description').innerText = address.full_address_description;
-        }
+        // دالة لتحديث تفاصيل العنوان في الواجهة الأمامية
+        function updateAddressUI(address) {
+            document.getElementById('recipient-name').innerText = address.recipient_name;
+            document.getElementById('recipient-phone').innerText = address.recipient_phone;
+            document.getElementById('address-type').innerText = address.address_type;
+            document.getElementById('address-city').innerText = address.city;
+            document.getElementById('address-region').innerText = address.region;
+            document.getElementById('full-address-description').innerText = address.full_address_description;
+            
+            // تحديث حقل النموذج المخفي بمعرّف العنوان الجديد (ID)
+            const hiddenAddressInput = document.getElementById('selected-address-id-input');
+            if (hiddenAddressInput) {
+                hiddenAddressInput.value = address.id; 
+            }
+        }
 
-        // الدالة التي يتم استدعاؤها عند تغيير العنوان من القائمة المنسدلة
-        async function setDefaultAddress(addressId) {
-            if (!addressId) return; // لا تفعل شيئًا إذا كانت القيمة فارغة
+        // الدالة التي يتم استدعاؤها عند تغيير العنوان من القائمة المنسدلة (تستخدم SweetAlert2)
+        async function setDefaultAddress(addressId) {
+            if (!addressId) return;
 
-            try {
-                // أرسل طلب Fetch (AJAX) إلى الخادم لتعيين العنوان الافتراضي
-                const response = await fetch(`/set_default_address/${addressId}`, {
-                    method: 'GET', // أو POST إذا أردت استخدام POST هنا
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    // إذا نجحت العملية، قم بتحديث الواجهة الأمامية
-                    updateAddressUI(data.address); // تحديث تفاصيل العنوان المعروضة
-                    toggleAddressSelect(); // إخفاء قائمة الاختيار
-                    // يمكنك إظهار رسالة نجاح مؤقتة للمستخدم هنا
-                    // showFlashMessage('تم تحديث العنوان الافتراضي بنجاح', 'success');
-                } else {
-                    // إذا حدث خطأ، أظهر رسالة الخطأ
-                    alert(data.message); // يمكنك استخدام flash message هنا بدلاً من alert
+            try {
+                // التأكد من استخدام POST لإرسال الطلب للخادم
+                const response = await fetch(`/set_default_address/${addressId}`, {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 'address_id': addressId })
+                });
+                
+                // التأكد من أن حالة الاستجابة كانت ناجحة (200-299) قبل محاولة تحليل JSON
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            } catch (error) {
-                console.error('Error setting default address:', error);
-                alert('حدث خطأ أثناء تحديث العنوان. يرجى المحاولة مرة أخرى.');
-            }
-        }
-    </script>
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateAddressUI(data.address); 
+                    toggleAddressSelect(); 
+                    
+                    // 💡 رسالة SweetAlert2 للنجاح
+                    Swal.fire({
+                        title: 'تم بنجاح! ✅',
+                        text: data.message || 'تم تحديث العنوان الافتراضي.',
+                        icon: 'success',
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+
+                } else {
+                    // 💡 رسالة SweetAlert2 للخطأ القادم من الخادم
+                    Swal.fire('خطأ!', data.message || 'حدث خطأ أثناء تحديث العنوان.', 'error');
+                }
+            } catch (error) {
+                console.error('Error setting default address:', error);
+                
+                // 💡 رسالة SweetAlert2 لخطأ الشبكة/الـ Catch
+                Swal.fire('خطأ في الاتصال ❌', 'حدث خطأ في الشبكة أو الخادم. يرجى التأكد من أن دالة set_default_address في الخادم تستقبل POST.', 'error');
+            }
+        }
+    </script>
 
 
     <div class="payment-details">

@@ -52,7 +52,7 @@
 
                             <div class="modern-btn-group">
                                 <form class="add-to-cart-form d-inline" method="POST"
-                                    action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                                action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
                                     <input type="hidden" name="name" value="{{ product.name }}">
                                     <input type="hidden" name="price" value="{{ product.profit_price }}">
                                     <input type="hidden" name="image_url" value="{{ product.image }}">
@@ -78,9 +78,10 @@
     </div>
 </div>
 
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         // JavaScript for Like button (already exists and works)
         document.querySelectorAll('.like-btn').forEach(btn => {
             btn.addEventListener('click', async function () {
@@ -125,7 +126,7 @@
 
         // NEW JavaScript for Add to Cart forms
         document.querySelectorAll('.add-to-cart-form').forEach(form => {
-            form.addEventListener('submit', async function (event) {
+            form.addEventListener('submit', async function(event) {
                 event.preventDefault(); // منع الإرسال الافتراضي للنموذج (الذي يسبب إعادة التوجيه)
 
                 const form = this;

@@ -694,12 +694,11 @@ def add_address():
     return render_template('admin/add_address.html', current_page='add_address', user_type='admin')
 
 @admin_bp.route('/seller', methods=['GET', 'POST'])
-@login_required
-@role_required(['super_admin', 'seller_manager'])
 def add_seller():
+    if request.method == 'GET':
+        return render_template('admin/seller.html')
+
     if request.method == 'POST':
-        conn = get_db_connection()
-        cursor = conn.cursor()
         try:
             name = request.form.get('name')
             store_name = request.form.get('store_name')
@@ -714,10 +713,10 @@ def add_seller():
             id_image = request.files.get('id_image')
             documents = request.files.get('documents')
 
-            upload_base_folder = UPLOAD_FOLDER
-            store_image_folder = os.path.join(upload_base_folder, "store_images")
-            id_image_folder = os.path.join(upload_base_folder, "id_images")
-            documents_folder = os.path.join(upload_base_folder, "documents")
+            upload_base_folder = UPLOAD_FOLDER # C:\Users\PC\Desktop\project\static\uploads
+            store_image_folder = os.path.join(upload_base_folder, "store_images") # C:\Users\PC\Desktop\project\static\uploads\store_images
+            id_image_folder = os.path.join(upload_base_folder, "id_images")     # C:\Users\PC\Desktop\project\static\uploads\id_images
+            documents_folder = os.path.join(upload_base_folder, "documents")       # C:\Users\PC\Desktop\project\static\uploads\documents
 
             os.makedirs(store_image_folder, exist_ok=True)
             os.makedirs(id_image_folder, exist_ok=True)
@@ -727,41 +726,78 @@ def add_seller():
             id_image_db_path = ""
             documents_db_path = ""
 
+            # معالجة وحفظ صورة المتجر
             if store_image and allowed_file(store_image.filename):
                 store_image_filename = secure_filename(store_image.filename)
-                store_image.save(os.path.join(store_image_folder, store_image_filename))
+                store_image_full_fs_path = os.path.join(store_image_folder, store_image_filename)
+                store_image.save(store_image_full_fs_path)
+                # المسار الذي سيُحفظ في قاعدة البيانات: static/uploads/store_images/filename.ext
                 store_image_db_path = os.path.join("static", "uploads", "store_images", store_image_filename).replace('\\', '/')
 
+            # معالجة وحفظ صورة الهوية
             if id_image and allowed_file(id_image.filename):
                 id_image_filename = secure_filename(id_image.filename)
-                id_image.save(os.path.join(id_image_folder, id_image_filename))
+                id_image_full_fs_path = os.path.join(id_image_folder, id_image_filename)
+                id_image.save(id_image_full_fs_path)
+                # المسار الذي سيُحفظ في قاعدة البيانات: static/uploads/id_images/filename.ext
                 id_image_db_path = os.path.join("static", "uploads", "id_images", id_image_filename).replace('\\', '/')
 
+            # معالجة وحفظ المستندات
             if documents and allowed_file(documents.filename):
                 documents_filename = secure_filename(documents.filename)
-                documents.save(os.path.join(documents_folder, documents_filename))
+                documents_full_fs_path = os.path.join(documents_folder, documents_filename)
+                documents.save(documents_full_fs_path)
+                # المسار الذي سيُحفظ في قاعدة البيانات: static/uploads/documents/filename.ext
                 documents_db_path = os.path.join("static", "uploads", "documents", documents_filename).replace('\\', '/')
 
-            cursor.execute("INSERT INTO seller_address (latitude, longitude, address) VALUES (?, ?, ?)",
-                (latitude, longitude, street_address))
+
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            cursor.execute(
+                "INSERT INTO seller_address (latitude, longitude, address) VALUES (?, ?, ?)",
+                (latitude, longitude, street_address)
+            )
             address_id = cursor.lastrowid
-            
-            cursor.execute("INSERT INTO sellers (name, store_name, commercial_record, store_image, id_image, documents, SAddress_id, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (name, store_name, commercial_record, store_image_db_path, id_image_db_path, documents_db_path, address_id, number1))
-            
+
+            cursor.execute(
+                "INSERT INTO numbers (number1, number2) VALUES (?, ?)",
+                (number1, number2)
+            )
+            num_id = cursor.lastrowid
+
+            # التأكد من ترتيب الأعمدة وقيمها عند الإدخال
+            # تأكد أن 'address' هو العمود الرابع (seller[4])
+            # وأن 'id_image' هو العمود السادس (seller[6])
+            # وأن 'documents' هو العمود السابع (seller[7])
+            cursor.execute('''
+                INSERT INTO sellers
+                (name, store_name, store_image, address, commercial_record, id_image, documents, SAddress_id, num_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                name,
+                store_name,
+                store_image_db_path,   # القيمة لـ seller[3]
+                street_address,        # القيمة لـ seller[4]
+                commercial_record,     # القيمة لـ seller[5]
+                id_image_db_path,      # القيمة لـ seller[6]
+                documents_db_path,     # القيمة لـ seller[7]
+                address_id,
+                num_id
+            ))
+
             conn.commit()
-            flash('تمت إضافة البائع بنجاح.', 'success')
-            return redirect(url_for('admin.show_seller'))
-        
-        except Exception as e:
-            conn.rollback()
-            flash(f"حدث خطأ أثناء إضافة البائع: {str(e)}", 'danger')
-            return redirect(url_for('admin.add_seller'))
-        
-        finally:
             conn.close()
 
-    return render_template('admin/seller.html', current_page='add_seller', user_type='admin')
+            flash("تمت إضافة البائع بنجاح!", "success")
+            return redirect(url_for('admin.add_seller'))
+
+        except Exception as e:
+            print(f"حدث خطأ: {e}")
+            traceback.print_exc()
+            flash(f"حدث خطأ: {str(e)}", "danger")
+            return redirect(url_for('admin.add_seller'))
+
 
 @admin_bp.route('/show_seller', methods=['POST', 'GET'])
 @login_required

@@ -184,28 +184,50 @@ def confirm_order_page():
         total_items_price=total_items_price 
     )
 
-@order_bp.route('/set_default_address/<int:address_id>')
+
+@order_bp.route('/set_default_address/<int:address_id>', methods=['POST'])
 def set_default_address(address_id):
+    # 1. التحقق من المصادقة وجلب معرف المستخدم
     user_id_cookie = request.cookies.get('user_auth') 
     if not user_id_cookie:
+        # 💡 إرجاع JSON للـ AJAX
         return jsonify({'success': False, 'message': 'يجب تسجيل الدخول أولاً.'}), 401 
 
     user_id = int(user_id_cookie)
 
     conn = get_db_connection()
     try:
+        # 2. التحقق من وجود العنوان وملكية المستخدم له
+        # ملاحظة: تم تعديل الاستعلام لجلب جميع البيانات (لإرسالها لاحقًا)
         address_row = conn.execute("SELECT * FROM cust_addresses WHERE id = ? AND user_id = ?", (address_id, user_id)).fetchone()
+        
         if not address_row:
-            return jsonify({'success': False, 'message': 'الوصول غير مصرح به لهذا العنوان.'}), 403 
+            conn.close()
+            return jsonify({'success': False, 'message': 'العنوان غير موجود أو لا يخص حسابك.'}), 403 
 
+        # 3. تحديث قاعدة البيانات: إزالة الافتراضية السابقة وتعيين الجديدة
         conn.execute("UPDATE cust_addresses SET is_default = 0 WHERE user_id = ?", (user_id,))
         conn.execute("UPDATE cust_addresses SET is_default = 1 WHERE id = ? AND user_id = ?", (address_id, user_id))
         conn.commit()
+        
+        address_data = dict(address_row)
 
+        # 6. إرجاع استجابة JSON للنجاح (مع بيانات العنوان المطلوبة)
         return jsonify({
             'success': True, 
-            'message': 'تم تحديث العنوان الافتراضي بنجاح.'
+            'message': 'تم تحديث العنوان الافتراضي بنجاح. ✅',
+            # 💡 هذه البيانات ضرورية لـ updateAddressUI في الـ JavaScript
+            'address': {
+                'id': address_data['id'],
+                'recipient_name': address_data['recipient_name'],
+                'recipient_phone': address_data['recipient_phone'],
+                'address_type': address_data['address_type'],
+                'city': address_data['city'],
+                'region': address_data['region'],
+                'full_address_description': address_data['full_address_description'],
+            }
         })
+        
     except sqlite3.Error as e:
         conn.rollback()
         print(f"Database error setting default address: {e}")
@@ -869,6 +891,7 @@ def my_order_details(order_id):
             SELECT 
                 oi.quantity, 
                 oi.price, 
+                oi.product_id,
                 p.name AS product_name, 
                 pi.image_path AS product_image
             FROM Order_Items oi

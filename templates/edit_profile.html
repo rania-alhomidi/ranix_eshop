@@ -235,6 +235,13 @@
                 if (!form.checkValidity()) {
                     event.preventDefault()
                     event.stopPropagation()
+
+                    // التمرير لأول حقل خطأ
+                    const firstInvalid = form.querySelector(':invalid');
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalid.focus({ preventScroll: true });
+                    }
                 }
 
                 form.classList.add('was-validated')

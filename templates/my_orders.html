@@ -1,4 +1,4 @@
-{% include 'header_shop.html' %}
+{% include 'header.html' %}
 <style>
     /* ---- المتغيرات الأساسية ---- */
 :root {
@@ -10,6 +10,8 @@
     --gradient-card: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --gradient-btn: linear-gradient(45deg, #5b86e5 0%, #36d1dc 100%);
 }
+<!--  ربط ملف التنسيق الخارجي -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my_orders.css') }}">
 
 /* ---- التنسيقات العامة ---- */
 body {

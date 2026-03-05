@@ -27,7 +27,13 @@ def admin_login():
         if user and user['password'] == password:
             session['admin_logged_in'] = True
             session['admin_id'] = user['id']
-            session['admin_username'] = user.get('name', email)
+            
+            # This is the corrected line
+            try:
+                session['admin_username'] = user['name']
+            except KeyError:
+                session['admin_username'] = email
+
             session['admin_role'] = user['role_name']
             flash('تم تسجيل الدخول بنجاح!', 'success')
             return redirect(url_for('admin.home'))
@@ -35,7 +41,6 @@ def admin_login():
             flash('خطأ في البريد الإلكتروني أو كلمة المرور.', 'danger')
 
     return render_template('admin/admin_login.html')
-
 @auth_bp.route('/admin-logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
