@@ -1,0 +1,2 @@
+database/Eshop.db
+static/uploads/
